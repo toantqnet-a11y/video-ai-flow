@@ -61,6 +61,11 @@ export function SceneVideoPanel({sceneId,onUpdated=()=>{},disabled=false}){
   await api(`/scenes/${sceneId}/video/import`,{method:'POST',body:{
    base64,expectedRowVersion:status.sceneRowVersion}});
   return 'Clip đã được FFprobe xác thực, lưu thành revision riêng và kích hoạt.'});
+ const fallback=id=>mutate(async()=>{
+  await api(`/scenes/${sceneId}/video/fallback`,{method:'POST',body:{
+   imageAssetId:id,expectedRowVersion:status.sceneRowVersion,expectedPolicyRevision:scope.revision}});
+  return 'Đã chọn ảnh cũ, ngắt intent AI Video chưa chạy và giữ nguyên voice.';
+ });
  const activate=id=>mutate(async()=>{
   await api(`/scenes/${sceneId}/video/select`,{method:'POST',body:{
    assetId:id,expectedRowVersion:status.sceneRowVersion}});
@@ -103,6 +108,12 @@ export function SceneVideoPanel({sceneId,onUpdated=()=>{},disabled=false}){
      <button className="btn secondary" disabled={busy||disabled||dirty||a.health!=='healthy'||status.selectedVideoAssetId===a.id}
       onClick={()=>activate(a.id)}>{status.selectedVideoAssetId===a.id?'✓ Đang dùng':'Chọn phiên bản'}</button>
     </div>)}</div>}
+   {draft.fallback==='manual_image'&&status.imageFallbacks?.filter(a=>a.health==='healthy').length>0&&
+    <div className="scene-video-fallback"><p>Ảnh dự phòng đã xác minh:</p>
+     {status.imageFallbacks.filter(a=>a.health==='healthy').map(a=>
+      <button key={a.id} className="btn secondary" disabled={busy||disabled||dirty}
+       onClick={()=>fallback(a.id)}>Dùng ảnh {a.id.slice(0,8)}</button>)}
+    </div>}
    {videoUrl&&<video src={videoUrl} controls preload="metadata" style={{maxWidth:'100%',maxHeight:280}} aria-label="Clip đã chọn"/>}
    {!status.assets.length&&<p className="muted">Chưa có clip. Có thể tiếp tục dùng ảnh + chuyển động.</p>}
   </>}
