@@ -49,6 +49,8 @@ jobs:
         run: |
           npm run check
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run backlog:check:fi04
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           npm run typecheck:sdk
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           npm run build:web
@@ -56,7 +58,7 @@ jobs:
       - name: Real Fastify API security/route smoke
         run: npm run test:live-http
       - name: WI-01/WI-02 focused regression
-        run: node --test tools/wi01-windows-preflight.test.mjs tools/wi02-runtime.test.mjs tools/wi03-windows-integration.test.mjs
+        run: node --test tools/wi01-windows-preflight.test.mjs tools/wi02-runtime.test.mjs tools/wi03-windows-integration.test.mjs tools/fi04-backlog.test.mjs
       - name: Collect Windows prerequisites (not a production gate)
         if: always()
         continue-on-error: true
