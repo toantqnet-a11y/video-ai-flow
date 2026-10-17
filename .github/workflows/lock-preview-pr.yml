@@ -1,0 +1,37 @@
+# Dependency upgrade validation PR: build a candidate lockfile without modifying main.
+# Reviewer must inspect artifact and commit a pinned lock before a green release gate.
+name: Dependency lock preview (PR)
+on:
+  pull_request:
+    paths:
+      - 'apps/api/package.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/lock-preview-pr.yml'
+permissions:
+  contents: read
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Resolve proposed lock metadata without lifecycle scripts
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Verify workspaces and fixed version
+        shell: bash
+        run: |
+          node tools/ci-github-lock.mjs
+          node --input-type=module -e 'import fs from "node:fs"; const x=JSON.parse(fs.readFileSync("package-lock.json","utf8")); if(x.packages["node_modules/@fastify/static"]?.version!=="10.1.6") process.exit(1); console.log("PATCHED_STATIC_10_1_6_LOCK_OK")'
+      - name: npm vulnerability audit (high threshold)
+        run: npm audit --audit-level=high
+      - name: Upload review-only lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: candidate-package-lock-fastify-static
+          path: package-lock.json
+          if-no-files-found: error
+          retention-days: 7
