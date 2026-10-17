@@ -64,6 +64,10 @@ export async function startApi({listen=true}={}) {
       "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'");
     return payload;
   });
+  // Install raw binary ingestion only on the real Fastify instance. Fake
+  // route registries used by contract tests intentionally do not support
+  // content-type parser extensions.
+  app.addContentTypeParser('application/octet-stream',(req,stream,done)=>done(null,stream));
   const db=openProjectDb(dbFile),repo=new StudioRepository(db);
   // Any call still reserved after a crash has unknown billing/token outcome.
   // Keep its quota hold; an app restart is never proof of a free retry.

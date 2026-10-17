@@ -3,9 +3,6 @@ import {validCursor,jobEventFrame} from './job-center.mjs';
 import {DomainError} from '../../../packages/core/src/index.mjs';
 
 export function registerStudioRoutes(app,{controllers,store,diagnostics}) {
-  // Stream binary body directly to a bounded private scratch file. No global
-  // JSON bodyLimit increase, cookies, untrusted URL or paid provider call.
-  app.addContentTypeParser('application/octet-stream',(req,stream,done)=>done(null,stream));
   // Consistent error shape and no stack traces / prompts / secrets in responses.
   const use = (fn) => async (request,reply) => {
     try {return await fn(request,reply);}
