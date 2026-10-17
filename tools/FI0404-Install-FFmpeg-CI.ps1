@@ -38,15 +38,18 @@ try {
       -not (Test-Path -LiteralPath $ffprobe -PathType Leaf)) {
     throw 'FI0404_FFMPEG_ARCHIVE_LAYOUT_MISMATCH'
   }
-  # Native exit codes are not initialized until first process invocation under StrictMode.
-  $global:LASTEXITCODE = 999
-  $ffmpegVersion=(& $ffmpeg -version | Select-Object -First 1)
-  if ($LASTEXITCODE -ne 0 -or $ffmpegVersion -notmatch 'ffmpeg version 8\.1\.2') {
+  # Use Process.ExitCode, not $LASTEXITCODE from a terminating PowerShell pipeline.
+  # Select-Object -First 1 may stop a native producer before it sets exit status.
+  $ffmpegOut=Join-Path $env:RUNNER_TEMP 'fi0404-ffmpeg-version.txt'
+  $ffprobeOut=Join-Path $env:RUNNER_TEMP 'fi0404-ffprobe-version.txt'
+  $p1=Start-Process -FilePath $ffmpeg -ArgumentList '-version' -NoNewWindow -Wait -PassThru -RedirectStandardOutput $ffmpegOut
+  $ffmpegVersion=Get-Content -LiteralPath $ffmpegOut -TotalCount 1
+  if ($p1.ExitCode -ne 0 -or $ffmpegVersion -notmatch 'ffmpeg version 8\.1\.2') {
     throw 'FI0404_FFMPEG_EXECUTABLE_VERSION_MISMATCH'
   }
-  $global:LASTEXITCODE = 999
-  $ffprobeVersion=(& $ffprobe -version | Select-Object -First 1)
-  if ($LASTEXITCODE -ne 0 -or $ffprobeVersion -notmatch 'ffprobe version 8\.1\.2') {
+  $p2=Start-Process -FilePath $ffprobe -ArgumentList '-version' -NoNewWindow -Wait -PassThru -RedirectStandardOutput $ffprobeOut
+  $ffprobeVersion=Get-Content -LiteralPath $ffprobeOut -TotalCount 1
+  if ($p2.ExitCode -ne 0 -or $ffprobeVersion -notmatch 'ffprobe version 8\.1\.2') {
     throw 'FI0404_FFPROBE_EXECUTABLE_VERSION_MISMATCH'
   }
   # Only subsequent steps within this ephemeral GitHub Actions job see these tools.
