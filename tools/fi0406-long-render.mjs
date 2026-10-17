@@ -7,7 +7,7 @@
  */
 import {readFile,stat,statfs,realpath} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-import {resolve,join,sep} from 'node:path';
+import {resolve,join} from 'node:path';
 import os from 'node:os';
 import {fileURLToPath} from 'node:url';
 import {openProjectDb,StudioRepository,AssetManifest,CompositionRepository} from '../packages/core/src/index.mjs';
@@ -16,7 +16,7 @@ import {probeMp4,checkMp4Quality} from '../packages/core/src/render-ffmpeg-r2ext
 import {JobStore} from '../spikes/SP-04/src/store.js';
 import {JobRunner} from '../spikes/SP-04/src/runner.js';
 import {inspectFi04Hyperframes} from './fi04-hyperframes-acceptance.mjs';
-import {ROOT,sha256File,options,reportFile,output,sanitizeError,timestamp} from './fi04-final-gate-core.mjs';
+import {sha256File,verifiedEvidenceFile,options,reportFile,output,sanitizeError,timestamp} from './fi04-final-gate-core.mjs';
 
 export function assessLongVideo({platform,cliReady,job,composition,metadata,quality,result,elapsedMs,checksumMatch,subtitlesMatch,monitorSamples}={}){
  const seconds=composition?.totalFrames/composition?.profile?.fps;
@@ -67,14 +67,14 @@ export async function runRealLong({dataRoot,videoId,selection,requestKey,maxMs=1
   samples.push(await hostSample(root));
   const job=store.get(queued.job.id),result=job?.result;
   if(job?.status!=='succeeded'||result?.engine!=='hyperframes')return {status:'FAIL',code:'FI0406_RENDER_JOB_NOT_SUCCEEDED',jobStatus:job?.status??'missing'};
-  const path=resolve(root,result.relativePath);
-  if(!path.startsWith(root+sep)||!(await realpath(path)).startsWith(root+sep))throw Object.assign(Error('unsafe output'),{code:'FI0406_OUTPUT_OUTSIDE_ROOT'});
+  // Canonical Windows path comparison; still rejects symlink/junction escapes.
+  const {path}=await verifiedEvidenceFile(root,result.relativePath);
   const metadata=await probeMp4(path),quality=checkMp4Quality(metadata,document);
-  const firstStat=await stat(path),sha=await sha256File(path),secondSha=await sha256File(path),secondStat=await stat(path),srtPath=resolve(root,result.subtitles?.relativePath??'');
-  const srtInside=srtPath.startsWith(root+sep)&&(await realpath(srtPath)).startsWith(root+sep);
-  const srt=srtInside?await readFile(srtPath,'utf8'):'';
+  const firstStat=await stat(path),sha=await sha256File(path),secondSha=await sha256File(path),secondStat=await stat(path);
+  const srtAsset=await verifiedEvidenceFile(root,result.subtitles?.relativePath);
+  const srt=await readFile(srtAsset.path,'utf8');
   const expectedCues=result.subtitles?.cueCount??0;
-  const subtitlesMatch=srtInside&&expectedCues>=10&&(srt.match(/ --> /g)??[]).length===expectedCues&&
+  const subtitlesMatch=expectedCues>=10&&(srt.match(/ --> /g)??[]).length===expectedCues&&
    createHash('sha256').update(srt,'utf8').digest('hex')===result.subtitles.sha256;
   const measured=assessLongVideo({platform:process.platform,cliReady:true,job,composition:document,metadata,quality,result,
    elapsedMs:performance.now()-started,checksumMatch:sha===secondSha&&firstStat.size===secondStat.size&&secondStat.size===result.bytes&&metadata.bytes===secondStat.size,subtitlesMatch,monitorSamples:samples.length});

@@ -1,6 +1,6 @@
 {
-  "version": "2026-10-17-fi0404-windows-real-mp4-ci",
-  "status": "FI0404_HOSTED_REAL_HYPERFRAMES_MP4_VERIFIED__WINDOWS11_AND_RELEASE_PENDING__NOT_READY",
+  "version": "2026-10-17-fi0410-hosted-windows-acceptance-partial",
+  "status": "FI0410_HOSTED_WINDOWS_PARTIAL_ACCEPTANCE__PRODUCTION_NOT_READY",
   "releaseStatus": "NOT_READY",
   "origin": {
     "existing": "docs/VIDEO_AI_FLOW_EXTENSION_BACKLOG.json",
@@ -1259,7 +1259,7 @@
       "id": "FI-04-05",
       "title": "Windows timeline usability, keyboard, visual trim and single-audio acceptance",
       "priority": "P0",
-      "status": "CODE_UX_HARDENED__OFFLINE_TESTED__WINDOWS_BROWSER_BLOCKED",
+      "status": "HOSTED_WINDOWS_TIMELINE_REGRESSIONS_PASS__AUTHENTICATED_UX_PENDING",
       "dependsOn": [
         "FI-04-03",
         "R3-02",
@@ -1270,80 +1270,93 @@
         "R3-07"
       ],
       "remainingGate": [
-        "reviewed npm lock and actual Vite/Fastify build",
-        "paired authenticated video timeline in Chrome/Edge Windows",
-        "manually verify drag reorder, undo/redo, trim save/cancel, waveform voice timing, zoom and 500-scene viewport",
-        "strict Windows browser evidence in FI0405 gate"
+        "Paired authenticated Timeline on target Windows 11 Chrome/Edge, witnessed mouse drag/reorder, trim save/cancel, undo/redo, waveform and zoom",
+        "Real 120/500-scene browser performance and human A/V review"
+      ],
+      "verifiedTests": [
+        "npm run test:fi0405 (hosted Windows)",
+        "GitHub Actions Windows Server 2022 run 39024552073 live pairing React DOM only (not authenticated editor)"
       ]
     },
     {
       "id": "FI-04-06",
       "title": "Actual Windows HyperFrames 35–40-minute queued Full HD video, captions and music",
       "priority": "P0",
-      "status": "REAL_PROJECT_ACCEPTANCE_CODE_COMPLETE__WINDOWS_RENDER_BLOCKED",
+      "status": "LONG_RENDER_CODE_AND_CANONICAL_MEDIA_QA_HARDENED__REAL_35MIN_PENDING",
       "dependsOn": [
         "FI-04-04",
         "FI-04-05"
       ],
       "remainingGate": [
-        "approved lock + Windows HyperFrames real CLI",
-        "real project published Composition v2 >=2100s 1080p, explicit music+subtitle selection",
-        "actual queued encode measured and QA",
-        "manual caption/voice/music appearance & audibility",
-        "reviewed renderer/GPU peak-memory metrics"
+        "Real published 2100–2400-second 1080p Composition v2 on Windows 11 using pinned local HyperFrames",
+        "Witness H264/AAC/SRT/music/voice 35+ minute encode and GPU/CPU/RAM/disk resource measurements"
+      ],
+      "verifiedTests": [
+        "npm run test:fi0406-fi0410 (hosted Windows)",
+        "canonical media-path negative controls; NO 35min MP4 executed"
       ]
     },
     {
       "id": "FI-04-07",
       "title": "OS crash and durable queue recovery during genuine long HyperFrames render",
       "priority": "P0",
-      "status": "PROCESS_KILL_SQLITE_LEASE_SIMULATION_PASS__REAL_WINDOWS_LONG_RECOVERY_BLOCKED",
+      "status": "HOSTED_WINDOWS_SYNTHETIC_OS_KILL_SQLITE_FENCING_PASS__REAL_RECOVERY_PENDING",
       "dependsOn": [
         "FI-04-06",
         "R3-13"
       ],
       "remainingGate": [
-        "real Windows long-job OS kill and application restart",
-        "verify durable lease recovery, no partial output published, video checksum and final MP4 QA"
+        "Witness OS termination during genuine 35min HyperFrames encoding, restart and durable lease recovery",
+        "Verify no published partial output and full resulting MP4 checksum/codecs and audio"
+      ],
+      "verifiedTests": [
+        "GitHub Actions Windows Server 2022 run 39024552073 real child OS kill with synthetic handler, two attempts; not media recovery",
+        "post-recovery genuine MP4 assessor code and negatives"
       ]
     },
     {
       "id": "FI-04-08",
       "title": "Real native local LLM/TTS/ComfyUI provider E2E with consent and cost guard",
       "priority": "P0",
-      "status": "LOCAL_HANDSHAKE_GATES_CODE_COMPLETE__INFERENCE_BLOCKED",
+      "status": "READ_ONLY_LOCAL_PROVIDER_MEDIA_GATES_TESTED__LIVE_INFERENCE_PENDING",
       "dependsOn": [
         "FI-04-02",
         "R2-04",
         "R2-05"
       ],
       "remainingGate": [
-        "local configured native inference and authentic media files",
-        "user-approved provider calls with quota/cost/429 logs and zero unauthorized paid requests",
-        "Windows TTS/Vietnamese audio and GPU ComfyUI measured tests"
+        "Explicitly approved authentic local Vietnamese TTS, LLM, ComfyUI/Wan GPU inference and measured media QA",
+        "Test native quotas, HTTP429, cost guards; zero unauthorized paid/remote requests"
+      ],
+      "verifiedTests": [
+        "hosted read-only provider inventory (no local inference)",
+        "canonical local voice file SHA/path/audio probe unit controls"
       ]
     },
     {
       "id": "FI-04-09",
       "title": "Production security, dependencies and performance acceptance",
       "priority": "P0",
-      "status": "SECURITY_REGRESSION_AUDIT_HARNESS_COMPLETE__PRODUCTION_REVIEW_BLOCKED",
+      "status": "HOSTED_WINDOWS_NPM_AUDIT_0_VULNS_SECURITY_REGRESSION_PASS__MANUAL_REVIEW_PENDING",
       "dependsOn": [
         "FI-04-02",
         "FI-04-06",
         "FI-04-07"
       ],
       "remainingGate": [
-        "network-enabled npm audit with reviewed lock",
-        "Windows credentials and renderer child process audit",
-        "actual render CPU/RAM/GPU/VRAM/disk measurements and threat review"
+        "Windows production credential/process isolation and security threat assessment",
+        "Measured real long render child/GPU/VRAM peak RAM/CPU/disk and performance signoff"
+      ],
+      "verifiedTests": [
+        "GitHub Actions Windows Server 2022 run 39024552073 npm audit --audit-level=high, 0 vulnerabilities",
+        "hosted Windows focused security regression PASS"
       ]
     },
     {
       "id": "FI-04-10",
       "title": "Final reproducible release gate matrix and operator signoff",
       "priority": "P0",
-      "status": "FAIL_CLOSED_RELEASE_INVENTORY_CODE_COMPLETE__NOT_READY",
+      "status": "HOSTED_WINDOWS_FAIL_CLOSED_RELEASE_MATRIX_PASS__NOT_READY",
       "dependsOn": [
         "FI-04-06",
         "FI-04-07",
@@ -1351,9 +1364,14 @@
         "FI-04-09"
       ],
       "remainingGate": [
-        "all release gates fresh PASS with real Windows evidence",
-        "full completed green suite after changes",
-        "operator visual/audio signoff and explicit release decision"
+        "FI-04-05 manual Windows 11 UX and FI-04-04 subtitle/music visual-audible signoff",
+        "FI-04-06/07 real Full HD 35min render and recovery",
+        "FI-04-08 native local inference and FI-04-09 human security/performance review",
+        "Full fresh green suite on release commit, explicit operator go/no-go approval"
+      ],
+      "verifiedTests": [
+        "GitHub Actions Windows Server 2022 run 39024552073 hosted partial matrix; releaseReady=false",
+        "npm run test:fi0406-fi0410 + tools/fi0405-fi0410-hosted.test.mjs"
       ]
     },
     {
@@ -1465,6 +1483,7 @@
     "fi02ReleaseGateBaseline": "8 PASS / 12 BLOCKED / 0 FAIL",
     "wi03WindowsHosted": "GitHub Actions run 39014629188: Windows Vite + Fastify real HTTP + Edge/Chrome React DOM PASS; FFmpeg/FFprobe BLOCKED in that historical run",
     "fi0404WindowsHosted": "GitHub Actions run 39022682686: SHA256-pinned FFmpeg/FFprobe, real HyperFrames 0.8.159 SP-04 5-scene MP4 10 cues + music; ffprobe H264/AAC 429 frames PASS; manual AV/Windows11/35min pending",
+    "fi0405to10WindowsHosted": "GitHub Actions 39024552073 PASS: hosted Vite/Fastify/Edge pairing DOM, FI0405-10 tests, synthetic OS kill/SQLite fencing, npm audit 0 vulnerabilities, fail-closed release matrix; all actual Windows11/35min/native GPU and human gates BLOCKED",
     "referenceOnly": true
   },
   "note": "Do not claim code complete from mock protocols; retained FI02 task statuses are historical and must be freshly revalidated."

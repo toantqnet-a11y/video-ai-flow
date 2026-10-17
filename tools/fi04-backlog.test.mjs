@@ -20,6 +20,9 @@ test('FI-04 backlog preserves every old task and refuses duplicate IDs or missin
  assert.equal(merged.releaseStatus,'NOT_READY');
  assert.equal(merged.tasks.find(x=>x.id==='FI-04-04').status,'HOSTED_WINDOWS_REAL_HYPERFRAMES_MP4_AUTOMATION_PASS__MANUAL_AV_REVIEW_PENDING');
  assert.ok(merged.statusEvidence.fi0404WindowsHosted.includes('39022682686'));
+ assert.equal(merged.tasks.find(x=>x.id==='FI-04-05').status,'HOSTED_WINDOWS_TIMELINE_REGRESSIONS_PASS__AUTHENTICATED_UX_PENDING');
+ assert.equal(merged.tasks.find(x=>x.id==='FI-04-10').status,'HOSTED_WINDOWS_FAIL_CLOSED_RELEASE_MATRIX_PASS__NOT_READY');
+ assert.ok(merged.statusEvidence.fi0405to10WindowsHosted.includes('39024552073'));
  assert.equal(merged.tasks.at(-1).id,'WI-03');
  assert.throws(()=>mergeBacklog({...base,tasks:[...base.tasks,video[0]]},video),/DUPLICATE/);
  assert.throws(()=>parseVideoRoadmap(''),/INCOMPLETE/);

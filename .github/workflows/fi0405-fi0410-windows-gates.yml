@@ -1,0 +1,104 @@
+# Optional hosted Windows Server 2022 integration, never Windows 11 sign-off.
+# Exercises existing production app with disposable data; provider calls OFF.
+name: FI-04-05 to FI-04-10 Hosted Windows Acceptance
+on:
+  push:
+    branches: [fi04/acceptance-05-10]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: fi04-0510-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-acceptance:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify reviewed dependency lock
+        run: node tools/ci-github-lock.mjs
+      - name: Install deterministic workspace
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Pinned FFmpeg and FFprobe for genuine file probes
+        run: ./tools/FI0404-Install-FFmpeg-CI.ps1
+      - name: Build React and SDK
+        run: |
+          npm run check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run backlog:check:fi04
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run typecheck:sdk
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run build:web
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Genuine Windows Fastify TCP and Edge/Chrome React DOM
+        run: node tools/wi03-windows-integration.mjs --report=docs/evidence/FI0410_wi03.json
+      - name: FI-04-05..10 regressions, genuine file-path protection
+        run: |
+          npm run test:fi0405
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run test:fi0406-fi0410
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --test tools/fi0405-fi0410-hosted.test.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Real OS-kill plus synthetic lease recovery (NOT long render)
+        run: |
+          # Expected NOT_READY exit must be inspected, not swallowed or promoted.
+          $PSNativeCommandUseErrorActionPreference = $false
+          node tools/fi0407-recovery.mjs --simulate --report=docs/evidence/FI0410_recovery_sim.json
+          $exit=$LASTEXITCODE
+          $report=Get-Content docs/evidence/FI0410_recovery_sim.json -Raw | ConvertFrom-Json
+          if ($exit -eq 0 -or $report.syntheticRecovery -ne 'PASS' -or $report.releaseGateSatisfied -ne $false) {
+            throw 'FI0407_SYNTHETIC_FAIL_CLOSED_INVARIANT'
+          }
+          # An expected fail-closed exit must not leak as the step's last native status.
+          exit 0
+      - name: Local AI inventory only; no inference, quota or paid call
+        run: node tools/fi0408-provider-e2e.mjs --inspect --report=docs/evidence/FI0410_provider_inspect.json
+      - name: Online npm dependency vulnerability audit (reviewed lock)
+        run: |
+          npm audit --audit-level=high
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # Presence of this report is meaningful only with this successful job.
+          '{"task":"FI-04-09","status":"PASS","scope":"npm-audit-high"}' | Set-Content -LiteralPath docs/evidence/FI0410_audit.json -Encoding utf8
+      - name: Security focused tests and Windows dependency audit inventory
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $false
+          node tools/fi0409-security-performance.mjs --verify --report=docs/evidence/FI0410_security.json
+          $exit=$LASTEXITCODE
+          $report=Get-Content docs/evidence/FI0410_security.json -Raw | ConvertFrom-Json
+          if ($exit -eq 0 -or $report.evidence.focusedSecurityTests -ne 'PASS' -or $report.status -ne 'NOT_READY') {
+            throw 'FI0409_SECURITY_INVENTORY_FAILED'
+          }
+          exit 0
+      - name: Release inventory must refuse unconditional certification
+        run: |
+          node tools/fi0410-final-release.mjs --inspect --report=docs/evidence/FI0410_release.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $release=Get-Content docs/evidence/FI0410_release.json -Raw | ConvertFrom-Json
+          if ($release.status -ne 'NOT_READY' -or $release.releaseReady -ne $false) {
+            throw 'FI0410_RELEASE_MUST_REMAIN_NOT_READY'
+          }
+          node tools/fi0410-hosted-matrix.mjs --ci --report=docs/evidence/FI0410_hosted_matrix.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Preserve sanitized acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fi0405-fi0410-hosted-evidence
+          path: |
+            docs/evidence/FI0410_*.json
+          if-no-files-found: warn
+          retention-days: 7
+
+# NOT EXECUTED: 35+min Full HD output, genuine OS-killed long render, local
+# GPU/TTS inference, authenticated Timeline UX, manual sound/visual review.

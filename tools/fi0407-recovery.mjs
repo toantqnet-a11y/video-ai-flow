@@ -6,18 +6,33 @@
 import {spawn} from 'node:child_process';
 import {once} from 'node:events';
 import {mkdtemp,rm,stat} from 'node:fs/promises';
+import {probeMp4} from '../packages/core/src/render-ffmpeg-r2ext04.mjs';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {JobStore} from '../spikes/SP-04/src/store.js';
 import {JobRunner} from '../spikes/SP-04/src/runner.js';
-import {options,reportFile,output,sanitizeError,timestamp} from './fi04-final-gate-core.mjs';
+import {options,reportFile,output,sanitizeError,timestamp,verifiedEvidenceFile,sha256File} from './fi04-final-gate-core.mjs';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 export function verifyRecoveredJob({job,attempts,events}={}){
  const distinct=attempts?.length>=2&&attempts.some(x=>x.outcome==='lease_expired')&&attempts.at(-1).outcome==='succeeded';
  const event=events?.some(x=>x.type==='lease_recovered');
  return {status:job?.kind==='render:hyperframes'&&job?.status==='succeeded'&&distinct&&event?'PASS':'NOT_READY',
   checks:{succeeded:job?.status==='succeeded',multipleAttempts:!!distinct,leaseRecoveryEvent:!!event}};
+}
+/** Validate real post-crash 35-minute HyperFrames output without claiming a witnessed crash. */
+export async function inspectRecoveredMedia({root,job,probe=probeMp4}={}){
+ if(job?.kind!=='render:hyperframes'||job?.status!=='succeeded'||job.result?.engine!=='hyperframes'||!job.result?.relativePath)
+  return {status:'BLOCKED',reason:'FI0407_REAL_LONG_JOB_REQUIRED'};
+ try {
+  const asset=await verifiedEvidenceFile(root,job.result.relativePath);
+  const sha1=await sha256File(asset.path),info=await probe(asset.path),sha2=await sha256File(asset.path);
+  const checks={stableChecksum:sha1===sha2,matchingBytes:asset.bytes===job.result.bytes,
+   fullDuration:info.durationSeconds>=2100&&info.durationSeconds<=2400,
+   codecs:info.videoCodec==='h264'&&info.audioCodec==='aac',
+   frames:Number.isSafeInteger(info.frameCount)&&info.frameCount>0};
+  return {status:Object.values(checks).every(Boolean)?'MEDIA_INTEGRITY_PASS':'BLOCKED',checks};
+ }catch{return {status:'BLOCKED',reason:'FI0407_MEDIA_UNAVAILABLE_OR_UNSAFE'};}
 }
 export async function simulateProcessDeath(){
  const root=await mkdtemp(join(tmpdir(),'fi0407-'));
@@ -55,8 +70,9 @@ async function main(){const a=options(process.argv.slice(2),['inspect','simulate
    if(!a['data-root']||!a['job-id'])throw Error('FI0407_JOB_IDENTIFIERS_REQUIRED');
    const root=resolve(a['data-root']);if(!(await stat(join(root,'project.sqlite'))).isFile())throw Error('FI0407_EXISTING_DB_REQUIRED');
    const store=new JobStore({path:join(root,'project.sqlite')});
-   try{const id=a['job-id'];const evidence=verifyRecoveredJob({job:store.get(id),attempts:store.attempts(id),events:store.events({jobId:id,limit:1000})});
-    r={...r,technicalRecovery:evidence,manualWinKillAndMediaProof:'BLOCKED'};
+   try{const id=a['job-id'],job=store.get(id);const evidence=verifyRecoveredJob({job,attempts:store.attempts(id),events:store.events({jobId:id,limit:1000})});
+    const media=await inspectRecoveredMedia({root,job});
+    r={...r,technicalRecovery:evidence,realMediaIntegrity:media,manualWinKillAndMediaProof:'BLOCKED'};
    }finally{store.close()}
   }
  }catch(e){r={...r,status:'BLOCKED_OR_FAILED',code:sanitizeError(e)}}
