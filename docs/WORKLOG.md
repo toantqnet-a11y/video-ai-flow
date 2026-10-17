@@ -934,3 +934,16 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
 - Additional R2-VID-05 UI: version rows can preview prior MP4 before selecting it via the private `/api/scenes/:id/video/assets/:assetId/file` route and SDK in-memory bearer Blob. Added cross-scene ownership test. Current scene selection stays unchanged until explicit activation.
 - Cleaned temporary feature-branch API generator after it generated OpenAPI and SDK types; retained focused PR regression workflow. Diagnosed and corrected duplicated registered MP4 preview route from initial edit; real Fastify HTTP build catches route collisions.
 - CI checks must be read against final head, not earlier bot artifact commits; Windows 11 GUI/ComfyUI GPU remains blocked.
+
+## 2026-10-17 — R2-VID-06 (local uncommitted batch; no Git commit)
+- Implemented deterministic per-scene pixel-frame workload and batch summary with configurable max workload; optional operator VRAM declaration/modeled requirement and benchmark-based runtime display. NEVER invent actual measured GPU VRAM or $ electricity cost.
+- `readClipResourceLimits` parses strict local environment at API startup; worker and HTTP preflight share immutable limits and fail closed for oversize frames, an insufficient declared VRAM budget, and missing model requirement under a supplied VRAM budget.
+- Scene Inspector displays explicit read-only estimate; Scene Builder batch estimates 1-40 saved scenes with existing authenticated preflight (no new endpoints/OpenAPI drift).
+- Added dedicated pure module tests, with no paid/cloud calls and no auto GPU inference. Source is prepared as an **uncommitted patch batch**; run repo tests/Windows GPU bench later.
+- Pending: actual ComfyUI/Wan model memory profile, real runtime/electricity data, target Windows 11 acceptance, complete GitHub CI after future batch commit. Release NOT_READY.
+
+## 2026-10-17 — R3-VID-01/02 LOCAL uncommitted batch (no Git commit)
+- New mixed clip fit function, authenticated active clip preview with muted video, single narration clock, scene-relative loop/hold/seek and cleanup of Blob URLs; no secondary voice track or paid provider call.
+- Native MP4/MOV/WebM FFprobe gate, FFmpeg normalizes only after segment-cache miss to exact CFR H264 frames, strips source soundtrack, keeps external voice AAC, increments cache digest. Small 1s MOV and real 3s normalized H264+Aac fixtures PASS locally; not entire Windows 11 E2E.
+- MOV <=8MiB import accepted via existing authenticated route, normalized locally to browser-compatible MP4 with source SHA/provenance; original MOV not persisted. No new public provider endpoints.
+- Apply this change to a local checkout AFTER the R2-VID-06 uncommitted patch; no Git commands or automatic commit. GPU, Windows 11, and 35min acceptance remain blocked. Release NOT_READY.

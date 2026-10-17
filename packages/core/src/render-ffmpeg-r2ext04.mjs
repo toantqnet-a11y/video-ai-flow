@@ -14,6 +14,7 @@ import {DomainError} from './domain.mjs';
 import {validateTimedComposition} from './composition-timing-r2ext02.mjs';
 import {resolveMotionStyle} from './motion-brand-r2ext08.mjs';
 import {hasVisualWindow,videoWindowFilter,visualMotionProgress} from './visual-window-r307.mjs';
+import {normalizePinnedClip} from './clip-normalize-r3vid02.mjs';
 
 const failure=(code,status=409)=>{throw new DomainError(code,status)};
 const ensure=(test,code)=>{if(!test)failure(code)};
@@ -152,7 +153,7 @@ function decorateVideoFilter(base,{brand,preset,scene,duration,work,profile}){
  * The pinned voice/visual asset hashes, local trim, geometry, and style are in.
  */
 export function renderSegmentHash({scene,profile,motionStyle=null}){
- const stable={v:'ffmpeg-segment-cache-2',fps:profile.fps,width:profile.width,height:profile.height,
+ const stable={v:'ffmpeg-segment-cache-3-mixed-normalize',fps:profile.fps,width:profile.width,height:profile.height,
   sceneId:scene.id,mediaType:scene.mediaType,durationFrames:scene.durationFrames,
   voice:scene.voice?.asset?.sha256,visual:scene.visual?.asset?.sha256,
   visualWindow:scene.visualWindow??null,visualMotion:scene.visual?.motion,
@@ -243,12 +244,24 @@ export async function renderFfmpegComposition({composition,motionStyle=null,data
     continue;
    }
    const isImage=scene.mediaType==='image_motion';
-   // Limit incoming video to a finite duration; scale/crop consistently.
+   // The normalized MP4 is always a private, temporary CFR H.264 visual-only
+   // track. Source soundtrack is deliberately dropped; no duplicate narration.
+   // Reused cache segments skip normalization, but pinned input hashes were
+   // still verified above. This includes real MOV/MP4/AI source clips.
+   let visualInput=pins.visual;
+   if(!isImage){
+    visualInput=join(work,`normalized-${String(idx).padStart(4,'0')}.mp4`);
+    await normalizePinnedClip({input:pins.visual,output:visualInput,scene,
+     profile:composition.profile,ffmpeg,ffprobe,signal,
+     run:runBinary,probeNormalized:probeMp4});
+   }
    const argv=isImage?['-loop','1','-framerate',String(fps),'-i',pins.visual,'-i',pins.audio]:
-    [...(hasVisualWindow(scene)?[]:['-stream_loop','-1']),'-i',pins.visual,'-i',pins.audio];
+     ['-i',visualInput,'-i',pins.audio];
    const preset=resolvedStyle?.byScene.get(scene.id);
    const baseFilter=isImage?imageFilter(scene,composition.profile,preset?.motion??scene.visual.motion):
-    hasVisualWindow(scene)?videoWindowFilter(scene,composition.profile):`scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},setsar=1,fps=${fps},format=yuv420p`;
+    // Already scaled/cropped/trimmed/looped to exact frame count; do not apply
+    // the window a second time or reintroduce the original clip soundtrack.
+    'setsar=1,format=yuv420p';
    const vf=decorateVideoFilter(baseFilter,{brand:resolvedStyle?.brand,preset,scene,duration,work,profile:composition.profile});
    argv.push('-map','0:v:0','-map','1:a:0','-vf',vf,'-af','apad',
     '-frames:v',String(scene.durationFrames),'-t',String(duration),'-r',String(fps),

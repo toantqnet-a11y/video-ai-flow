@@ -512,7 +512,7 @@ export const operations=[
   post('queueClipBatch','/api/videos/:id/video/jobs','Bounded ordered SP-04 local clip batch',freeObject,
     obj({sceneIds:arr(str(100)),requestKey:str(100)},['sceneIds','requestKey']),{accepted:true}),
   post('importSceneClip','/api/scenes/:id/video/import','Import local MP4 up to 8MiB, ffprobe required',freeObject,
-    obj({base64:str(12000000),expectedRowVersion:int(1)},['base64','expectedRowVersion']),{created:true}),
+    obj({base64:str(12000000),expectedRowVersion:int(1),container:enumOf('mp4','mov')},['base64','expectedRowVersion']),{created:true}),
   post('selectSceneClip','/api/scenes/:id/video/select','Activate a healthy versioned scene clip',freeObject,
     obj({assetId:str(80),expectedRowVersion:int(1)},['assetId','expectedRowVersion'])),
   post('fallbackSceneClipToImage','/api/scenes/:id/video/fallback','Operator-selected healthy image fallback, no GPU calls',freeObject,

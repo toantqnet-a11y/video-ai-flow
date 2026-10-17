@@ -3,12 +3,15 @@
  * configured a loopback ComfyUI video workflow. No paid/remote fallback.
  */
 import {createHash,randomUUID} from 'node:crypto';
-import {readFile,writeFile,mkdtemp,rm,realpath} from 'node:fs/promises';
+import {readFile,writeFile,mkdtemp,rm,realpath,stat} from 'node:fs/promises';
 import {join,relative,resolve,sep,isAbsolute} from 'node:path';
 import {DomainError} from './domain.mjs';
 import {transact} from './db.mjs';
 import {VideoAssetService} from '../../../spikes/SP-VID-01/src/service.mjs';
 import {probeVideo} from '../../../spikes/SP-VID-01/src/media.mjs';
+import {runBinary} from './render-ffmpeg-r2ext04.mjs';
+import {probeClipSource} from './clip-normalize-r3vid02.mjs';
+import {estimateClipResources,normalizeClipResourceLimits} from './clip-resource-r2vid06.mjs';
 
 const fail=(code,status=400)=>{throw new DomainError(code,status)};
 const sha=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -41,9 +44,11 @@ const rowPolicy=r=>r?{revision:r.revision,policy:JSON.parse(r.policy_json)}:null
 const safeJob=j=>j?{id:j.id,status:j.status,kind:j.kind,attempt:j.attempt,lastError:j.last_error??null}:null;
 
 export class SceneClipService {
- constructor({repo,manifest,store,videoAdapter=null,ffprobe='ffprobe',clock=()=>Date.now()}){
+ constructor({repo,manifest,store,videoAdapter=null,ffprobe='ffprobe',clock=()=>Date.now(),resourceLimits={}}){
   this.repo=repo;this.db=repo.db;this.manifest=manifest;this.store=store;
   this.videoAdapter=videoAdapter;this.ffprobe=ffprobe;this.clock=clock;
+  // Immutable operator-owned guardrails; never accepted from scene/HTTP body.
+  this.resourceLimits=normalizeClipResourceLimits(resourceLimits);
   // A single in-process provider mutex prevents two simultaneous GPU calls.
   // Multi-instance GPU ownership still requires hardware acceptance/locking.
   this.gpuTail=Promise.resolve();
@@ -116,7 +121,12 @@ export class SceneClipService {
    const image=e.scene.visualAssetId&&this.manifest.get(e.scene.visualAssetId);
    if(!image||image.kind!=='image'||image.state!=='committed')blockers.push('VIDEO_REFERENCE_IMAGE_REQUIRED');
   }
-  return {sceneId,canQueue:blockers.length===0,blockers,policy:e.policy,
+  // R2-VID-06: check workload cap/declared VRAM before any SP-04 submission.
+  // This does not replace real driver/GPU inference or license verification.
+  const resourceEstimate=estimateClipResources(e.policy,this.resourceLimits);
+  blockers.push(...resourceEstimate.blockers);
+  return {sceneId,canQueue:blockers.length===0,blockers,
+   warnings:resourceEstimate.warnings,resourceEstimate,policy:e.policy,
    policyDigest:e.digest,inputHash:e.inputHash,dryRun:true,
    willBill:false,willCallRemote:false,gpuInferenceVerified:false};
  }
@@ -190,6 +200,12 @@ export class SceneClipService {
     if(!this.intentMatches(payload,jobId))throw Object.assign(Error('stale'),{code:'VIDEO_INTENT_STALE',retryable:false});
     const snap=this.input(payload.sceneId),p=payload.policy;
     if(p.mediaType!=='ai_video'||snap.digest!==payload.policyDigest)throw Object.assign(Error('policy changed'),{code:'VIDEO_POLICY_STALE',retryable:false});
+    // Recheck on worker immediately before provider dispatch. A queued job
+    // must not bypass a resource gate merely because its preflight was old.
+    const resourceEstimate=estimateClipResources(p,this.resourceLimits);
+    if(!resourceEstimate.canPassConfiguredLimits)
+     throw Object.assign(Error('resource budget'),{
+      code:resourceEstimate.blockers[0],retryable:false});
     let imageBytes;
     if(p.mode==='image_to_video'){
      const asset=this.manifest.get(payload.imageAssetId);
@@ -211,7 +227,8 @@ export class SceneClipService {
    }finally{done();}
   };
  }
- async importBase64(sceneId,{base64,expectedRowVersion}={}){
+ async importBase64(sceneId,{base64,container='mp4',expectedRowVersion}={}){
+  if(!['mp4','mov'].includes(container))fail('VIDEO_IMPORT_CONTAINER_UNSUPPORTED');
   const e=this.input(sceneId);
   if(e.policy.mediaType!=='import_video')fail('VIDEO_IMPORT_POLICY_REQUIRED',409);
   if(!integer(expectedRowVersion,1,1_000_000)||expectedRowVersion!==e.scene.rowVersion)
@@ -223,12 +240,35 @@ export class SceneClipService {
   // Detect decoded MP4 via real FFprobe, never trust extension or JS MIME.
   const scratch=await mkdtemp(join(this.manifest.dataRoot,'clip-import-'));
   try{
-   const file=join(scratch,'candidate.mp4');await writeFile(file,bytes,{flag:'wx',mode:0o600});
-   const info=await probeVideo(file,{ffprobe:this.ffprobe});
+   const file=join(scratch,`candidate.${container}`);
+   await writeFile(file,bytes,{flag:'wx',mode:0o600});
+   const original=await probeClipSource(file,{ffprobe:this.ffprobe,run:runBinary});
+   if(original.durationSeconds>120||original.width>4096||original.height>4096||
+      (container==='mov'&&(original.durationSeconds>30||
+       original.width*original.height*original.fps*original.durationSeconds>350_000_000)))
+    fail('VIDEO_IMPORT_RESOURCE_LIMIT',413);
+   // MOV often contains codecs unsupported by Chromium and source soundtracks.
+   // Normalize once to browser-compatible, mute-source H264 MP4. Preserve only
+   // SHA/codec/container metadata about input; staged MOV is deleted on exit.
+   let candidate=bytes;
+   if(container==='mov'){
+    const converted=join(scratch,'normalized.mp4');
+    await runBinary('ffmpeg',['-hide_banner','-nostdin','-loglevel','error',
+     '-i',file,'-map','0:v:0','-an','-sn','-dn',
+     '-c:v','libx264','-preset','ultrafast','-crf','23','-pix_fmt','yuv420p',
+     '-movflags','+faststart','-y',converted],{timeoutMs:Math.max(30000,original.durationSeconds*25000)});
+    const size=(await stat(converted)).size;
+    if(size<100||size>32*1024*1024)fail('VIDEO_IMPORT_NORMALIZED_TOO_LARGE',413);
+    candidate=await readFile(converted);
+   }
+   const info=await probeVideo(container==='mov'?join(scratch,'normalized.mp4'):file,{ffprobe:this.ffprobe});
    const meta={source:'manual_import',durationMs:info.durationMs,width:info.width,
-    height:info.height,fps:info.fps,codec:info.codec,hasAudio:info.hasAudio};
+    height:info.height,fps:info.fps,codec:info.codec,hasAudio:info.hasAudio,
+    originalContainer:container,originalSha256:createHash('sha256').update(bytes).digest('hex'),
+    sourceCodec:original.sourceCodec,sourceHasAudio:original.embeddedAudio,
+    locallyNormalized:container==='mov'};
    const asset=await this.manifest.importBytes({sceneId,kind:'video',source:'manual_import',
-    bytes,extension:'.mp4',metadata:meta,expectedRowVersion,
+    bytes:candidate,extension:'.mp4',metadata:meta,expectedRowVersion,
     onCommitted:assetId=>{
      // An inherited import_video policy must update render's canonical scene
      // kind in the same transaction as its visual pointer and provenance.

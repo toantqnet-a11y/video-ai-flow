@@ -9,6 +9,9 @@ export {PaidPolicyRepository,createPaidInvocationPolicy} from './paid-policy.mjs
 
 export {VideoCapabilityRepository,validateVideoCapabilities} from './video-capabilities.mjs';
 export {SceneClipService,normalizeClipPolicy} from './scene-video-r2vid.mjs';
+export {fitSceneClip,resolveClipFit} from './mixed-clip-fit-r3vid01.mjs';
+export {inspectClipProbe,probeClipSource,clipNormalizationPlan,normalizePinnedClip} from './clip-normalize-r3vid02.mjs';
+export {estimateClipResources,aggregateClipResources,readClipResourceLimits,normalizeClipResourceLimits} from './clip-resource-r2vid06.mjs';
 
 export {ChannelAvatarService,inspectAvatar} from './channel-avatar.mjs';
 
