@@ -168,7 +168,7 @@ test('migrating a v22 database through v24 preserves an active manual image',asy
      DROP TRIGGER asset_revision_immutable_fields;
      DROP INDEX idx_asset_content_lookup;
      DROP TABLE asset_content_index;
-     DROP TABLE asset_dag_nodes; DROP TABLE asset_dag_runs; DROP TABLE provider_quota_calls; DROP TABLE provider_switch_events; DROP TABLE composition_revisions; DROP TABLE motion_brand_revisions; DROP TABLE timeline_action_stacks; DROP TABLE timeline_revisions; DROP TABLE render_segment_cache; DROP TABLE render_snapshots; DROP TABLE r4_subtitle_drafts;
+     DROP TABLE asset_dag_nodes; DROP TABLE asset_dag_runs; DROP TABLE provider_quota_calls; DROP TABLE provider_switch_events; DROP TABLE composition_revisions; DROP TABLE motion_brand_revisions; DROP TABLE timeline_action_stacks; DROP TABLE timeline_revisions; DROP TABLE render_segment_cache; DROP TABLE render_snapshots; DROP TABLE r4_subtitle_drafts; DROP TABLE scene_video_batches; DROP TABLE scene_video_selections; DROP TABLE scene_video_intents; DROP TABLE scene_video_policy_revisions; DROP TABLE scene_video_policies;
      DROP TABLE scene_image_manual_selections;
      DROP INDEX idx_scene_image_intents_job;
      DROP TABLE scene_image_intents;`);
