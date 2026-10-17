@@ -1,0 +1,64 @@
+# FI-04-04: genuine local HyperFrames MP4, not a simulated FFmpeg test.
+# Dedicated branch keeps hosted Windows media runner minutes opt-in.
+# A green job is only automated media proof, not Windows 11/UI/release signoff.
+name: FI-04-04 Windows Real HyperFrames Render
+
+on:
+  push:
+    branches:
+      - fi04/real-hyperframes-windows
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fi0404-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  real-windows-render:
+    name: Pinned FFmpeg and 5-scene HyperFrames MP4
+    runs-on: windows-2022
+    timeout-minutes: 35
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify locked dependencies before installation
+        run: node tools/ci-github-lock.mjs
+      - name: Install exact reviewed workspace dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install SHA256-pinned FFmpeg and FFprobe from reviewed archive
+        run: ./tools/FI0404-Install-FFmpeg-CI.ps1
+      - name: Verify actual FFmpeg binaries and backlog consistency
+        run: |
+          ffmpeg -version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ffprobe -version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run backlog:check:fi04
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Check FI-04-04 fixture and media-bootstrap regressions
+        run: node --test tools/fi0404-media-bootstrap.test.mjs tools/fi04-hyperframes-acceptance.test.mjs
+      - name: Produce genuine 5-scene SP-04 queued HyperFrames MP4
+        run: node tools/fi04-hyperframes-acceptance.mjs --run --strict --save-review --report=docs/evidence/FI0404_hyperframes_real.json
+      - name: Preserve report and review-only assets (no production secrets)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fi0404-windows-render-evidence
+          path: |
+            docs/evidence/FI0404_hyperframes_real.json
+            docs/evidence/FI0404_review.mp4
+            docs/evidence/FI0404_review.srt
+          if-no-files-found: warn
+          retention-days: 7
+
+# This short fixture proves only machine encoding and the stored SRT/music
+# selection, not glyph legibility or music audibility without human review.
+# No cloud provider, paid model, GPU, 35-min render or release approval.
