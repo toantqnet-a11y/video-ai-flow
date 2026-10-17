@@ -8,7 +8,7 @@
 import {createHash,randomUUID} from 'node:crypto';
 import {createReadStream,constants as fsConstants} from 'node:fs';
 import {mkdir,readFile,realpath,rename,rm,stat,lstat,writeFile,copyFile} from 'node:fs/promises';
-import {resolve,join,sep} from 'node:path';
+import {resolve,join,sep,relative,isAbsolute} from 'node:path';
 import {spawn} from 'node:child_process';
 import {DomainError} from './domain.mjs';
 import {validateTimedComposition} from './composition-timing-r2ext02.mjs';
@@ -39,9 +39,15 @@ export async function safePinnedPath(dataRoot,asset){
  ensure(asset&&/^[a-f0-9]{64}$/.test(asset.sha256)&&/^[a-zA-Z0-9/_\-.]+$/.test(asset.relativePath),'RENDER_INVALID_PIN');
  const root=await realpath(dataRoot);
  const path=resolve(root,asset.relativePath);
- ensure(path.startsWith(root+sep)&&!asset.relativePath.split('/').includes('..'),'RENDER_UNSAFE_PATH');
+ const isNested=(base,target)=>{
+  const rel=relative(base,target);
+  return !!rel&&rel!=='..'&&!rel.startsWith('..'+sep)&&!isAbsolute(rel);
+ };
+ ensure(isNested(root,path)&&!asset.relativePath.split('/').includes('..'),'RENDER_UNSAFE_PATH');
  const real=await realpath(path).catch(()=>failure('RENDER_ASSET_MISSING'));
- ensure(real.startsWith(root+sep)&&real===path,'RENDER_UNSAFE_PATH');
+ // Windows canonicalization may change casing; relative() compares safely
+ // while still rejecting redirected symlinks and paths outside the root.
+ ensure(isNested(root,real)&&relative(path,real)==='','RENDER_UNSAFE_PATH');
  const s=await lstat(path);
  ensure(s.isFile()&&!s.isSymbolicLink()&&s.size===asset.bytes,'RENDER_ASSET_CHANGED');
  ensure(await fileHash(path)===asset.sha256,'RENDER_ASSET_CHANGED');
