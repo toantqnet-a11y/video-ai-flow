@@ -3,6 +3,8 @@
  * model output. Fixed routes, no arbitrary URL fetch, no secret env reads,
  * no paid/remote fallback, and no internal/LAN host scanning. */
 import {resolve} from 'node:path';
+import {verifiedEvidenceFile} from './fi04-final-gate-core.mjs';
+import {probeMp4} from '../packages/core/src/render-ffmpeg-r2ext04.mjs';
 import {fileURLToPath} from 'node:url';
 import {options,reportFile,output,timestamp} from './fi04-final-gate-core.mjs';
 
@@ -32,6 +34,17 @@ export async function inspectLocalProviders({ollamaPort=11434,comfyPort=8188,fet
   probeLocal(c,'/system_stats',x=>typeof x==='object'&&x!==null&&('system'in x||'devices'in x),fetchImpl),
  ]);
  return providerInventory({ollama,comfyui});
+}
+/** Local existing WAV/MP3 probe is never native Vietnamese TTS inference evidence. */
+export async function inspectExistingLocalVoice({dataRoot,relativeVoicePath,probe=probeMp4}={}){
+ if(!dataRoot||!relativeVoicePath)return {status:'BLOCKED',code:'FI0408_AUDIO_NOT_SELECTED'};
+ try{
+  const file=await verifiedEvidenceFile(dataRoot,relativeVoicePath);
+  if(file.bytes<100||file.bytes>100*1024*1024)return {status:'BLOCKED',code:'FI0408_AUDIO_SIZE_INVALID'};
+  const info=await probe(file.path);
+  return {status:info.audioCodec&&info.durationSeconds>0?'LOCAL_AUDIO_FILE_VERIFIED':'BLOCKED',
+   actualInferenceVerified:false,requiresHumanVietnameseAudioApproval:true};
+ }catch{return {status:'BLOCKED',code:'FI0408_AUDIO_FILE_UNAVAILABLE_OR_UNSAFE'};}
 }
 async function main(){const a=options(process.argv.slice(2),['inspect','probe-local'],['ollama-port','comfy-port','report']);
  if(!!a.inspect===!!a['probe-local'])throw Error('FI0408_MODE_REQUIRED');
