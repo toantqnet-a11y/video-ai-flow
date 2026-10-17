@@ -289,6 +289,7 @@ export function registerStudioRoutes(app,{controllers,store,diagnostics}) {
   }
   app.get('/api/system/storage/preview',use(()=>controllers.storagePreview()));
   app.post('/api/system/storage/quarantine',use(req=>controllers.storageQuarantine(req.body)));
+  app.post('/api/system/storage/restore',use(req=>controllers.storageRestore(req.body)));
   app.get('/api/jobs',use(req=>controllers.jobs(req.query??{})));
   app.post('/api/jobs/bulk',use(req=>controllers.jobBulk(req.body)));
   app.get('/api/jobs/:id',use(req=>controllers.job(req.params.id)));

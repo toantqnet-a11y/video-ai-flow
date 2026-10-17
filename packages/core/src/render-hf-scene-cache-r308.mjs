@@ -26,7 +26,9 @@ export function hyperframesSceneCacheKey({scene,profile,style,subtitlePlan,rende
  // Position outside the scene is absent: simple reorder reuses the fragment.
  return sha(JSON.stringify({version:'hf-rendered-scene-1',rendererVersion,sceneId:scene.id,
   frames:scene.durationFrames,geometry:profile,mediaType:scene.mediaType,
-  voice:scene.voice.asset?.sha256,visual:scene.visual.asset?.sha256,
+  voice:{sha256:scene.voice.asset?.sha256,measuredDurationMs:scene.voice.measuredDurationMs},
+  timing:scene.timing,durationBasis:scene.durationBasis,
+  visual:scene.visual.asset?.sha256,visualKind:scene.visual.kind,
   visualWindow:scene.visualWindow??null,motion:scene.visual.motion,
   style:style?.digest??null,captions:perSceneCaptions}));
 }

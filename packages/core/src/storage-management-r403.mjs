@@ -67,8 +67,79 @@ export class StorageManagementR403{
   return {digest:fingerprint,inventory:summary.map(x=>({kind:x.kind,count:x.n,bytes:x.bytes})),
    segmentCache:{count:cache.n,bytes:cache.bytes},
    stagedBytes:items.reduce((s,x)=>s+x.bytes,0),runningJobsBlockQuarantine:running,
-   candidates:items.map(({_name,...rest})=>rest),
+   candidates:items.map(({_name,...rest})=>rest),quarantine:await this.quarantined(),
    note:'Only old disposable staging directories can be quarantined. Referenced media, caches, backups and published renders are never deleted.'};
+ }
+ /** Enumerate only previously quarantined render staging, never project assets.
+  * IDs are SHA of opaque directory names and no disk paths leave the API. */
+ async quarantined(){
+  const root=await realpath(this.root),base=join(root,'.quarantine'),found=[];
+  const baseStat=await lstat(base).catch(()=>null);
+  if(baseStat&&!await safeDirectory(root,base))fail('STORAGE_QUARANTINE_UNSAFE');
+  if(baseStat){
+   for(const v of (await readdir(base,{withFileTypes:true})).slice(0,300)){
+    if(!safeId(v.name)||!v.isDirectory()||v.isSymbolicLink())continue;
+    const folder=join(base,v.name);
+    if(!await safeDirectory(root,folder))continue;
+    for(const name of (await readdir(folder)).slice(0,1500)){
+     if(!stageName(name))continue;
+     const path=join(folder,name),state=await lstat(path).catch(()=>null);
+     if(!state?.isDirectory()||state.isSymbolicLink()||!await safeDirectory(root,path))continue;
+     try{
+      const bytes=await stageSize(path);
+      found.push({id:digest([v.name,name]).slice(0,32),videoId:v.name,bytes,
+       modifiedAt:Math.floor(state.mtimeMs)});
+     }catch{/* Symlinks and oversized stages are never restorable. */}
+    }
+   }
+  }
+  found.sort((a,b)=>a.id.localeCompare(b.id));
+  const running=(this.store?.countByStatus()?.running??0)>0;
+  return {digest:digest([running,found.map(x=>[x.id,x.bytes,x.modifiedAt])]),
+   items:found,bytes:found.reduce((sum,x)=>sum+x.bytes,0),
+   runningJobsBlockRestore:running,
+   note:'Manual restore only; no permanent deletion. Never overwrite existing staging.'};
+ }
+ /** Restore old scratch state explicitly; reject stale inventory and collisions.
+  * A restore is deliberately non-atomic across multiple filesystem renames. */
+ async restore({ids,expectedDigest,confirmation}={}){
+  if(confirmation!=='RESTORE_STAGING'||!Array.isArray(ids)||ids.length<1||ids.length>20||
+     new Set(ids).size!==ids.length||ids.some(x=>typeof x!=='string'||!/^[a-f0-9]{32}$/.test(x))||
+     typeof expectedDigest!=='string'||!/^[a-f0-9]{64}$/.test(expectedDigest))
+    fail('STORAGE_RESTORE_INVALID',400);
+  const snapshot=await this.quarantined();
+  if(snapshot.digest!==expectedDigest||snapshot.runningJobsBlockRestore)fail('STORAGE_RESTORE_STALE');
+  const root=await realpath(this.root),base=join(root,'.quarantine'),render=join(root,'renders');
+  if(!await safeDirectory(root,base))fail('STORAGE_QUARANTINE_UNSAFE');
+  await mkdir(render,{recursive:true,mode:0o700});
+  if(!await safeDirectory(root,render))fail('STORAGE_RESTORE_UNSAFE');
+  const stages=[];
+  for(const id of ids){
+   const row=snapshot.items.find(x=>x.id===id);
+   if(!row)fail('STORAGE_RESTORE_NOT_FOUND');
+   const parent=join(base,row.videoId),name=(await readdir(parent))
+     .find(n=>stageName(n)&&digest([row.videoId,n]).slice(0,32)===id);
+   if(!name)fail('STORAGE_RESTORE_STALE');
+   const source=join(parent,name),st=await lstat(source);
+   if(!await safeDirectory(root,parent)||!await safeDirectory(root,source)||
+      Math.floor(st.mtimeMs)!==row.modifiedAt||await stageSize(source)!==row.bytes)
+     fail('STORAGE_RESTORE_STALE');
+   const toFolder=join(render,row.videoId);
+   await mkdir(toFolder,{recursive:true,mode:0o700});
+   if(!await safeDirectory(root,toFolder))fail('STORAGE_RESTORE_UNSAFE');
+   const target=join(toFolder,name);
+   if(await lstat(target).catch(()=>null))fail('STORAGE_RESTORE_COLLISION');
+   stages.push({id,source,target});
+  }
+  const restored=[];
+  for(const stage of stages){
+   if((this.store?.countByStatus()?.running??0)>0)fail('STORAGE_RESTORE_STALE');
+   if(await lstat(stage.target).catch(()=>null))fail('STORAGE_RESTORE_COLLISION');
+   if(!await safeDirectory(root,stage.source))fail('STORAGE_RESTORE_STALE');
+   await rename(stage.source,stage.target);restored.push(stage.id);
+  }
+  return {restored,count:restored.length,deletedBytes:0,
+   note:'Restored private transient stages without touching immutable media. Check project before reusing.'};
  }
  async quarantine({ids,expectedDigest,confirmation}={}){
   if(confirmation!=='QUARANTINE_STAGING'||!Array.isArray(ids)||ids.length<1||ids.length>20||
