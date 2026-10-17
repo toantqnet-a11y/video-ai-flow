@@ -43,6 +43,18 @@ jobs:
             apps/api/test/provider-credential-guard-r007.test.mjs \
             apps/api/test/provider-monitor-r212.test.mjs \
             apps/api/test/provider-r007-routes.test.mjs
+      - name: Raw TAP historical core batch 9 migration regressions
+        if: always()
+        run: |
+          node --test --test-concurrency=1 \
+            apps/web/src/voice-preview-form.test.mjs \
+            packages/contracts/test/contracts-r005.test.mjs \
+            packages/core/test/asset-dag-r207.test.mjs \
+            packages/core/test/asset-library-r209.test.mjs \
+            packages/core/test/asset-registry-r206.test.mjs \
+            packages/core/test/assets.test.mjs \
+            packages/core/test/channel-avatar-r0gate.test.mjs \
+            packages/core/test/channel-r001.test.mjs
       - name: Verify generated API contracts and SDK types
         if: always()
         run: node tools/generate-api.mjs --check
