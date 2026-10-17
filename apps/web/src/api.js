@@ -35,3 +35,6 @@ export const saveProjectZip=(id,revision,handle,options)=>client.saveProjectZip(
 
 // R2-VID: authenticated clip Blob URL (bearer stays inside SDK memory).
 export const getSceneClipFile=(id,options)=>client.getSceneClipFile(id,options);
+
+// Read old clip versions privately, without activating them.
+export const getSceneClipRevisionFile=(id,assetId,options)=>client.getSceneClipRevisionFile(id,assetId,options);
