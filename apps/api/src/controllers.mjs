@@ -359,15 +359,9 @@ export function createControllers({repo,store,registry,manifest,vault,paidPolicy
         return sceneId;
       });
       if(!registry.imageAdapter)throw new DomainError('LOCAL_IMAGE_NOT_CONFIGURED',503);
-      const results=[];
-      for(const sceneId of desired){
-        // Never dispatch paid/remote providers. Existing per-scene queue does
-        // local workflow validation, idempotency, stale intent and quota gates.
-        try{const r=await sceneImages.queue(sceneId,{});results.push({sceneId,state:r.state,jobId:r.job?.id??null});}
-        catch(e){results.push({sceneId,state:'blocked',code:e instanceof DomainError?e.code:'LOCAL_IMAGE_QUEUE_FAILED'});break;}
-      }
-      return {results,queued:results.filter(x=>x.state==='queued').length,partial:results.length!==desired.length||results.some(x=>x.state==='blocked'),
-        note:'Explicitly queued local ComfyUI images only; no remote or paid fallback. Individual scene jobs are not one atomic batch.'};
+      // Source and all workflows are validated before committing jobs and
+      // their image intents atomically to the one SP-04 SQLite queue.
+      return sceneImages.queueBatch(desired,{});
     },
     motionStylePresets:()=>({items:MOTION_TEMPLATES}),
     motionStyleCurrent:id=>styles.latest(id),

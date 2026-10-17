@@ -3,7 +3,7 @@
  * snapshot is still requested. The worker and DB promotion both recheck it.
  * No automatic paid/remote fallback, image-model download or fake output.
  */
-import {createHash} from 'node:crypto';
+import {createHash,randomUUID} from 'node:crypto';
 import {readFile,lstat,writeFile,rm,mkdtemp} from 'node:fs/promises';
 import {resolve,sep,join} from 'node:path';
 import {tmpdir} from 'node:os';
@@ -94,6 +94,79 @@ export class SceneImageRepository {
       .run(sceneId,job.id,snapshot.inputHash,snapshot.sourceSha256,snapshot.configRevision,Date.now());
     });
     return {state:'queued',cached:false,reused,job:{id:job.id,status:job.status,kind:job.kind}};
+  }
+  /** EXT-07: validate all local image workflows before one durable WAL commit.
+   * No scene may queue until every scene is source-current and eligible.
+   * SP-04 job and image intent writes are in ONE shared SQLite transaction,
+   * removing partial batches and producer/consumer races in looped dispatch.
+   */
+  async queueBatch(sceneIds,body={}){
+    if(!Array.isArray(sceneIds)||sceneIds.length<1||sceneIds.length>20||
+       new Set(sceneIds).size!==sceneIds.length||sceneIds.some(id=>typeof id!=='string'||!/^[A-Za-z0-9-]{1,100}$/.test(id)))
+      fail('LOCAL_IMAGE_BATCH_INVALID');
+    if(!this.store?.enqueueManyAtomic)fail('LOCAL_IMAGE_BATCH_QUEUE_UNAVAILABLE',503);
+    if(!this.registry.imageAdapter||!this.registry.list().some(p=>
+      p.id==='comfyui'&&p.kind==='image'&&p.location==='local'&&p.costTier==='local'))
+      fail('LOCAL_IMAGE_NOT_CONFIGURED',503);
+    const planned=[];
+    for(const sceneId of sceneIds){
+      const {scene,video}=this.check(sceneId);
+      const provisional=imageSnapshot(scene,video,body,'0'.repeat(64));
+      let workflow;
+      try{workflow=await this.registry.imageAdapter.loadWorkflow(provisional)}
+      catch{fail('LOCAL_IMAGE_WORKFLOW_INVALID',503)}
+      const snapshot=imageSnapshot(scene,video,body,sha(JSON.stringify(workflow)));
+      const asset=await this.validAsset(scene);
+      const currentIntent=this.db.prepare('SELECT * FROM scene_image_intents WHERE scene_id=?').get(sceneId);
+      const cached=!!(asset?.metadata?.inputHash===snapshot.inputHash&&
+       currentIntent?.job_id===asset.metadata?.queueJobId&&
+       imageIntentMatches(this.repo,snapshot,currentIntent.job_id));
+      planned.push({sceneId,snapshot,cached});
+    }
+    const submit=planned.filter(x=>!x.cached);
+    if(!submit.length)return {results:planned.map(x=>({sceneId:x.sceneId,state:'cached',jobId:null})),
+      queued:0,partial:false,atomic:true};
+    // Explicit ids are required: SP-04 alias map uses the job specification ID
+    // to resolve DAG references, including when an idempotent job is reused.
+    const entries=submit.map(({snapshot})=>({id:randomUUID(),
+     kind:'asset:image',key:`scene-image:${snapshot.sceneId}:${snapshot.inputHash}`,
+     payload:snapshot,maxAttempts:2}));
+    let outcomes;
+    try{
+      outcomes=this.store.enqueueManyAtomic(entries,(outcomes,db)=>{
+        for(const p of planned){
+          const snapshot=p.snapshot;
+          const live=db.prepare(`SELECT s.video_id,s.text,s.visual_prompt,s.media_type,
+            v.config_revision,v.deleted_at FROM scenes s JOIN videos v ON v.id=s.video_id
+            WHERE s.id=?`).get(p.sceneId);
+          const liveHash=live?imageSourceHash({text:live.text,visualPrompt:live.visual_prompt,
+            mediaType:live.media_type}):null;
+          if(!live||live.video_id!==snapshot.videoId||live.media_type!=='image_motion'||
+             live.deleted_at!==null||live.config_revision!==snapshot.configRevision||
+             liveHash!==snapshot.sourceSha256)fail('LOCAL_IMAGE_BATCH_SOURCE_STALE',409);
+        }
+        for(const [index,p] of submit.entries()){
+          const job=outcomes[index].job,snapshot=p.snapshot;
+          db.prepare('DELETE FROM scene_image_manual_selections WHERE scene_id=?').run(p.sceneId);
+          db.prepare(`INSERT INTO scene_image_intents
+            (scene_id,job_id,input_hash,source_sha256,config_revision,requested_at)
+            VALUES(?,?,?,?,?,?) ON CONFLICT(scene_id) DO UPDATE SET
+            job_id=excluded.job_id,input_hash=excluded.input_hash,source_sha256=excluded.source_sha256,
+            config_revision=excluded.config_revision,requested_at=excluded.requested_at`)
+           .run(p.sceneId,job.id,snapshot.inputHash,snapshot.sourceSha256,snapshot.configRevision,Date.now());
+        }
+      });
+    }catch(e){
+      if(e instanceof DomainError)throw e;
+      // Worker queue payloads may include prompt/model text. Never echo
+      // low-level driver errors outside the trusted application boundary.
+      fail('LOCAL_IMAGE_BATCH_QUEUE_FAILED',409);
+    }
+    const byScene=new Map(submit.map((p,i)=>[p.sceneId,outcomes[i]]));
+    return {results:planned.map(p=>p.cached?{sceneId:p.sceneId,state:'cached',jobId:null}:
+      {sceneId:p.sceneId,state:'queued',jobId:byScene.get(p.sceneId).job.id,
+       reused:byScene.get(p.sceneId).reused}),queued:submit.length,partial:false,atomic:true,
+      note:'Jobs and scene intents are committed as one SQLite WAL transaction. No paid/remote fallback.'};
   }
   async status(sceneId){
     const {scene,video}=this.check(sceneId);
