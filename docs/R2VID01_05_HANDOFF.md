@@ -17,3 +17,9 @@ Date 2026-10-17 · feature PR #5 · production release NOT_READY.
 `node --test packages/core/test/scene-video-r2vid.test.mjs` requires genuine local FFmpeg. `npm run test:all:batched`, `npm run check`, `npm run typecheck:sdk`, `npm run build:web`, and `npm audit --audit-level=high` must all pass before merge.
 Auth browser Windows 11, actual local ComfyUI/Wan T2V/I2V, GPU resource/licensing review, 35min hybrid renderer, multi-instance mutex, >8MiB import and manual quality gates still BLOCKED.
 No paid/cloud model calls were performed. Keep releaseStatus NOT_READY.
+
+## Latest integration additions
+- Channel settings Media tab and Video Config page now expose `VideoMediaScopePolicyR2VID.jsx`, saving inherited channel/video settings with revision and no model calls. Scenes can override in Inspector.
+- The private GET `/api/scenes/:id/video/assets/:assetId/file` and SDK `getSceneClipRevisionFile(id,assetId)` preview past healthy MP4 assets without changing active selection. Cross-scene asset IDs are denied. Render uses only explicitly selected clips.
+- The temporary API code generation workflow was deleted once deterministic OpenAPI and SDK types were updated; `.github/workflows/r2vid-focused.yml` is retained as a normal PR regression workflow.
+- True GPU Wan inference, Windows 11 GUI acceptance, streamed >8MiB clip import, multi-process GPU lock, and long hybrid MP4 are still pending. Do not mark release READY.
