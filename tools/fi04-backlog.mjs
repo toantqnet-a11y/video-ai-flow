@@ -37,7 +37,7 @@ export function parseVideoRoadmap(markdown){
  if(entries.size!==ids.length||ids.some(x=>!entries.has(x)))throw new Error('FI04_VIDEO_ROADMAP_INCOMPLETE');
  return ids.map(x=>entries.get(x));
 }
-export function mergeBacklog(base,videoTasks,{fi04Status='WI02_RUNTIME_HARNESS__WINDOWS_NOT_VERIFIED__RELEASE_NOT_READY'}={}){
+export function mergeBacklog(base,videoTasks,{fi04Status='WI03_HOSTED_WINDOWS_RUNTIME_VERIFIED__MEDIA_AND_DESKTOP_PENDING__RELEASE_NOT_READY'}={}){
  if(!Array.isArray(base.tasks)||videoTasks.length!==ids.length)throw new Error('FI04_BAD_INPUT');
  const seen=new Set();
  for(const task of [...base.tasks,...videoTasks]){
