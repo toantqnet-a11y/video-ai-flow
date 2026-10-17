@@ -77,6 +77,11 @@ test('R2VID genuine MP4 import verifies ffprobe, persists asset provenance and s
   assert.equal(await manifest.verifyRevision(imported.assetId),'healthy');
   assert.equal(repo.getScene(sceneId).visualAssetId,imported.assetId);
   assert.equal((await svc.activeBytes(sceneId)).bytes.equals(mp4),true);
+  const revision=await svc.revisionBytes(sceneId,imported.assetId);
+  assert.equal(revision.mime,'video/mp4');
+  assert.equal(revision.bytes.equals(mp4),true);
+  await assert.rejects(()=>svc.revisionBytes(scenes[1].id,imported.assetId),/VIDEO_ASSET_NOT_FOUND/);
+  assert.equal(repo.getScene(sceneId).visualAssetId,imported.assetId,'preview cannot activate or mutate');
   assert.equal((await svc.status(sceneId)).selectedVideoAssetId,imported.assetId);
   await assert.rejects(()=>svc.importBase64(sceneId,{base64:Buffer.from('fake media').toString('base64'),expectedRowVersion:repo.getScene(sceneId).rowVersion}),/VIDEO_IMPORT_INVALID/);
   await assert.rejects(()=>svc.select(sceneId,{assetId:scenes[1].id,expectedRowVersion:repo.getScene(sceneId).rowVersion}),/VIDEO_ASSET_NOT_FOUND/);
