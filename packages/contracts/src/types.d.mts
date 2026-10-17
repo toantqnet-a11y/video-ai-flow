@@ -2055,6 +2055,7 @@ export interface OperationMap {
   expectedRowVersion: number;
   expectedPolicyRevision: number;
 } }; result: Record<string, unknown>; };
+  getSceneClipRevisionFile: { args: { id: string; assetId: string }; result: string; };
   getSceneClipFile: { args: { id: string }; result: string; };
   getSceneImageFile: { args: { id: string }; result: string; };
   listSceneAssets: { args: { id: string }; result: {
