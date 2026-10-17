@@ -173,7 +173,7 @@ test('v23 to v24 migration backfills checksum index without changing frozen revi
     // objects and the new migration record, keeping historical rows untouched.
     f.db.exec(`DROP TRIGGER asset_content_register; DROP TRIGGER asset_content_size_guard;
       DROP TRIGGER asset_revision_immutable_fields; DROP INDEX idx_asset_content_lookup;
-      DROP TABLE asset_content_index; DROP TABLE asset_dag_nodes; DROP TABLE asset_dag_runs; DROP TABLE provider_quota_calls; DROP TABLE provider_switch_events; DROP TABLE composition_revisions; DROP TABLE motion_brand_revisions; DROP TABLE timeline_action_stacks; DROP TABLE timeline_revisions; DROP TABLE render_segment_cache; DROP TABLE render_snapshots; DROP TABLE r4_subtitle_drafts; DELETE FROM schema_migrations WHERE version>=24;
+      DROP TABLE asset_content_index; DROP TABLE asset_dag_nodes; DROP TABLE asset_dag_runs; DROP TABLE provider_quota_calls; DROP TABLE provider_switch_events; DROP TABLE composition_revisions; DROP TABLE motion_brand_revisions; DROP TABLE timeline_action_stacks; DROP TABLE timeline_revisions; DROP TABLE render_segment_cache; DROP TABLE render_snapshots; DROP TABLE r4_subtitle_drafts; DROP TABLE scene_video_batches; DROP TABLE scene_video_selections; DROP TABLE scene_video_intents; DROP TABLE scene_video_policy_revisions; DROP TABLE scene_video_policies; DELETE FROM schema_migrations WHERE version>=24;
       PRAGMA user_version=23;`);
     f.store.close();f.db.close();
     const reopened=openProjectDb(f.dbPath),manifest=new AssetManifest({db:reopened,repository:new StudioRepository(reopened),dataRoot:root});
