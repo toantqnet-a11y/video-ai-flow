@@ -1922,6 +1922,7 @@ export interface OperationMap {
   getMotionStyleRevision: { args: { id: string; revision: string }; result: MotionStyleLatest; };
   publishMotionStyle: { args: { id: string; body: MotionStylePublishInput }; result: MotionStyleLatest; };
   listLocalVideoMusicR406: { args: { id: string }; result: MusicListR406; };
+  importLocalMusicStreamR406: { args: { id: string }; result: MusicImportResultR406; };
   importLocalVideoMusicR406: { args: { id: string; body: MusicImportInputR406 }; result: MusicImportResultR406; };
   previewLocalVideoRender: { args: { id: string; body: RenderPreflightInput }; result: RenderPreflightResult; };
   enqueueLocalVideoRender: { args: { id: string; body: RenderExportInput }; result: RenderExportQueueResult; };
