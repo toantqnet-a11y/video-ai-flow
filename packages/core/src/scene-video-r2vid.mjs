@@ -258,6 +258,39 @@ export class SceneClipService {
    return {assetId:asset.id,selected:true,voiceUnchanged:true};
   });
  }
+ /** R2-VID-05: explicit still-image fallback never invokes a provider.
+  * Scene-scoped policy revision + image pointer are committed together.
+  * The previous video revision remains available for later manual selection. */
+ async fallbackToImage(sceneId,{imageAssetId,expectedRowVersion,expectedPolicyRevision}={}){
+  const e=this.input(sceneId),p=this.getScopePolicy('scene',sceneId);
+  if(e.policy.fallback!=='manual_image')fail('VIDEO_FALLBACK_DISABLED',409);
+  if(!integer(expectedRowVersion,1,1e9)||e.scene.rowVersion!==expectedRowVersion)
+   fail('SCENE_ROW_VERSION_CONFLICT',409);
+  if(expectedPolicyRevision!==p.revision)fail('VIDEO_POLICY_VERSION_CONFLICT',409);
+  const image=this.manifest.get(imageAssetId);
+  if(!image||image.sceneId!==sceneId||image.kind!=='image'||image.state!=='committed')
+   fail('VIDEO_FALLBACK_IMAGE_NOT_FOUND',404);
+  if(await this.manifest.verifyRevision(image.id)!=='healthy')fail('VIDEO_FALLBACK_IMAGE_UNHEALTHY',409);
+  const next=normalizeClipPolicy({...e.policy,mediaType:'image_motion'}),now=this.clock();
+  return transact(this.db,()=>{
+   if(this.repo.getScene(sceneId)?.rowVersion!==expectedRowVersion||
+      this.getScopePolicy('scene',sceneId).revision!==expectedPolicyRevision)
+     fail('VIDEO_FALLBACK_CONFLICT',409);
+   const revision=expectedPolicyRevision+1;
+   this.db.prepare(`INSERT INTO scene_video_policies(scope,scope_id,revision,policy_json,updated_at)
+     VALUES('scene',?,?,?,?) ON CONFLICT(scope,scope_id) DO UPDATE SET
+     revision=excluded.revision,policy_json=excluded.policy_json,updated_at=excluded.updated_at`)
+     .run(sceneId,revision,JSON.stringify(next),now);
+   this.db.prepare(`INSERT INTO scene_video_policy_revisions
+     (scope,scope_id,revision,policy_json,created_at) VALUES('scene',?,?,?,?)`)
+     .run(sceneId,revision,JSON.stringify(next),now);
+   this.db.prepare('DELETE FROM scene_video_intents WHERE scene_id=?').run(sceneId);
+   this.db.prepare(`UPDATE scenes SET media_type='image_motion',visual_asset_id=?,
+     row_version=row_version+1,updated_at=? WHERE id=?`).run(image.id,now,sceneId);
+   this.repo.event('scene',sceneId,'video.image_fallback',{revision,imageAssetId:image.id});
+   return {status:'FALLBACK_IMAGE_SELECTED',assetId:image.id,revision,voiceUnchanged:true};
+  });
+ }
  async status(sceneId){
   const e=this.input(sceneId),intent=this.db.prepare('SELECT * FROM scene_video_intents WHERE scene_id=?').get(sceneId);
   const selected=this.db.prepare('SELECT asset_id FROM scene_video_selections WHERE scene_id=?').get(sceneId);
@@ -270,8 +303,10 @@ export class SceneClipService {
    selectedVideoAssetId:selected?.asset_id===e.scene.visualAssetId?selected.asset_id:null,
    job:safeJob(intent?this.store.get(intent.job_id):null),
    intentCurrent:!!intent&&this.intentMatches({sceneId,inputHash:intent.input_hash},intent.job_id),
-   assets:videoAssets,localConfigured:!!this.videoAdapter,hasImageFallback:
-    !!this.manifest.listScene(sceneId).find(a=>a.kind==='image'&&a.state==='committed'),
+   assets:videoAssets,localConfigured:!!this.videoAdapter,
+   imageFallbacks:await Promise.all(this.manifest.listScene(sceneId).filter(a=>a.kind==='image'&&a.state==='committed').slice(0,20).map(async a=>({
+    id:a.id,health:await this.manifest.verifyRevision(a.id)}))),
+   hasImageFallback:!!this.manifest.listScene(sceneId).find(a=>a.kind==='image'&&a.state==='committed'),
    gpuInferenceVerified:false};
  }
  async activeBytes(sceneId){
