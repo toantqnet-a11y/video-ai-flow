@@ -32,16 +32,26 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install FFmpeg when missing and verify FFprobe
+      - name: Install offline media test prerequisites
         shell: bash
         run: |
-          # Hosted Ubuntu runner images vary; provision fixture dependency if absent.
+          # SP-02 includes a real, Vietnamese eSpeak WAV smoke test. Without
+          # eSpeak, Node marks it SKIPPED, which correctly fails our strict
+          # no-skipped-tests offline gate. Install OS-only tools (no npm/AI API).
+          missing=()
           if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
+            missing+=(ffmpeg)
+          fi
+          if ! command -v espeak >/dev/null 2>&1; then
+            missing+=(espeak)
+          fi
+          if (( ${#missing[@]} )); then
             sudo apt-get update -qq
-            sudo apt-get install -y -qq ffmpeg
+            sudo apt-get install -y -qq "${missing[@]}"
           fi
           ffmpeg -version
           ffprobe -version
+          espeak --version
       - name: Run isolated full offline suite
         run: npm run test:all:batched
       - name: Verify API/contracts, backlog and negative control
