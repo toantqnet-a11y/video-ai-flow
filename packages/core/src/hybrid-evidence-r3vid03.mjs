@@ -23,7 +23,7 @@ export async function verifyHybridArtifacts({composition,dataRoot,renderPath,exp
  ffprobe='ffprobe',signal,operatorEvidence={}}={}){
  const report={taskId:'R3-VID-03',status:'NOT_READY',accepted:false,
    fileChecks:{publishedMp4:false,checksumVerified:false,verifiedLocalAssets:false,
-     ffprobeQa:false},mediaSha256:null,metadata:null,blockers:[]};
+     mediaKindsMatch:false,ffprobeQa:false},mediaSha256:null,metadata:null,blockers:[]};
  if(!composition||typeof composition!=='object'||!Array.isArray(composition.scenes))
   reject('R3VID03_COMPOSITION_REQUIRED');
  if(!dataRoot||!renderPath)reject('R3VID03_INPUT_PATH_REQUIRED');
@@ -50,6 +50,14 @@ export async function verifyHybridArtifacts({composition,dataRoot,renderPath,exp
   }
  }
  report.fileChecks.verifiedLocalAssets=pinned&&composition.scenes.length>0;
+ // The mediaType label alone is not provenance: AI/imported scenes MUST pin
+ // actual video assets, not still images with renamed scene metadata.
+ report.fileChecks.mediaKindsMatch=composition.scenes.length>0&&composition.scenes.every(scene=>{
+  const expected=scene.mediaType==='image_motion'?'image':
+    ['ai_video','import_video'].includes(scene.mediaType)?'video':null;
+  return !!expected&&scene.visual?.kind===expected&&
+    scene.visual.asset?.kind===expected&&scene.voice?.asset?.kind==='voice';
+ });
  let metadata=null;
  try{metadata=await probeMp4(candidate,{ffprobe,signal});}catch{/* Record blocker below. */}
  report.metadata=metadata&&{videoCodec:metadata.videoCodec,audioCodec:metadata.audioCodec,
@@ -72,6 +80,7 @@ export async function verifyHybridArtifacts({composition,dataRoot,renderPath,exp
  if(!report.fileChecks.checksumVerified)automated.push('R3VID03_OUTPUT_SHA256_UNVERIFIED');
  if(!report.fileChecks.ffprobeQa)automated.push('R3VID03_FFPROBE_MISMATCH');
  if(!report.fileChecks.verifiedLocalAssets)automated.push('R3VID03_PINNED_FILES_INVALID');
+ if(!report.fileChecks.mediaKindsMatch)automated.push('R3VID03_MEDIA_KIND_MISMATCH');
  return {...report,accepted:gate.accepted&&automated.length===0,
    status:gate.accepted&&automated.length===0?'OPERATOR_ATTESTED_ACCEPTANCE':'NOT_READY',
    blockers:[...new Set([...automated,...gate.blockers])],

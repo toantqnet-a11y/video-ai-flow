@@ -48,14 +48,25 @@ test('R3VID03 checks real 1s H264/AAC and SHA, never accepts it as a 35min rende
    '-c:a','aac','-ar','48000','-ac','2','-y',render],{timeoutMs:60000});
   const outSha=sha(await readFile(render));
   const make=(kind,path,bytes)=>({kind,relativePath:path,sha256:sha(bytes),bytes:bytes.length});
-  const voicePin=make('voice','voices/pin.wav',voice),visualPin=make('image','images/pin.png',visual);
+  const voicePin=make('voice','voices/pin.wav',voice);
+  const imagePin=make('image','images/pin.png',visual);
+  const videoPin=make('video','images/pin.png',visual);
   const comp={videoId,profile:{fps:30,width:320,height:240},totalFrames:30,
-   scenes:['image_motion','ai_video','import_video'].map(mediaType=>({mediaType,
-    voice:{asset:voicePin},visual:{asset:visualPin}}))};
+   scenes:['image_motion','ai_video','import_video'].map(mediaType=>{
+    const kind=mediaType==='image_motion'?'image':'video';
+    return {mediaType,voice:{asset:voicePin},visual:{kind,asset:kind==='image'?imagePin:videoPin}};
+   })};
   const verified=await verifyHybridArtifacts({composition:comp,dataRoot:root,renderPath:render,expectedRenderSha256:outSha});
   assert.equal(verified.fileChecks.checksumVerified,true);
   assert.equal(verified.fileChecks.ffprobeQa,true);
   assert.equal(verified.fileChecks.verifiedLocalAssets,true);
+  assert.equal(verified.fileChecks.mediaKindsMatch,true);
+  const relabeled=structuredClone(comp);
+  relabeled.scenes[1].visual.asset=imagePin;
+  const mislabeled=await verifyHybridArtifacts({composition:relabeled,dataRoot:root,
+   renderPath:render,expectedRenderSha256:outSha});
+  assert.equal(mislabeled.fileChecks.mediaKindsMatch,false);
+  assert(mislabeled.blockers.includes('R3VID03_MEDIA_KIND_MISMATCH'));
   assert.equal(verified.accepted,false);
   assert(verified.blockers.includes('R3VID03_REAL_35MIN_COMPOSITION_REQUIRED'));
   const wrong=await verifyHybridArtifacts({composition:comp,dataRoot:root,renderPath:render,expectedRenderSha256:'b'.repeat(64)});
