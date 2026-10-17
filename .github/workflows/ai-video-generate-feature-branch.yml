@@ -1,0 +1,44 @@
+# One-shot trusted in-repo codegen, removed after regenerated files are committed.
+name: AI Video generated artifacts on feature branch
+on:
+  push:
+    branches:
+      - feat/r3vid03-stream-gpulock-and-uncommitted-batch
+permissions:
+  contents: write
+jobs:
+  generate:
+    if: ${{ !contains(github.event.head_commit.message, '[generated]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/r3vid03-stream-gpulock-and-uncommitted-batch
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate offline public OpenAPI/SDK files and canonical FI04 backlog
+        run: |
+          node tools/generate-api.mjs
+          node --input-type=module <<'JS'
+          import {readFileSync,writeFileSync} from 'node:fs';
+          import {mergeBacklog,parseVideoRoadmap} from './tools/fi04-backlog.mjs';
+          const base=JSON.parse(readFileSync('docs/VIDEO_AI_FLOW_EXTENSION_BACKLOG.json','utf8'));
+          const roadmap=readFileSync('docs/reference/VIDEO_AI_FLOW_EXECUTION_PLAN_V3.md','utf8');
+          const data=mergeBacklog(base,parseVideoRoadmap(roadmap));
+          if(data.releaseStatus!=='NOT_READY'||data.taskCount!==69)process.exit(17);
+          writeFileSync('docs/VIDEO_AI_FLOW_MASTER_BACKLOG.json',JSON.stringify(data,null,2)+'\n');
+          JS
+          node tools/generate-api.mjs --check
+      - name: Commit only deterministic generated artifacts to same trusted feature branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/api/openapi.json packages/contracts/src/types.d.mts packages/sdk/src/client.d.mts docs/VIDEO_AI_FLOW_MASTER_BACKLOG.json
+          if git diff --cached --quiet; then
+            echo 'Nothing changed.'
+          else
+            git commit -m 'chore(ai-video): regenerate OpenAPI SDK and backlog [generated]'
+            git push origin HEAD:feat/r3vid03-stream-gpulock-and-uncommitted-batch
+          fi
