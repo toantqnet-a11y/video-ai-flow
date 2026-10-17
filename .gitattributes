@@ -1,0 +1,10 @@
+# Deterministic generated API files must retain LF bytes on Windows CI.
+# Git core.autocrlf=true on hosted Windows otherwise rewrites the checked-in
+# generated artifacts and creates spurious OUTDATED_GENERATED_ARTIFACT errors.
+* text=auto
+*.json text eol=lf
+*.mts text eol=lf
+*.mjs text eol=lf
+*.jsx text eol=lf
+*.js text eol=lf
+*.yml text eol=lf
