@@ -54,6 +54,9 @@ async function healthy(path,expected,scene,doc,ffprobe,signal){
  if(await fileHash(path)!==expected.file_sha256)return false;
  const p=await probeMp4(path,{ffprobe,signal});
  return p.videoCodec==='h264'&&p.audioCodec==='aac'&&p.frameCount===scene.durationFrames&&
+  p.fps===`${doc.profile.fps}/1`&&p.bytes===expected.bytes&&
+  Number.isFinite(p.durationSeconds)&&
+  Math.abs(p.durationSeconds-scene.durationFrames/doc.profile.fps)<=0.25&&
   p.width===doc.profile.width&&p.height===doc.profile.height;
 }
 export async function renderCachedHyperframesComposition({composition,motionStyle=null,subtitlePlan=null,
@@ -104,6 +107,9 @@ export async function renderCachedHyperframesComposition({composition,motionStyl
     await copyFile(src,segment);
     const qa=await probeMp4(segment,{ffprobe,signal});
     assert(qa.videoCodec==='h264'&&qa.audioCodec==='aac'&&qa.frameCount===scene.durationFrames&&
+       qa.fps===`${composition.profile.fps}/1`&&qa.bytes>100&&
+       Number.isFinite(qa.durationSeconds)&&
+       Math.abs(qa.durationSeconds-scene.durationFrames/composition.profile.fps)<=0.25&&
        qa.width===composition.profile.width&&qa.height===composition.profile.height,'HF_CACHE_SEGMENT_QA_FAILED');
     const bytes=(await stat(segment)).size,digest=await fileHash(segment);
     try{await copyFile(segment,path,fsConstants.COPYFILE_EXCL)}catch(e){if(e.code!=='EEXIST')throw e;}
