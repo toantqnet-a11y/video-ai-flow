@@ -1,0 +1,45 @@
+# One-off deterministic artifacts sync for the R2-VID contract branch only.
+# Never modifies main; exits if source changed during run. No npm/remote providers.
+name: R2VID Regenerate Checked-in API Artifacts
+on:
+  push:
+    branches:
+      - feat/ai-video-r2vid01-05
+    paths:
+      - packages/contracts/src/catalog.mjs
+      - tools/generate-api.mjs
+      - .github/workflows/r2vid-generate-api.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    if: github.ref == 'refs/heads/feat/ai-video-r2vid01-05'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          ref: feat/ai-video-r2vid01-05
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate official API, SDK and TS contracts without network
+        run: |
+          node tools/generate-api.mjs
+          node tools/generate-api.mjs --check
+          git diff --check
+      - name: Commit generated files ONLY to reviewed feature branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/api/openapi.json packages/contracts/src/types.d.mts packages/sdk/src/client.d.mts
+          if git diff --cached --quiet; then
+            echo "API artifacts already current"
+          else
+            git commit -m "chore(r2vid): regenerate checked-in API and SDK contracts"
+            git push origin HEAD:refs/heads/feat/ai-video-r2vid01-05
+          fi
