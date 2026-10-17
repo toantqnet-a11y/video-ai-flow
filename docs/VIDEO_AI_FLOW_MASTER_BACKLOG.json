@@ -1,6 +1,6 @@
 {
-  "version": "2026-10-17-wi02-windows-bootstrap-runtime",
-  "status": "WI02_RUNTIME_HARNESS__WINDOWS_NOT_VERIFIED__RELEASE_NOT_READY",
+  "version": "2026-10-17-wi03-windows-integration-hosted",
+  "status": "WI03_HOSTED_WINDOWS_RUNTIME_VERIFIED__MEDIA_AND_DESKTOP_PENDING__RELEASE_NOT_READY",
   "releaseStatus": "NOT_READY",
   "origin": {
     "existing": "docs/VIDEO_AI_FLOW_EXTENSION_BACKLOG.json",
@@ -15,12 +15,12 @@
     "Windows-local-first",
     "append-only-migrations-after-v26"
   ],
-  "taskCount": 68,
+  "taskCount": 69,
   "groups": {
     "existingFI02": 42,
     "aiVideo": 14,
     "fi04": 10,
-    "windowsAcceptance": 2
+    "windowsAcceptance": 3
   },
   "tasks": [
     {
@@ -1361,7 +1361,7 @@
       "id": "WI-01",
       "title": "Windows prerequisites triage with fail-closed actionable machine report",
       "priority": "P0",
-      "status": "READ_ONLY_PREFLIGHT_IMPLEMENTED__WINDOWS_RUNTIME_BLOCKED",
+      "status": "HOSTED_WINDOWS_PREFLIGHT_10_PASS_2_BLOCKED__MEDIA_PENDING",
       "dependsOn": [
         "FI-04-02",
         "FI-04-03",
@@ -1380,7 +1380,7 @@
       "id": "WI-02",
       "title": "Reproducible Windows bootstrap, real loopback Fastify and Vite runtime verification",
       "priority": "P0",
-      "status": "RUNTIME_VERIFICATION_CODE_COMPLETE__WINDOWS_DEPENDENCY_BLOCKED",
+      "status": "HOSTED_WINDOWS_FASTIFY_VITE_VERIFIED__USER_DESKTOP_PENDING",
       "dependsOn": [
         "WI-01",
         "FI-04-02",
@@ -1395,6 +1395,28 @@
         "npm run test:wi02"
       ],
       "acceptance": "Live verification uses real socket + disposable SQLite worker and graceful IPC shutdown. No auto install, cloud call, browser interaction or release assertion."
+    },
+    {
+      "id": "WI-03",
+      "title": "Hosted Windows integration verification: reviewed deps, Vite, Fastify TCP, Edge/Chrome pairing DOM",
+      "priority": "P0",
+      "status": "HOSTED_WINDOWS_RUNTIME_VERIFIED__MEDIA_DESKTOP_PENDING",
+      "dependsOn": [
+        "WI-02",
+        "FI-04-03"
+      ],
+      "remainingGate": [
+        "Install trusted FFmpeg/FFprobe; hosted Windows Chocolatey package feed returned HTTP 504",
+        "Run genuine HyperFrames queued MP4 with subtitles and music; no synthetic FFmpeg stand-in",
+        "Witness authenticated Timeline drag/trim on user Windows 11 (runner is Windows Server 2022)",
+        "Run long Full HD job/recovery/GPU inference and production security acceptance"
+      ],
+      "verifiedTests": [
+        "GitHub Actions WI-03 hosted run 39014629188: runtime/browser/real socket PASS",
+        "Windows WI01/WI02 focused 19/19 PASS",
+        "WI03 acceptance classifier regression"
+      ],
+      "acceptance": "Hosted Windows build + browser pairing-page React DOM + production Fastify live TCP and cleanup PASS; no authenticated Timeline, media render, paid AI calls, GPU or release approval."
     }
   ],
   "milestones": [
@@ -1403,6 +1425,7 @@
       "required": [
         "WI-01",
         "WI-02",
+        "WI-03",
         "FI-04-01",
         "FI-04-02",
         "FI-04-03",
@@ -1441,6 +1464,7 @@
     "fi03Focused": "6/6 PASS",
     "fi03PostEditSuite": "INCOMPLETE historical",
     "fi02ReleaseGateBaseline": "8 PASS / 12 BLOCKED / 0 FAIL",
+    "wi03WindowsHosted": "GitHub Actions run 39014629188: Windows Vite + Fastify real HTTP + Edge/Chrome React DOM PASS; FFmpeg/FFprobe BLOCKED",
     "referenceOnly": true
   },
   "note": "Do not claim code complete from mock protocols; retained FI02 task statuses are historical and must be freshly revalidated."
