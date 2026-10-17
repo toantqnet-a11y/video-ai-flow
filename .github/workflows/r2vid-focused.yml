@@ -1,8 +1,8 @@
 name: R2VID focused integration diagnostics
+# Follow-on branches modifying the AI-video production code get the same
+# focused regression; the main CI still runs the complete offline suite.
 on:
-  push:
-    branches:
-      - feat/ai-video-r2vid01-05
+  pull_request:
     paths:
       - packages/core/**
       - apps/api/**
