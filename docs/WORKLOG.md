@@ -974,3 +974,8 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
 - Added SceneImageRepository.queueBatch() for 1–20 explicitly selected still-image scenes. Validates all local ComfyUI workflows before atomic SP-04 enqueueManyAtomic, then sets matching scene_image_intents in the SAME SQLite WAL transaction. Checks live scene text/prompt/media type/config again under queue lock; stale source rolls back every inserted job.
 - Visual router execute delegates to atomic queueBatch; it cannot queue paid/remote AI or silently send video scenes to still-image adapters. Reused jobs retain idempotent keys; worker promotion still fences against stale intent.
 - Acceptance pending: real ComfyUI local GPU/native Windows and browser flow; do not claim actual model inference from offline workflow mocks. Release NOT_READY.
+
+## 2026-10-18 — R3-VID-03 / R3-08 / R2-VID-02 actual-hardware gates
+- Added operator-only ComfyUI/Wan workflow read-only inspection with literal localhost enforcement, sanitized status, no POST /prompt and no model downloads. A reachable GPU is not a benchmark, model checkpoint license, or genuine clip.
+- Added separate read-only hybrid on-disk SHA-pinned asset and MP4 FFprobe verifier. It never turns a short fixture or metadata-only witness into an automatically accepted 35-minute movie.
+- R3-08 stronger cache-media QA and dedicated validation regressions; native Windows 11 HyperFrames/35min and GPU tests remain pending.
