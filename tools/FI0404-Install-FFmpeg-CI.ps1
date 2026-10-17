@@ -39,11 +39,11 @@ try {
     throw 'FI0404_FFMPEG_ARCHIVE_LAYOUT_MISMATCH'
   }
   $ffmpegVersion=(& $ffmpeg -version | Select-Object -First 1)
-  if ($LASTEXITCODE -ne 0 -or $ffmpegVersion -notmatch 'ffmpeg version 8\\.1\\.2') {
+  if ($LASTEXITCODE -ne 0 -or $ffmpegVersion -notmatch 'ffmpeg version 8\.1\.2') {
     throw 'FI0404_FFMPEG_EXECUTABLE_VERSION_MISMATCH'
   }
   $ffprobeVersion=(& $ffprobe -version | Select-Object -First 1)
-  if ($LASTEXITCODE -ne 0 -or $ffprobeVersion -notmatch 'ffprobe version 8\\.1\\.2') {
+  if ($LASTEXITCODE -ne 0 -or $ffprobeVersion -notmatch 'ffprobe version 8\.1\.2') {
     throw 'FI0404_FFPROBE_EXECUTABLE_VERSION_MISMATCH'
   }
   # Only subsequent steps within this ephemeral GitHub Actions job see these tools.
