@@ -84,7 +84,8 @@ export async function prepareFi04QueuedFixture({db,store,root}){
   }
   const timed=new TimedCompositionRepository({compositions,manifest});
   const preview=await timed.preview(video.id);
-  assert.equal(preview.readiness.ready,true,'FI04_FIXTURE_NOT_READY');
+  // Report codes only: diagnose cross-platform fixture failures without exposing text or paths.
+  assert.equal(preview.readiness.ready,true,`FI04_FIXTURE_NOT_READY_${preview.readiness.blockers.map(b=>b.code).join('_')}`);
   const published=await timed.publish(video.id,{expectedDigest:preview.digest,expectedVideoRowVersion:preview.source.videoRowVersion});
   const doc=published.composition;
   assert.equal(doc.scenes.length,5);
