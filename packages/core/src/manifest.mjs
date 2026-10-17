@@ -243,7 +243,7 @@ export async function promoteQueueAsset({manifest,jobId}) {
       configRevision:jobResult.configRevision,inputHash:jobResult.voiceInputHash},jobId)))
     throw new DomainError('STALE_VOICE_JOB',409);
   // A completed GPU call cannot override a newer user import or policy.
-  if(kind==='video'&&(!jobResult?.inputHash||!new SceneClipService({
+  if(kind==='video'&&row.job_kind==='scene:ai-video'&&(!jobResult?.inputHash||!new SceneClipService({
     repo:manifest.repo,manifest,store:null
   }).intentMatches({sceneId,inputHash:jobResult.inputHash},jobId)))
     throw new DomainError('STALE_VIDEO_JOB',409);
@@ -268,7 +268,7 @@ export async function promoteQueueAsset({manifest,jobId}) {
       {sceneId,videoId:scene.videoId,textSha256:jobResult.textSha256,
         configRevision:jobResult.configRevision,inputHash:jobResult.voiceInputHash},jobId))
       throw new DomainError('STALE_VOICE_JOB',409);
-    if(kind==='video'&&!new SceneClipService({repo:manifest.repo,manifest,store:null})
+    if(kind==='video'&&row.job_kind==='scene:ai-video'&&!new SceneClipService({repo:manifest.repo,manifest,store:null})
       .intentMatches({sceneId,inputHash:jobResult.inputHash},jobId))
       throw new DomainError('STALE_VIDEO_JOB',409);
     if(kind==='image'&&!imageIntentMatches(manifest.repo,
@@ -292,13 +292,13 @@ export async function promoteQueueAsset({manifest,jobId}) {
       .run(id,scene.videoId,sceneId,kind,providerId||'unknown',rel,sha,bytes.length,'committed',JSON.stringify(metadata),Date.now(),jobId);
     const pointer=kind==='voice'?'voice_asset_id':'visual_asset_id';
     // Metadata must describe the actual probed clip; video source stays versioned.
-    if(kind==='video'){
+    if(kind==='video'&&row.job_kind==='scene:ai-video'){
       const policy=new SceneClipService({repo:manifest.repo,manifest,store:null}).effective(sceneId).policy;
       if(policy.mediaType!=='ai_video')throw new DomainError('VIDEO_POLICY_STALE',409);
     }
     manifest.db.prepare(`UPDATE scenes SET ${pointer}=?,row_version=row_version+1,updated_at=? WHERE id=?`)
       .run(id,Date.now(),sceneId);
-    if(kind==='video'){
+    if(kind==='video'&&row.job_kind==='scene:ai-video'){
       manifest.db.prepare(`INSERT INTO scene_video_selections(scene_id,asset_id,selected_at)
         VALUES(?,?,?) ON CONFLICT(scene_id) DO UPDATE SET asset_id=excluded.asset_id,
         selected_at=excluded.selected_at`).run(sceneId,id,Date.now());
