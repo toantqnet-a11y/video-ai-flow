@@ -7,7 +7,7 @@
 import {createHash,randomUUID} from 'node:crypto';
 import {copyFile,mkdir,readFile,lstat,realpath,rename,rm,stat,writeFile} from 'node:fs/promises';
 import {createReadStream,constants as fsConstants} from 'node:fs';
-import {join,sep} from 'node:path';
+import {join,sep,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {compositionDigest} from './composition-r2ext01.mjs';
 import {normalizeMotionStyle} from './motion-brand-r2ext08.mjs';
@@ -66,6 +66,9 @@ export async function renderCachedHyperframesComposition({composition,motionStyl
  await mkdir(cacheDir,{recursive:true,mode:0o700});
  assert(await realpath(cacheDir)===cacheDir,'HF_CACHE_UNSAFE_DIRECTORY');
  const work=join(targetDir,`.staging-${randomUUID()}`);await mkdir(work,{mode:0o700});
+ // A separate private root keeps intermediate per-scene HyperFrames MP4s
+ // disposable. They must not accumulate as seemingly published projects.
+ const childRoot=join(work,'single-scene');await mkdir(childRoot,{mode:0o700});
  const pinned=[];let reused=0,encoded=0;
  try{
   const pkg=JSON.parse(await readFile(fileURLToPath(new URL('../../../package.json',import.meta.url)),'utf8'));
@@ -75,7 +78,13 @@ export async function renderCachedHyperframesComposition({composition,motionStyl
   const finalPath=join(targetDir,`${outputKey}.mp4`);
   for(const [i,scene] of composition.scenes.entries()){
    if(signal?.aborted)fail('RENDER_ABORTED');
-   for(const asset of [scene.voice.asset,scene.visual.asset])pinned.push({asset,path:await safePinnedPath(root,asset)});
+   for(const asset of [scene.voice.asset,scene.visual.asset]){
+    const path=await safePinnedPath(root,asset);pinned.push({asset,path});
+    const clone=join(childRoot,asset.relativePath);
+    await mkdir(dirname(clone),{recursive:true,mode:0o700});
+    await copyFile(path,clone);
+    assert(await safePinnedPath(childRoot,asset)===clone,'HF_CACHE_STAGING_ASSET_CHANGED');
+   }
    const style=isolatedStyle(motionStyle,scene.id),sub=isolatedSubtitles(subtitlePlan,scene);
    const key=hyperframesSceneCacheKey({scene,profile:composition.profile,style,subtitlePlan,rendererVersion});
    const segment=join(work,`scene-${String(i).padStart(4,'0')}.mp4`);
@@ -87,8 +96,8 @@ export async function renderCachedHyperframesComposition({composition,motionStyl
     await copyFile(path,segment);reused++;
    }else{
     const rendered=await renderHyperframesComposition({composition:singleScene(composition,scene),motionStyle:style,
-      subtitlePlan:sub,dataRoot:root,hyperframes,ffmpeg,ffprobe,signal,renderCommand,timeoutMs});
-    const src=join(root,rendered.relativePath);
+      subtitlePlan:sub,dataRoot:childRoot,hyperframes,ffmpeg,ffprobe,signal,renderCommand,timeoutMs});
+    const src=join(childRoot,rendered.relativePath);
     await copyFile(src,segment);
     const qa=await probeMp4(segment,{ffprobe,signal});
     assert(qa.videoCodec==='h264'&&qa.audioCodec==='aac'&&qa.frameCount===scene.durationFrames&&
