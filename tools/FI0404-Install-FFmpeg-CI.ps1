@@ -38,10 +38,13 @@ try {
       -not (Test-Path -LiteralPath $ffprobe -PathType Leaf)) {
     throw 'FI0404_FFMPEG_ARCHIVE_LAYOUT_MISMATCH'
   }
+  # Native exit codes are not initialized until first process invocation under StrictMode.
+  $global:LASTEXITCODE = 999
   $ffmpegVersion=(& $ffmpeg -version | Select-Object -First 1)
   if ($LASTEXITCODE -ne 0 -or $ffmpegVersion -notmatch 'ffmpeg version 8\.1\.2') {
     throw 'FI0404_FFMPEG_EXECUTABLE_VERSION_MISMATCH'
   }
+  $global:LASTEXITCODE = 999
   $ffprobeVersion=(& $ffprobe -version | Select-Object -First 1)
   if ($LASTEXITCODE -ne 0 -or $ffprobeVersion -notmatch 'ffprobe version 8\.1\.2') {
     throw 'FI0404_FFPROBE_EXECUTABLE_VERSION_MISMATCH'
