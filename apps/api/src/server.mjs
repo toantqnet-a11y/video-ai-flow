@@ -28,6 +28,7 @@ import {createLlmDispatcher} from './llm-dispatch.mjs';
 import {registerChannelAvatarRoutes} from './channel-avatar.mjs';
 import {registerSceneVoiceAudioRoute} from './scene-voice-audio.mjs';
 import {registerSceneImageFileRoute} from './scene-image-file.mjs';
+import {registerSceneClipFileRoute} from './scene-video-file.mjs';
 import {RenderExportService} from './render-export-r2ext0406.mjs';
 import {CompositionRepository,SceneClipService} from '../../../packages/core/src/index.mjs';
 import {cleanupOrphanRenderStages} from '../../../packages/core/src/render-safety-r313.mjs';
@@ -139,6 +140,7 @@ export async function startApi({listen=true}={}) {
   const controllers=createControllers({repo,store,registry,manifest,vault,paidPolicy,remoteLlmEnabled:allowRemote,renderExports,clips});
   registerStudioRoutes(app,{controllers,store,diagnostics});
   registerSceneImageFileRoute(app,controllers);
+  registerSceneClipFileRoute(app,controllers);
   registerVoicePreviewRoute(app,createVoicePreview({repo}));
   registerSceneVoiceAudioRoute(app,new SceneVoiceRepository(repo,{store,manifest,localVoices:registry.localVoiceDefaults??{}}));
   registerChannelAvatarRoutes(app,new ChannelAvatarService({repo,dataRoot}));
