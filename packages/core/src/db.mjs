@@ -735,6 +735,47 @@ export const migrations = [
     );
     PRAGMA user_version=32;
   ` }
+
+  ,{ version: 33, sql: `
+    -- R2-VID-01..05: scope-versioned video media configuration and append-only
+    -- provenance. No provider secrets or user file paths stored in policies.
+    CREATE TABLE scene_video_policies (
+      scope TEXT NOT NULL CHECK(scope IN ('channel','video','scene')),
+      scope_id TEXT NOT NULL, revision INTEGER NOT NULL CHECK(revision>=1),
+      policy_json TEXT NOT NULL CHECK(json_valid(policy_json)), updated_at INTEGER NOT NULL,
+      PRIMARY KEY(scope,scope_id)
+    );
+    CREATE TABLE scene_video_policy_revisions (
+      scope TEXT NOT NULL,scope_id TEXT NOT NULL,
+      revision INTEGER NOT NULL CHECK(revision>=1),
+      policy_json TEXT NOT NULL CHECK(json_valid(policy_json)), created_at INTEGER NOT NULL,
+      PRIMARY KEY(scope,scope_id,revision)
+    );
+    CREATE TRIGGER scene_video_history_no_update BEFORE UPDATE ON scene_video_policy_revisions
+      BEGIN SELECT RAISE(ABORT,'VIDEO_POLICY_HISTORY_IMMUTABLE'); END;
+    CREATE TRIGGER scene_video_history_no_delete BEFORE DELETE ON scene_video_policy_revisions
+      BEGIN SELECT RAISE(ABORT,'VIDEO_POLICY_HISTORY_IMMUTABLE'); END;
+    CREATE TABLE scene_video_intents (
+      scene_id TEXT PRIMARY KEY REFERENCES scenes(id) ON DELETE CASCADE,
+      job_id TEXT NOT NULL, input_hash TEXT NOT NULL CHECK(length(input_hash)=64),
+      requested_at INTEGER NOT NULL
+    );
+    CREATE TABLE scene_video_selections (
+      scene_id TEXT PRIMARY KEY REFERENCES scenes(id) ON DELETE CASCADE,
+      asset_id TEXT NOT NULL REFERENCES asset_revisions(id) ON DELETE RESTRICT,
+      selected_at INTEGER NOT NULL
+    );
+    CREATE TABLE scene_video_batches (
+      video_id TEXT NOT NULL REFERENCES videos(id) ON DELETE CASCADE,
+      request_key TEXT NOT NULL,
+      spec_hash TEXT NOT NULL CHECK(length(spec_hash)=64),
+      job_ids_json TEXT NOT NULL CHECK(json_valid(job_ids_json)),
+      created_at INTEGER NOT NULL,
+      PRIMARY KEY(video_id,request_key)
+    );
+    CREATE INDEX idx_video_intents_job ON scene_video_intents(job_id);
+    PRAGMA user_version=33;
+  ` }
 ];
 
 export function transact(db, fn) {
@@ -809,6 +850,7 @@ function assertSchemaTables(tables,version) {
   if (version>=30) required.push('timeline_revisions','timeline_action_stacks');
   if (version>=31) required.push('render_snapshots','render_segment_cache');
   if (version>=32) required.push('r4_subtitle_drafts');
+  if (version>=33) required.push('scene_video_policies','scene_video_policy_revisions','scene_video_intents','scene_video_selections','scene_video_batches');
   if (required.some(t=>!tables.includes(t))) throw new Error('DATABASE_SCHEMA_INCOMPLETE');
 }
 
