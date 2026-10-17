@@ -127,6 +127,7 @@ export function createStudioClient({fetchImpl=globalThis.fetch,baseUrl='/api'}={
    if(op.binaryAudio)throw new StudioApiError('USE_VOICE_PREVIEW');
    if(op.binaryImage)throw new StudioApiError('USE_CHANNEL_AVATAR');
    if(op.binarySceneImage)throw new StudioApiError('USE_SCENE_IMAGE_FILE');
+   if(op.binarySceneVideo)throw new StudioApiError('USE_SCENE_CLIP_FILE');
    if(!op.public&&!credentials)throw new StudioApiError('PAIRING_REQUIRED');
    const path=pathFor(op,args);
    const headers={'accept':'application/json'};
