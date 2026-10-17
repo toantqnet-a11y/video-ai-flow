@@ -1464,8 +1464,8 @@
     "fi03PostEditSuite": "INCOMPLETE historical",
     "fi02ReleaseGateBaseline": "8 PASS / 12 BLOCKED / 0 FAIL",
     "wi03WindowsHosted": "GitHub Actions run 39014629188: Windows Vite + Fastify real HTTP + Edge/Chrome React DOM PASS; FFmpeg/FFprobe BLOCKED in that historical run",
-    "referenceOnly": true,
-    "fi0404WindowsHosted": "GitHub Actions run 39022682686: SHA256-pinned FFmpeg/FFprobe, real HyperFrames 0.8.159 SP-04 5-scene MP4 10 cues + music; ffprobe H264/AAC 429 frames PASS; manual AV/Windows11/35min pending"
+    "fi0404WindowsHosted": "GitHub Actions run 39022682686: SHA256-pinned FFmpeg/FFprobe, real HyperFrames 0.8.159 SP-04 5-scene MP4 10 cues + music; ffprobe H264/AAC 429 frames PASS; manual AV/Windows11/35min pending",
+    "referenceOnly": true
   },
   "note": "Do not claim code complete from mock protocols; retained FI02 task statuses are historical and must be freshly revalidated."
 }
