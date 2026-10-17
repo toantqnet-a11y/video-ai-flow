@@ -2,7 +2,7 @@
  * no automatic paid API, no AI call on mount, no browser-stored bearer tokens.
  */
 import React,{useEffect,useState} from 'react';
-import {api,getSceneClipFile} from './api.js';
+import {api,getSceneClipRevisionFile} from './api.js';
 const blank={mediaType:'image_motion',mode:'text_to_video',fallback:'manual_image',
  durationSec:4,width:768,height:432,fps:24,seed:1};
 const human={image_motion:'Ảnh + chuyển động',ai_video:'Clip AI cục bộ',import_video:'Clip có sẵn'};
@@ -11,25 +11,27 @@ export function SceneVideoPanel({sceneId,onUpdated=()=>{},disabled=false}){
  const [status,setStatus]=useState(null),[scope,setScope]=useState(null);
  const [draft,setDraft]=useState({...blank}),[preflight,setPreflight]=useState(null);
  const [error,setError]=useState(''),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false);
- const [videoUrl,setVideoUrl]=useState('');
+ const [videoUrl,setVideoUrl]=useState(''),[previewAssetId,setPreviewAssetId]=useState(null);
  const refresh=async()=>{
   if(!sceneId)return;
   const [s,p]=await Promise.all([api(`/scenes/${sceneId}/video/status`),api(`/video-media/policy/scene/${sceneId}`)]);
   setStatus(s);setScope(p);setDraft(p.policy??s.policy??{...blank});
  };
- useEffect(()=>{let alive=true;setStatus(null);setScope(null);setVideoUrl('');setPreflight(null);
+ useEffect(()=>{let alive=true;setStatus(null);setScope(null);setVideoUrl('');setPreviewAssetId(null);setPreflight(null);
   if(!sceneId)return;
   Promise.all([api(`/scenes/${sceneId}/video/status`),api(`/video-media/policy/scene/${sceneId}`)])
    .then(([s,p])=>{if(alive){setStatus(s);setScope(p);setDraft(p.policy??s.policy??{...blank})}})
    .catch(e=>{if(alive)setError(e.code??e.message)});
   return()=>{alive=false};
  },[sceneId]);
- useEffect(()=>{if(!sceneId||!status?.selectedVideoAssetId){setVideoUrl('');return;}
-  let alive=true,url='';
-  getSceneClipFile(sceneId).then(blob=>{url=URL.createObjectURL(blob);if(alive)setVideoUrl(url);else URL.revokeObjectURL(url)})
-   .catch(e=>{if(alive)setError(e.code??e.message)});
+ const currentPreview=previewAssetId??status?.selectedVideoAssetId;
+ useEffect(()=>{if(!sceneId||!currentPreview){setVideoUrl('');return;}
+  let alive=true,url='';setVideoUrl('');
+  getSceneClipRevisionFile(sceneId,currentPreview).then(blob=>{
+   url=URL.createObjectURL(blob);if(alive)setVideoUrl(url);else URL.revokeObjectURL(url);
+  }).catch(e=>{if(alive)setError(e.code??e.message)});
   return()=>{alive=false;if(url)URL.revokeObjectURL(url)};
- },[sceneId,status?.selectedVideoAssetId]);
+ },[sceneId,currentPreview]);
  if(!sceneId)return null;
  const mutate=async(cb)=>{setBusy(true);setError('');setNotice('');
   try{const msg=await cb();await refresh();if(msg)setNotice(msg);await onUpdated()}
@@ -105,6 +107,8 @@ export function SceneVideoPanel({sceneId,onUpdated=()=>{},disabled=false}){
    {status.assets.length>0&&<div><h4>Phiên bản clip ({status.assets.length})</h4>
     {status.assets.map(a=><div className="actions" key={a.id}>
      <span>{a.id.slice(0,8)} · {a.source} · {a.health} · {a.metadata?.durationMs??'—'} ms</span>
+     <button className="btn secondary" disabled={busy||a.health!=='healthy'}
+      onClick={()=>setPreviewAssetId(a.id)}>{currentPreview===a.id?'Đang xem':'Xem thử'}</button>
      <button className="btn secondary" disabled={busy||disabled||dirty||a.health!=='healthy'||status.selectedVideoAssetId===a.id}
       onClick={()=>activate(a.id)}>{status.selectedVideoAssetId===a.id?'✓ Đang dùng':'Chọn phiên bản'}</button>
     </div>)}</div>}
@@ -114,6 +118,8 @@ export function SceneVideoPanel({sceneId,onUpdated=()=>{},disabled=false}){
       <button key={a.id} className="btn secondary" disabled={busy||disabled||dirty}
        onClick={()=>fallback(a.id)}>Dùng ảnh {a.id.slice(0,8)}</button>)}
     </div>}
+   {previewAssetId&&previewAssetId!==status.selectedVideoAssetId&&
+    <p className="muted">Đang xem thử clip chưa chọn cho render; bấm Chọn phiên bản khi hài lòng.</p>}
    {videoUrl&&<video src={videoUrl} controls preload="metadata" style={{maxWidth:'100%',maxHeight:280}} aria-label="Clip đã chọn"/>}
    {!status.assets.length&&<p className="muted">Chưa có clip. Có thể tiếp tục dùng ảnh + chuyển động.</p>}
   </>}
