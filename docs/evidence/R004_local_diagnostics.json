@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "collectedAt": "2026-10-13T22:05:26.236Z",
+  "cacheTtlMs": 30000,
+  "environment": {
+    "platform": "linux",
+    "arch": "x64",
+    "nodeMajor": 22
+  },
+  "summary": {
+    "state": "attention",
+    "ready": 6,
+    "warning": 0,
+    "missing": 1,
+    "unconfigured": 2,
+    "unknown": 0
+  },
+  "readiness": {
+    "editing": true,
+    "render": true,
+    "localAiVideo": false
+  },
+  "validation": {
+    "windowsHardware": false,
+    "providerInference": false,
+    "fullLengthRender": false
+  },
+  "checks": [
+    {
+      "id": "cpu",
+      "state": "ready",
+      "detail": "CPU_DETECTED",
+      "metrics": {
+        "cores": 4
+      }
+    },
+    {
+      "id": "ram",
+      "state": "ready",
+      "detail": "MEMORY_AVAILABLE",
+      "metrics": {
+        "totalGiB": 5.8,
+        "freeGiB": 4.6
+      }
+    },
+    {
+      "id": "disk",
+      "state": "ready",
+      "detail": "DISK_SPACE_AVAILABLE",
+      "metrics": {
+        "totalGiB": 31.5,
+        "freeGiB": 29.8
+      }
+    },
+    {
+      "id": "sqlite",
+      "state": "ready",
+      "detail": "SQLITE_CONNECTED",
+      "metrics": {}
+    },
+    {
+      "id": "ffmpeg",
+      "state": "ready",
+      "detail": "FFMPEG_RENDER_CODECS_AVAILABLE",
+      "metrics": {
+        "h264": true,
+        "aac": true
+      }
+    },
+    {
+      "id": "ffprobe",
+      "state": "ready",
+      "detail": "FFPROBE_AVAILABLE",
+      "metrics": {}
+    },
+    {
+      "id": "gpu",
+      "state": "missing",
+      "detail": "NVIDIA_NOT_DETECTED",
+      "metrics": {
+        "nvidiaCount": 0,
+        "memoryMiB": null
+      }
+    },
+    {
+      "id": "windows",
+      "state": "unconfigured",
+      "detail": "WINDOWS_TEST_DEFERRED",
+      "metrics": {}
+    },
+    {
+      "id": "comfyui",
+      "state": "unconfigured",
+      "detail": "COMFY_WORKFLOW_NOT_CONFIGURED",
+      "metrics": {}
+    }
+  ],
+  "note": "Diagnostics only; provider inference, native Windows security and 35-minute 1080p rendering remain unverified."
+}

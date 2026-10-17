@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "platform": "linux",
+  "executedAt": "2026-10-13T07:32:25.947Z",
+  "results": [
+    {
+      "label": "fixture-5min",
+      "fixture": "solid-color/silent-audio synthetic 320x180 @ 2fps (NOT a production-grade render performance benchmark)",
+      "expectedDurationSeconds": 300,
+      "actualDurationSeconds": 300,
+      "elapsedSeconds": 0.29,
+      "encodingSpeedRatio": 1034.48,
+      "peakFfmpegRssBytes": 38178816,
+      "fileBytes": 57830,
+      "codecs": {
+        "video": "h264",
+        "audio": "aac"
+      },
+      "verifiedWithFfprobe": true,
+      "passed": true,
+      "outputFilename": "fixture-5min-300s.mp4",
+      "warning": null
+    },
+    {
+      "label": "fixture-35min",
+      "fixture": "solid-color/silent-audio synthetic 320x180 @ 2fps (NOT a production-grade render performance benchmark)",
+      "expectedDurationSeconds": 2100,
+      "actualDurationSeconds": 2100,
+      "elapsedSeconds": 1.69,
+      "encodingSpeedRatio": 1242.6,
+      "peakFfmpegRssBytes": 40513536,
+      "fileBytes": 388834,
+      "codecs": {
+        "video": "h264",
+        "audio": "aac"
+      },
+      "verifiedWithFfprobe": true,
+      "passed": true,
+      "outputFilename": "fixture-35min-2100s.mp4",
+      "warning": null
+    }
+  ]
+}

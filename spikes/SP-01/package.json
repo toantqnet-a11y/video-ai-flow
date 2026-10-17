@@ -1,0 +1,14 @@
+{
+  "name": "contentstudio-sprint0-sp01",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "diagnose": "node src/cli.js diagnose",
+    "smoke": "node src/cli.js benchmark --smoke",
+    "benchmark": "node src/cli.js benchmark --full",
+    "serve": "node src/cli.js serve",
+    "test": "node --test"
+  }
+}

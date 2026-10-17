@@ -1,0 +1,20 @@
+{
+  "id": "IA-02",
+  "result": "PASS",
+  "releaseStatus": "PENDING_LONG_FORM_MP4",
+  "sceneCount": 300,
+  "verifiedAssetCount": 600,
+  "scenario": "long_form_composition_only",
+  "expectedTimelineSeconds": 2180,
+  "expectedTimelineMinutes": 36.33,
+  "totalFrames": 65400,
+  "fps": 30,
+  "fixtureWaveMs": 7000,
+  "tailPaddingMs": 250,
+  "sqliteAndAssetHashesVerified": true,
+  "ffprobeMeasuredAllVoices": true,
+  "elapsedPlanMs": 21307,
+  "realAiInference": false,
+  "renderedMp4": false,
+  "realWindowsGpuAccepted": false
+}

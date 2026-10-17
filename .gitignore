@@ -1,0 +1,16 @@
+node_modules/
+apps/web/dist/
+.env
+.env.*
+!.env.example
+data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.log
+*.partial
+.DS_Store
+
+# FI-04-04 short review media: keep local; inspect manually, never commit.
+docs/evidence/FI0404_review.mp4
+docs/evidence/FI0404_review.srt

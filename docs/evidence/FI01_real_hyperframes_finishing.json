@@ -1,0 +1,5 @@
+{
+  "status": "BLOCKED_OR_FAILED",
+  "code": "HYPERFRAMES_NOT_INSTALLED",
+  "note": "No substitute/mock/FFmpeg result may be counted as genuine HyperFrames"
+}

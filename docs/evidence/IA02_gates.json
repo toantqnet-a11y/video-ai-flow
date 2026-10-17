@@ -1,0 +1,92 @@
+{
+  "id": "IA-02",
+  "at": "2026-10-15T22:49:39.346Z",
+  "platform": "linux",
+  "localFirst": true,
+  "paidApiCalls": 0,
+  "primaryEngine": "hyperframes",
+  "manualFallback": "ffmpeg-fastpath",
+  "release": "NOT_READY",
+  "gates": [
+    {
+      "id": "node-22",
+      "status": "PASS",
+      "detail": "v22.16.0"
+    },
+    {
+      "id": "ffmpeg-cli",
+      "status": "PASS",
+      "detail": "installed"
+    },
+    {
+      "id": "ffprobe-cli",
+      "status": "PASS",
+      "detail": "installed"
+    },
+    {
+      "id": "vite-installed",
+      "status": "BLOCKED",
+      "detail": "Needed for actual compiled React UI"
+    },
+    {
+      "id": "react-installed",
+      "status": "BLOCKED",
+      "detail": "Needed for browser UI"
+    },
+    {
+      "id": "fastify-installed",
+      "status": "BLOCKED",
+      "detail": "Needed for live HTTP/API tests"
+    },
+    {
+      "id": "hyperframes-local",
+      "status": "BLOCKED",
+      "detail": "Only a project-local package is accepted; no npx auto-install"
+    },
+    {
+      "id": "windows-host",
+      "status": "BLOCKED",
+      "detail": "Target Windows host not tested"
+    },
+    {
+      "id": "hyperframes-html-contract",
+      "status": "PASS",
+      "detail": "5 real pinned PNG/WAV scenes; root has no-timeline and zero start"
+    },
+    {
+      "id": "web-build",
+      "status": "BLOCKED",
+      "detail": "Vite missing; web build NOT_RUN"
+    },
+    {
+      "id": "fastify-live-http",
+      "status": "BLOCKED",
+      "detail": "Fastify missing; live HTTP NOT_RUN"
+    },
+    {
+      "id": "ffmpeg-five-scene",
+      "status": "PASS",
+      "detail": "429 actual H264/AAC frames; f10474f305b4 SHA"
+    },
+    {
+      "id": "hyperframes-real-five-scene",
+      "status": "BLOCKED",
+      "detail": "HyperFrames missing; NEVER replaced with FFmpeg"
+    },
+    {
+      "id": "production-ai-providers",
+      "status": "BLOCKED",
+      "detail": "Real LLM/TTS/ComfyUI with consent not tested"
+    },
+    {
+      "id": "30-40min-mp4",
+      "status": "BLOCKED",
+      "detail": "Long timeline planned only; long MP4 not rendered"
+    },
+    {
+      "id": "browser-ux",
+      "status": "BLOCKED",
+      "detail": "No completed interactive visual review or Playwright acceptance"
+    }
+  ]
+}

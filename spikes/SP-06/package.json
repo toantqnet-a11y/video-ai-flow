@@ -1,0 +1,11 @@
+{
+  "name": "contentstudio-sp06-local-security",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "demo": "node src/demo.mjs"
+  }
+}

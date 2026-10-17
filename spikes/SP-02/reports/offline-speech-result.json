@@ -1,0 +1,14 @@
+{
+  "assetId": "416d30f7-07e2-467b-be2b-951e3f387a36",
+  "path": "/mnt/data/contentstudio-sprint0/SP-02/data/smoke/scenes/intro/audio/416d30f7-07e2-467b-be2b-951e3f387a36.wav",
+  "providerId": "espeak-local",
+  "voice": "vi",
+  "format": "wav",
+  "durationSec": 2.935147,
+  "attempts": [
+    {
+      "providerId": "espeak-local",
+      "status": "succeeded"
+    }
+  ]
+}

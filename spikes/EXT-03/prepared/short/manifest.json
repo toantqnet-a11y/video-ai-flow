@@ -1,0 +1,25 @@
+{
+  "compositionId": "VideoFlowPOC",
+  "schemaVersion": 1,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "totalFrames": 86,
+  "durationSeconds": 2.8666666666666667,
+  "sceneCount": 1,
+  "scenes": [
+    {
+      "id": "001",
+      "text": "Tạo video từ một ý tưởng đơn giản.",
+      "image": "background-01.png",
+      "audio": "voice-01.wav",
+      "audioDurationSeconds": 2.415,
+      "startFrame": 0,
+      "durationFrames": 86,
+      "imageSha256": "a35e312d7fc5f1d55ef162f65538dfe48b924547cf106b72e75b1d290444eb15",
+      "audioSha256": "926d18d87e725cc91cf91e4d270e395316ae1d6c1298ffb96776b4fbcb51b51b"
+    }
+  ],
+  "timingSource": "ffprobe-measured-wav",
+  "captionSource": "visual-fixture-only-not-aligned-to-english-voice"
+}

@@ -1,0 +1,29 @@
+{
+  "environment": {
+    "os": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "python": "3.13.5",
+    "cpu_count": 5,
+    "psutil_available": true
+  },
+  "fixture": {
+    "duration": 15.3,
+    "fps": 30,
+    "resolution": [
+      1080,
+      1920
+    ],
+    "scenes": 5
+  },
+  "runs": [
+    {
+      "engine": "remotion",
+      "status": "NOT_RUN",
+      "reason": "npm dependencies missing; run npm install in /mnt/data/video-engine-poc/remotion"
+    },
+    {
+      "engine": "hyperframes",
+      "status": "NOT_RUN",
+      "reason": "npm dependencies missing; run npm install in /mnt/data/video-engine-poc/hyperframes"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "task": "R2-EXT-02",
+  "date": "2026-10-15",
+  "status": "CODE_COMPLETE_TESTED_OFFLINE",
+  "releaseReady": false,
+  "checks": {
+    "focused": {
+      "pass": 14,
+      "fail": 0
+    },
+    "v1Regression": {
+      "pass": 12,
+      "fail": 0
+    },
+    "all": {
+      "pass": 714,
+      "fail": 0
+    },
+    "apiCatalog": "PASS",
+    "sdkTypecheck": "PASS",
+    "negativeControl": "PASS",
+    "webBuild": "BLOCKED_VITE_NOT_INSTALLED",
+    "liveHttp": "BLOCKED_FASTIFY_DEPS_NOT_INSTALLED"
+  },
+  "validated": [
+    "real ffprobe wav sample",
+    "audio frame rounding and bounded padding",
+    "scene-level caption end",
+    "timeline manual lock",
+    "ffprobe failure blocker",
+    "sha256 corruption guard",
+    "source revision/digest fencing",
+    "immutable v1/v2 revisions"
+  ],
+  "notValidated": [
+    "Windows",
+    "browser",
+    "real TTS/provider",
+    "word-level forced alignment",
+    "rendered MP4",
+    "30-40minute A/V sync",
+    "Remotion or HyperFrames benchmark"
+  ]
+}

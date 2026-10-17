@@ -1,0 +1,1 @@
+{"name":"@contentstudio/contracts","private":true,"version":"0.5.0","type":"module","exports":{".":"./src/catalog.mjs","./openapi":"./src/openapi.mjs"}}

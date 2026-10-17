@@ -1,0 +1,16 @@
+
+> contentstudio@0.9.4-r0vid01 build:web
+> npm run build -w @contentstudio/web
+
+
+> @contentstudio/web@0.2.0 build
+> vite build
+
+sh: 1: vite: not found
+npm error Lifecycle script `build` failed with error:
+npm error code 127
+npm error path /mnt/data/ContentStudio_R001_Launcher_Work/ContentStudio/apps/web
+npm error workspace @contentstudio/web@0.2.0
+npm error location /mnt/data/ContentStudio_R001_Launcher_Work/ContentStudio/apps/web
+npm error command failed
+npm error command sh -c vite build

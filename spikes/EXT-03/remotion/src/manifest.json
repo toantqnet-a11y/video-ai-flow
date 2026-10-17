@@ -1,0 +1,179 @@
+{
+  "compositionId": "VideoFlowPOC",
+  "schemaVersion": 1,
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "totalFrames": 1377,
+  "durationSeconds": 45.9,
+  "sceneCount": 15,
+  "scenes": [
+    {
+      "id": "001",
+      "text": "Tạo video từ một ý tưởng đơn giản.",
+      "image": "background-01.png",
+      "audio": "voice-01.wav",
+      "audioDurationSeconds": 2.415,
+      "startFrame": 0,
+      "durationFrames": 86,
+      "imageSha256": "a35e312d7fc5f1d55ef162f65538dfe48b924547cf106b72e75b1d290444eb15",
+      "audioSha256": "926d18d87e725cc91cf91e4d270e395316ae1d6c1298ffb96776b4fbcb51b51b"
+    },
+    {
+      "id": "002",
+      "text": "Chuyển ý tưởng thành kịch bản rõ ràng.",
+      "image": "background-02.png",
+      "audio": "voice-02.wav",
+      "audioDurationSeconds": 2.77,
+      "startFrame": 86,
+      "durationFrames": 97,
+      "imageSha256": "f06a987f1674e90aaecec18634a76c041c6a6db6719de8fde58aea834a439884",
+      "audioSha256": "ef3202ad75efe78706605a9640beffcad3eeade62927e99333b5359eb4801bb2"
+    },
+    {
+      "id": "003",
+      "text": "Đo thời lượng giọng đọc bằng FFprobe.",
+      "image": "background-03.png",
+      "audio": "voice-03.wav",
+      "audioDurationSeconds": 2.56,
+      "startFrame": 183,
+      "durationFrames": 91,
+      "imageSha256": "5d756326138648bf4d5c1c67e9d228dcd22467374383d0d48b169a46700485ee",
+      "audioSha256": "ccbda5d3c0047b3887b04e43752ef05b5ea773c79ef31e6fc5ce9a269228f32f"
+    },
+    {
+      "id": "004",
+      "text": "Minh họa chuyển động và phụ đề tiếng Việt.",
+      "image": "background-04.png",
+      "audio": "voice-04.wav",
+      "audioDurationSeconds": 2.47,
+      "startFrame": 274,
+      "durationFrames": 88,
+      "imageSha256": "a6ccfeca8e8acdd401b9489115fb6c43fe72c34290e8187a504ddbf5df6a70cc",
+      "audioSha256": "2a86a3bf10cad5ea739ecd7c9931023e37b1deb97bf9a9e8d9f6fb3a187f0aa2"
+    },
+    {
+      "id": "005",
+      "text": "Xuất video với hình ảnh và âm thanh đồng bộ.",
+      "image": "background-05.png",
+      "audio": "voice-05.wav",
+      "audioDurationSeconds": 2.76,
+      "startFrame": 362,
+      "durationFrames": 97,
+      "imageSha256": "dfbe6dd9849ed2f92a61849ac11c234814feba49cea02daf1eb591d1a2ad8a30",
+      "audioSha256": "1c452a47ee8ea2fa637d18c5bb2a8ef00ccc2063821a36f2a459905831afbbf4"
+    },
+    {
+      "id": "006",
+      "text": "Tạo video từ một ý tưởng đơn giản.",
+      "image": "background-01.png",
+      "audio": "voice-01.wav",
+      "audioDurationSeconds": 2.415,
+      "startFrame": 459,
+      "durationFrames": 86,
+      "imageSha256": "a35e312d7fc5f1d55ef162f65538dfe48b924547cf106b72e75b1d290444eb15",
+      "audioSha256": "926d18d87e725cc91cf91e4d270e395316ae1d6c1298ffb96776b4fbcb51b51b"
+    },
+    {
+      "id": "007",
+      "text": "Chuyển ý tưởng thành kịch bản rõ ràng.",
+      "image": "background-02.png",
+      "audio": "voice-02.wav",
+      "audioDurationSeconds": 2.77,
+      "startFrame": 545,
+      "durationFrames": 97,
+      "imageSha256": "f06a987f1674e90aaecec18634a76c041c6a6db6719de8fde58aea834a439884",
+      "audioSha256": "ef3202ad75efe78706605a9640beffcad3eeade62927e99333b5359eb4801bb2"
+    },
+    {
+      "id": "008",
+      "text": "Đo thời lượng giọng đọc bằng FFprobe.",
+      "image": "background-03.png",
+      "audio": "voice-03.wav",
+      "audioDurationSeconds": 2.56,
+      "startFrame": 642,
+      "durationFrames": 91,
+      "imageSha256": "5d756326138648bf4d5c1c67e9d228dcd22467374383d0d48b169a46700485ee",
+      "audioSha256": "ccbda5d3c0047b3887b04e43752ef05b5ea773c79ef31e6fc5ce9a269228f32f"
+    },
+    {
+      "id": "009",
+      "text": "Minh họa chuyển động và phụ đề tiếng Việt.",
+      "image": "background-04.png",
+      "audio": "voice-04.wav",
+      "audioDurationSeconds": 2.47,
+      "startFrame": 733,
+      "durationFrames": 88,
+      "imageSha256": "a6ccfeca8e8acdd401b9489115fb6c43fe72c34290e8187a504ddbf5df6a70cc",
+      "audioSha256": "2a86a3bf10cad5ea739ecd7c9931023e37b1deb97bf9a9e8d9f6fb3a187f0aa2"
+    },
+    {
+      "id": "010",
+      "text": "Xuất video với hình ảnh và âm thanh đồng bộ.",
+      "image": "background-05.png",
+      "audio": "voice-05.wav",
+      "audioDurationSeconds": 2.76,
+      "startFrame": 821,
+      "durationFrames": 97,
+      "imageSha256": "dfbe6dd9849ed2f92a61849ac11c234814feba49cea02daf1eb591d1a2ad8a30",
+      "audioSha256": "1c452a47ee8ea2fa637d18c5bb2a8ef00ccc2063821a36f2a459905831afbbf4"
+    },
+    {
+      "id": "011",
+      "text": "Tạo video từ một ý tưởng đơn giản.",
+      "image": "background-01.png",
+      "audio": "voice-01.wav",
+      "audioDurationSeconds": 2.415,
+      "startFrame": 918,
+      "durationFrames": 86,
+      "imageSha256": "a35e312d7fc5f1d55ef162f65538dfe48b924547cf106b72e75b1d290444eb15",
+      "audioSha256": "926d18d87e725cc91cf91e4d270e395316ae1d6c1298ffb96776b4fbcb51b51b"
+    },
+    {
+      "id": "012",
+      "text": "Chuyển ý tưởng thành kịch bản rõ ràng.",
+      "image": "background-02.png",
+      "audio": "voice-02.wav",
+      "audioDurationSeconds": 2.77,
+      "startFrame": 1004,
+      "durationFrames": 97,
+      "imageSha256": "f06a987f1674e90aaecec18634a76c041c6a6db6719de8fde58aea834a439884",
+      "audioSha256": "ef3202ad75efe78706605a9640beffcad3eeade62927e99333b5359eb4801bb2"
+    },
+    {
+      "id": "013",
+      "text": "Đo thời lượng giọng đọc bằng FFprobe.",
+      "image": "background-03.png",
+      "audio": "voice-03.wav",
+      "audioDurationSeconds": 2.56,
+      "startFrame": 1101,
+      "durationFrames": 91,
+      "imageSha256": "5d756326138648bf4d5c1c67e9d228dcd22467374383d0d48b169a46700485ee",
+      "audioSha256": "ccbda5d3c0047b3887b04e43752ef05b5ea773c79ef31e6fc5ce9a269228f32f"
+    },
+    {
+      "id": "014",
+      "text": "Minh họa chuyển động và phụ đề tiếng Việt.",
+      "image": "background-04.png",
+      "audio": "voice-04.wav",
+      "audioDurationSeconds": 2.47,
+      "startFrame": 1192,
+      "durationFrames": 88,
+      "imageSha256": "a6ccfeca8e8acdd401b9489115fb6c43fe72c34290e8187a504ddbf5df6a70cc",
+      "audioSha256": "2a86a3bf10cad5ea739ecd7c9931023e37b1deb97bf9a9e8d9f6fb3a187f0aa2"
+    },
+    {
+      "id": "015",
+      "text": "Xuất video với hình ảnh và âm thanh đồng bộ.",
+      "image": "background-05.png",
+      "audio": "voice-05.wav",
+      "audioDurationSeconds": 2.76,
+      "startFrame": 1280,
+      "durationFrames": 97,
+      "imageSha256": "dfbe6dd9849ed2f92a61849ac11c234814feba49cea02daf1eb591d1a2ad8a30",
+      "audioSha256": "1c452a47ee8ea2fa637d18c5bb2a8ef00ccc2063821a36f2a459905831afbbf4"
+    }
+  ],
+  "timingSource": "ffprobe-measured-wav",
+  "captionSource": "visual-fixture-only-not-aligned-to-english-voice"
+}

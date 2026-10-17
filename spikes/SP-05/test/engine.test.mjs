@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createDemoScenes,buildTimeline,getVisibleRange,getSceneAtTime,reorderScenes,trimScene,updateScene,formatTime,extractWavePeaks,lowerBound} from '../src/engine.mjs';
+
+test('500 scenes cover precisely 35 minutes',()=>{const s=createDemoScenes();const t=buildTimeline(s);assert.equal(s.length,500);assert.equal(t.totalMs,2_100_000);assert.equal(new Set(s.map(x=>x.id)).size,500);});
+test('reject nonsensical or extreme fixture sizes',()=>{for(const n of [0,-1,10001,2.2])assert.throws(()=>createDemoScenes(n));});
+test('viewport virtualization at start, middle and end',()=>{const s=createDemoScenes(),t=buildTimeline(s);for(const left of [0,8000,17000,37000]){const r=getVisibleRange(s,t,left,980,18);assert.ok(r.count>0&&r.count<50);assert.ok(r.first>=0&&r.end<=500);}});
+test('viewport intersects expected scenes even on zoom extremes',()=>{const s=createDemoScenes(),t=buildTimeline(s);for(const scale of [6,44]){const r=getVisibleRange(s,t,0,990,scale);assert.ok(r.count>=4);assert.ok(r.count<90);}});
+test('timestamp mapping picks correct clip at boundaries',()=>{const s=createDemoScenes(),t=buildTimeline(s);assert.equal(getSceneAtTime(s,t,0),0);assert.equal(getSceneAtTime(s,t,4199),0);assert.equal(getSceneAtTime(s,t,4200),1);assert.equal(getSceneAtTime(s,t,2_100_000),499);});
+test('reorder is immutable and preserves all ID references and duration',()=>{const s=createDemoScenes();const n=reorderScenes(s,0,20);assert.equal(s[0].id,'SC-001');assert.equal(n[20].id,'SC-001');assert.equal(new Set(n.map(x=>x.id)).size,500);assert.equal(buildTimeline(n).totalMs,2_100_000);});
+test('invalid reorder index rejected',()=>{assert.throws(()=>reorderScenes(createDemoScenes(),500,0));assert.throws(()=>reorderScenes(createDemoScenes(),0,-1));});
+test('trim clamps at min/max and preserves other scene records',()=>{const s=createDemoScenes();assert.equal(trimScene(s,0,200)[0].durationMs,1000);assert.equal(trimScene(s,0,500000)[0].durationMs,30000);assert.strictEqual(s[1],trimScene(s,0,8000)[1]);});
+test('trim rejects unknown scenes',()=>{assert.throws(()=>trimScene(createDemoScenes(),-1,3500));});
+test('text edit selectively invalidates voice, image edit selectively invalidates image',()=>{const s=createDemoScenes();const a=updateScene(s,0,{text:'new script'});assert.equal(a[0].voiceState,'needs-regen');assert.equal(a[0].imageState,'demo');const b=updateScene(s,0,{imagePrompt:'new prompt'});assert.equal(b[0].voiceState,'demo');assert.equal(b[0].imageState,'needs-regen');});
+test('only whitelist text fields accepted',()=>assert.throws(()=>updateScene(createDemoScenes(),0,{id:'INJECT'})));
+test('format time with and without milliseconds',()=>{assert.equal(formatTime(2_100_000),'35:00');assert.equal(formatTime(65023,true),'01:05.023');});
+test('lower bound handles repeated and non-existent values',()=>{assert.equal(lowerBound([0,2,2,4],2),1);assert.equal(lowerBound([],3),0);assert.equal(lowerBound([1,3],9),2);});
+test('waveform analysis processes real PCM amplitude',()=>{const peaks=extractWavePeaks(Float32Array.from([0,0.2,-0.6,0.9,0.1,0,-.3,0]),4);assert.deepEqual(peaks,[.20000000298023224,.8999999761581421,.10000000149011612,.30000001192092896]);});
+test('waveform analysis rejects empty audio',()=>assert.throws(()=>extractWavePeaks([])));
+test('bad duration rejected by authoritative timeline',()=>{const s=createDemoScenes();s[3].durationMs=-3;assert.throws(()=>buildTimeline(s));});

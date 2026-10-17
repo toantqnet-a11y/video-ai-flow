@@ -1,0 +1,17 @@
+{
+  "assetId": "cc704720-8619-419a-abae-13e27dce56e5",
+  "relativePath": "projects/demo/scenes/scene_001/images/cc704720-8619-419a-abae-13e27dce56e5.png",
+  "providerId": "manual_import",
+  "format": "png",
+  "width": 640,
+  "height": 360,
+  "sha256": "8c79a84d05d522d4e76dcf2169fa5e5cd2b3f57e0c3d59be66bb24c2628f2c84",
+  "sizeBytes": 64844,
+  "metadataPath": "projects/demo/scenes/scene_001/images/cc704720-8619-419a-abae-13e27dce56e5.json",
+  "attempts": [
+    {
+      "providerId": "manual_import",
+      "status": "succeeded"
+    }
+  ]
+}

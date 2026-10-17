@@ -1,0 +1,1002 @@
+{
+  "version": "2026-10-16-fi02-production-readiness",
+  "status": "FI02_FOCUSED_PASS__RELEASE_NOT_READY",
+  "constraints": [
+    "single-SP-04-queue",
+    "no-paid-auto",
+    "keep-R2-original-ids",
+    "engine-neutral",
+    "Windows-local-first",
+    "append-only-migrations-after-v26"
+  ],
+  "tasks": [
+    {
+      "id": "R2-05",
+      "title": "Scene image generation adapter",
+      "priority": "P0",
+      "dependsOn": [
+        "R2-02"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "20/20 focused, 560/560 all offline; manual uploads, versions and local ComfyUI mock validated; live hardware pending",
+      "verifiedTests": [
+        "npm run test:r205",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk"
+      ],
+      "remainingGate": [
+        "live checkpoint/GPU",
+        "Windows/browser",
+        "30-40min",
+        "Vite dependency installation/build"
+      ]
+    },
+    {
+      "id": "R2-EXT-01",
+      "title": "Engine-neutral scene composition contract",
+      "priority": "P0",
+      "dependsOn": [
+        "R2-02"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "Composition v1: deterministic scene/voice/visual/caption frame manifest, pinned revisions/hash, immutable v28 persistence, read-only preview, explicit digest publish, 12 focused + 700 full offline tests",
+      "verifiedTests": [
+        "npm run test:ext01",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "Windows + browser live acceptance",
+        "EXT-03 renderer engine benchmark",
+        "MP4 output and long-form runtime"
+      ]
+    },
+    {
+      "id": "R2-06",
+      "title": "Asset hashes, versions and atomic promotion",
+      "priority": "P0",
+      "dependsOn": [
+        "R2-03",
+        "R2-05"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "14/14 focused, 574/574 all offline; SHA index, manual dedupe and guarded revision selection, integrity reconcile, per-scene selective recompute planner; live validation outstanding",
+      "verifiedTests": [
+        "npm run test:r206",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk"
+      ],
+      "remainingGate": [
+        "Windows/browser/provider/long form",
+        "destructive GC deferred",
+        "physical cross-scene dedupe deferred to future decision"
+      ]
+    },
+    {
+      "id": "R2-07",
+      "title": "Durable queue DAG and recovery plus timing ownership",
+      "priority": "P0",
+      "dependsOn": [
+        "R2-06"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "19/19 focused, 593/593 all offline; durable single-SP-04 DAG, explicit consent/retry, crash recovery, selective asset promotion and timing handoff; live validation outstanding",
+      "verifiedTests": [
+        "npm run test:r207",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "Windows/live ComfyUI and native TTS",
+        "browser HTTP UI",
+        "30-40min multi-scene stress and memory",
+        "actual caption timeline sync/render"
+      ]
+    },
+    {
+      "id": "R2-08",
+      "title": "Local quota ledger, guarded free LLM preflight and reservation",
+      "priority": "P0",
+      "dependsOn": [
+        "R2-07"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "20/20 focused, 613/613 project tests; SQLite v26 durable quota reservation, uncertain hold/recovery, fail-closed free LLM user-ceiling estimate, safe read API; real provider verification not claimed",
+      "verifiedTests": [
+        "npm run test:r208",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "provider-official-quota-and-billing-verification",
+        "live-HTTP-browser",
+        "Windows",
+        "multi-instance-and-35min",
+        "Vite dependency installation/build"
+      ]
+    },
+    {
+      "id": "R2-EXT-02",
+      "title": "Audio frame duration & captions alignment",
+      "priority": "P0",
+      "dependsOn": [
+        "R2-03",
+        "R2-04",
+        "R2-07",
+        "R2-EXT-01"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "FFprobe measured selected healthy voice, deterministic frame-ceil + 0..5000ms padding; scene-level captions, manual timeline locks and cutoff conflict guard; 14 focused + 714 full offline PASS. Real word alignment/render NOT implemented.",
+      "verifiedTests": [
+        "npm run test:ext02",
+        "npm run test:ext01",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "actual native Vietnamese TTS/Windows/browser",
+        "word-level forced alignment from authentic timestamps",
+        "real Remotion/HyperFrames render benchmark",
+        "MP4 QA and 30-40min"
+      ]
+    },
+    {
+      "id": "R2-EXT-03",
+      "title": "Remotion / HyperFrames real POC benchmark",
+      "priority": "P0",
+      "dependsOn": [],
+      "status": "PRIMARY_SELECTED_BY_PO_BENCHMARK_NOT_RUN",
+      "acceptanceSummary": "HyperFrames selected by product owner; framework performance benchmark remains NOT_RUN; real CLI integration pending.",
+      "verifiedTests": [
+        "npm run test:ext03",
+        "npm run test:ext02",
+        "npm run test:all"
+      ],
+      "remainingGate": [
+        "Network-enabled npm installation & lock dependencies",
+        "Real Remotion MP4 + HyperFrames MP4 for all 3 workloads × ≥3 trials",
+        "Record peak RAM/CPU, FFprobe, visual/glyph/audio QA on same Windows target",
+        "License check under actual organizational usage"
+      ]
+    },
+    {
+      "id": "R2-EXT-04",
+      "title": "One renderer adapter with FFmpeg fast path",
+      "priority": "P0",
+      "dependsOn": [
+        "R2-EXT-01",
+        "R2-EXT-03",
+        "R2-07"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE__HYPERFRAMES_PRIMARY_UNVERIFIED",
+      "acceptanceSummary": "HyperFrames primary adapter, FFmpeg explicit local fallback, no silent paid/cloud routing; 747/747 offline tests; CLI not installed and real engine MP4 not yet validated.",
+      "verifiedTests": [
+        "npm run test:ext040506",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control",
+        "node tools/demo-render-r2ext040506.mjs"
+      ],
+      "remainingGate": [
+        "EXT-03 fair engine benchmark",
+        "Windows/browser",
+        "long form and render throttling"
+      ]
+    },
+    {
+      "id": "R2-EXT-06",
+      "title": "Final MP4 export and QA",
+      "priority": "P0",
+      "dependsOn": [
+        "R2-EXT-04",
+        "R2-EXT-02"
+      ],
+      "status": "MP4_REAL_LOCAL_SHORT_QA_PASS_LONGFORM_GATE_OPEN",
+      "acceptanceSummary": "Real 3-scene 1920x1080 30fps H264/AAC burned Vietnamese-caption MP4, 8.533008s measured vs 8.533333s expected; private streaming download",
+      "verifiedTests": [
+        "npm run test:ext040506",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control",
+        "node tools/demo-render-r2ext040506.mjs"
+      ],
+      "remainingGate": [
+        "Windows 30-40min",
+        "native TTS",
+        "perceptual A/V QA and benchmark"
+      ]
+    },
+    {
+      "id": "R2-EXT-05",
+      "title": "Scene preview & editable timeline",
+      "priority": "P1",
+      "dependsOn": [
+        "R2-EXT-01",
+        "R2-EXT-02",
+        "R2-06",
+        "R2-EXT-04"
+      ],
+      "status": "MVP_CODE_COMPLETE_UI_NOT_BROWSER_TESTED",
+      "acceptanceSummary": "Scene source preview via private image/voice, timeline timing locks, caption offsets, explicit composition publish and render UI",
+      "verifiedTests": [
+        "npm run test:ext040506",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control",
+        "node tools/demo-render-r2ext040506.mjs"
+      ],
+      "remainingGate": [
+        "Web build",
+        "browser playback",
+        "imported clip/advanced timeline transitions"
+      ]
+    },
+    {
+      "id": "R2-EXT-07",
+      "title": "Cost guard and visual router",
+      "priority": "P1",
+      "dependsOn": [
+        "R2-05",
+        "R2-06"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE_PREVIEW_ONLY",
+      "acceptanceSummary": "Three deterministic cache-first modes, trusted-pin health, local ComfyUI configured-only suggestion, paid clip option displayed blocked; no paid/AI calls, no invented billing. Preview only, provider execution selection stays manual.",
+      "verifiedTests": [
+        "npm run test:ext0708",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "Actual provider budget reconciliation",
+        "Windows/browser E2E",
+        "End-to-end orchestrator dispatch gate (not automatic in this release)"
+      ]
+    },
+    {
+      "id": "R2-EXT-08",
+      "title": "Motion templates and script style presets",
+      "priority": "P2",
+      "dependsOn": [
+        "R2-EXT-04",
+        "R2-EXT-05"
+      ],
+      "status": "CODE_COMPLETE_TESTED_LOCAL_FFMPEG_UI_UNBUILT",
+      "acceptanceSummary": "Four allowlisted version-1 scene motion templates; scoped immutable brand/style versions (SQLite v29); fade-through-black, lower-third, branded Vietnamese subtitles and authenticated real JPG from FFmpeg. Brand/style digest isolates MP4 and thumbnail cache.",
+      "verifiedTests": [
+        "npm run test:ext0708",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control",
+        "node tools/ext0708-demo.mjs"
+      ],
+      "remainingGate": [
+        "Install Vite/browser and test UX",
+        "Windows/long-form and font appearance",
+        "Advanced xfade/transitions, customizable logo asset and script-style presets remain future scope"
+      ]
+    },
+    {
+      "id": "R2-09",
+      "title": "Video asset library, health and read-only selective recompute UX",
+      "priority": "P1",
+      "dependsOn": [
+        "R2-06",
+        "R2-07",
+        "R2-08"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "11/11 focused and 624/624 offline; asset paging, integrity, user-pinned revision selection UI, read-only recompute plan; live gate pending",
+      "verifiedTests": [
+        "npm run test:r209",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "Vite build/install",
+        "Windows/browser",
+        "30-40min"
+      ]
+    },
+    {
+      "id": "R2-10",
+      "title": "Read-only quota transparency and held-token UX",
+      "priority": "P1",
+      "dependsOn": [
+        "R2-08",
+        "R2-09"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "18/18 focused, 642/642 project offline; per-model local quota inspector, held/uncertain call visibility, safe source caveats, bounded history, no provider billing claims or ledger writes",
+      "verifiedTests": [
+        "npm run test:r210",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "Vite installation and browser/UI build",
+        "Windows",
+        "real provider quota and billing reconciliation",
+        "long-form 30-40min"
+      ]
+    },
+    {
+      "id": "R2-11",
+      "title": "Selective regeneration and verified version revert",
+      "priority": "P0",
+      "dependsOn": [
+        "R2-06",
+        "R2-10"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "16/16 focused, 658/658 full offline; explicit single-scene voice or image new-revision queue with stable idempotency, healthy older voice/image re-activation, no other provider calls",
+      "verifiedTests": [
+        "npm run test:r211",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "Windows/browser/Vite install",
+        "native TTS/real ComfyUI GPU",
+        "35min long-form and multi-process stress"
+      ]
+    },
+    {
+      "id": "R2-13",
+      "title": "G3–G6 100+ asset integration regression and release gates",
+      "priority": "P0",
+      "dependsOn": [
+        "R2-01",
+        "R2-07",
+        "R2-09",
+        "R2-11",
+        "R2-12"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "15/15 focused and 688/688 all offline; 53 scene/106 asset recovery, selective retry, storage rollback, corruption, Unicode, synthetic 429, cost/intent guards. Release NOT READY.",
+      "verifiedTests": [
+        "npm run test:r213",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control",
+        "npm run readiness:r213"
+      ],
+      "remainingGate": [
+        "Vite install/build and Fastify live HTTP",
+        "Windows launcher and browser",
+        "Native Edge/Piper/VieNeu/ComfyUI",
+        "real disk full and provider 429",
+        "30–40 minute actual video render/export; extensions R2-EXT-01..06"
+      ]
+    },
+    {
+      "id": "IA-01",
+      "title": "Integration & Acceptance: 5-scene real FFmpeg output and 35-minute preflight plan",
+      "priority": "P0",
+      "dependsOn": [
+        "R2-EXT-02",
+        "R2-EXT-04",
+        "R2-EXT-06",
+        "R2-EXT-08"
+      ],
+      "status": "CODE_COMPLETE_TESTED_LINUX_FFMPEG_RELEASE_NOT_READY",
+      "acceptanceSummary": "5 independently verified PNG/WAV scenes => Composition v2 => persisted SP-04 job => FFmpeg 1080x1920 429/429 H264/AAC frames 14.3s PASS; 300-scene/600-asset 36.33-minute plan-only PASS; corrected missing frame QA; 4 focused + 734 total tests",
+      "verifiedTests": [
+        "npm run test:acceptance",
+        "npm run acceptance:five-scenes",
+        "npm run acceptance:long-plan",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "real 30-40min encoded MP4",
+        "Windows target/browser UI",
+        "npm install Vite/Fastify live HTTP",
+        "GPU/TTS inference",
+        "EXT-03 same-host comparison",
+        "ENOSPC and crash under encode"
+      ]
+    },
+    {
+      "id": "R1-EXT-01",
+      "title": "Local-first five-stage Script Skill workflow + validated JSON export",
+      "priority": "P1",
+      "dependsOn": [
+        "R1-01",
+        "R1-02",
+        "R1-03",
+        "R1-06"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "5 editorial presets, versioned brief choice, JSON 5-stage planning with source verification gates, existing R1 worker guidance, lossless approved script export and UI controls. 10/10 focused, 744/744 all offline. NOT an external Superpowers install or automatic source research.",
+      "verifiedTests": [
+        "npm run test:r1ext01",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control",
+        "TypeScript JSX parser on two changed screens"
+      ],
+      "remainingGate": [
+        "Windows browser/Vite/Fastify dependencies",
+        "live model generation content-quality scoring and editorial review",
+        "full 30–40 min real MP4",
+        "automatic web research and verifiable citations NOT IMPLEMENTED",
+        "EXT-03 fair render engine benchmark"
+      ]
+    },
+    {
+      "id": "IA-02",
+      "title": "Real system gate matrix and HyperFrames renderer handoff",
+      "priority": "P0",
+      "dependsOn": [
+        "IA-01",
+        "R2-EXT-04",
+        "R2-EXT-06"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE_RELEASE_NOT_READY",
+      "acceptanceSummary": "751/751 full Node tests; 5 PASS 11 BLOCKED IA02 gates; real short FFmpeg control, not HyperFrames; release strict fails by design",
+      "verifiedTests": [
+        "npm run test:all",
+        "npm run test:ia02",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control",
+        "npm run acceptance:ia02"
+      ],
+      "remainingGate": [
+        "real HyperFrames CLI render",
+        "Windows target",
+        "Vite/React/Fastify HTTP/UI",
+        "provider inference",
+        "30–40 min MP4"
+      ]
+    },
+    {
+      "id": "R3-01",
+      "title": "Canonical scene edit + impact preview + Inspector",
+      "priority": "P0",
+      "dependsOn": [
+        "R2-06",
+        "R2-02",
+        "IA-02"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "Single-scene PATCH, rowVersion optimistic conflict, text acknowledgement, selective voice/image invalidation and manual image protection, read-only impact preview, Inspector dirty guard; no providers invoked.",
+      "verifiedTests": [
+        "npm run test:r301",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "Browser React/Vite integration",
+        "Windows end-to-end",
+        "Real HyperFrames rendering",
+        "30–40 minute export"
+      ]
+    },
+    {
+      "id": "R3-02",
+      "title": "4-track timeline editor with viewport virtualization",
+      "priority": "P0",
+      "dependsOn": [
+        "R3-01",
+        "R2-10"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "4 aligned lanes + virtualized viewport clips; 500-scene stress offline; browser not run",
+      "verifiedTests": [
+        "npm run test:r302-r304",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "Real browser UX and Vite build",
+        "Windows and HyperFrames acceptance",
+        "30–40 minute performance"
+      ]
+    },
+    {
+      "id": "R3-03",
+      "title": "Singleton voice playback, seeking and synchronized scene caption preview",
+      "priority": "P0",
+      "dependsOn": [
+        "R3-02"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "Authenticated source-voice fetch, fast-seek race fencing, single Audio instance, image/caption update; no video clip preview",
+      "verifiedTests": [
+        "npm run test:r302-r304",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "Real browser UX and Vite build",
+        "Windows and HyperFrames acceptance",
+        "30–40 minute performance"
+      ]
+    },
+    {
+      "id": "R3-04",
+      "title": "Persisted presentation reorder and optimistic conflict handling",
+      "priority": "P0",
+      "dependsOn": [
+        "R3-02",
+        "R3-01"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "Atomic PATCH order, immutable master and scene idx, rebased timing locks, composition digest invalidated; drag/keyboard reorder",
+      "verifiedTests": [
+        "npm run test:r302-r304",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "Real browser UX and Vite build",
+        "Windows and HyperFrames acceptance",
+        "30–40 minute performance"
+      ]
+    },
+    {
+      "id": "R3-05",
+      "title": "Visual trim, zoom & snap — scene-window Composition v2 and renderer",
+      "priority": "P0",
+      "dependsOn": [
+        "R3-03",
+        "R3-04"
+      ],
+      "status": "CODE_COMPLETE_TESTED_LOCAL_FFMPEG__HYPERFRAMES_REAL_NOT_RUN",
+      "acceptanceSummary": "Persisted visual in/out now digested into immutable timed Composition v2, applied to image zoom/pan and video first/last-frame holds by both render paths. Real FFmpeg short H264/AAC QA 90/90 frames; HyperFrames local preprocess + HTML tested with fake CLI only.",
+      "verifiedTests": [
+        "npm run test:r305-render",
+        "npm run test:r305-r306",
+        "npm run test:all",
+        "npm run check",
+        "npm run typecheck:sdk"
+      ],
+      "remainingGate": [
+        "Real HyperFrames CLI final MP4 and visual quality",
+        "Windows/browser preview/render acceptance",
+        "35min H264/AAC + performance"
+      ]
+    },
+    {
+      "id": "R3-06",
+      "title": "Verified voice waveform by SHA256 and visible-only UI",
+      "priority": "P0",
+      "dependsOn": [
+        "R3-03"
+      ],
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "Real WAV PCM and MP3 FFmpeg peaks, private authenticated route, bounded 64-entry LRU, visible SVG paths",
+      "verifiedTests": [
+        "npm run test:r305-r306",
+        "npm run check"
+      ],
+      "remainingGate": [
+        "Browser waveform/seek sync with real speech",
+        "Live Windows TTS outputs"
+      ]
+    },
+    {
+      "id": "R3-07",
+      "title": "Timeline immutable history & Undo/Redo",
+      "priority": "P0",
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "SQLite v30 snapshot journal; 40-entry bounded undo/redo stacks; atomic revision writes on trim/reorder/manual timing; reset after scene rebuild; optimistic 409; keyboard shortcuts and dirty guard; no provider calls.",
+      "verifiedTests": [
+        "npm run test:r307-r310",
+        "npm run test:ext040506",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "Windows browser interaction and cross-tab latency remain untested.",
+        "Web/Vite and Windows full E2E blocked"
+      ]
+    },
+    {
+      "id": "R3-08",
+      "title": "Enqueue-pinned immutable render snapshots & FFmpeg segment cache",
+      "priority": "P0",
+      "status": "FFMPEG_IMPLEMENTED_TESTED__HYPERFRAMES_SEGMENT_CACHE_PENDING",
+      "acceptanceSummary": "SQLite v31 immutable job snapshots; actual FFmpeg segment cache keyed by pinned source assets, local trim, style and geometry. SHA and ffprobe verification; real two-scene incremental test reuses one segment. HyperFrames consumes pinned job snapshot but not per-scene cache.",
+      "verifiedTests": [
+        "npm run test:r307-r310",
+        "npm run test:ext040506",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "HyperFrames segment caching requires actual CLI integration/benchmark.",
+        "Web/Vite and Windows full E2E blocked"
+      ]
+    },
+    {
+      "id": "R3-09",
+      "title": "FFmpeg per-scene segments, concat & H264/AAC QA",
+      "priority": "P0",
+      "status": "CODE_COMPLETE_TESTED_LOCAL_SHORT__35MIN_PENDING",
+      "acceptanceSummary": "Existing FFmpeg segment/concat/final mux QA strengthened with per-segment frame QA, cache reuse and snapshot isolation; actual 60-frame 2-scene MP4 and prior 5-scene MP4 verified. Long plan 300 scenes/65,400 frames verified only.",
+      "verifiedTests": [
+        "npm run test:r307-r310",
+        "npm run test:ext040506",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "35-minute MP4 walltime, disk, crash-resume and Windows acceptance not run.",
+        "Web/Vite and Windows full E2E blocked"
+      ]
+    },
+    {
+      "id": "R3-10",
+      "title": "Separate UTF-8 SRT export tied to immutable render job",
+      "priority": "P0",
+      "status": "CODE_COMPLETE_TESTED_LOCAL_FFMPEG__HYPERFRAMES_REAL_PENDING",
+      "acceptanceSummary": "The same frozen Composition v2 used for MP4 produces checksum-verified SRT, UTF-8 Vietnamese, authenticated /renders/:jobId/srt route, SDK download and UI button.",
+      "verifiedTests": [
+        "npm run test:r307-r310",
+        "npm run test:ext040506",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "Real HyperFrames output and long SRT acceptance pending.",
+        "Web/Vite and Windows full E2E blocked"
+      ]
+    },
+    {
+      "id": "R3-11",
+      "title": "Portable project ZIP64 with voice, visuals, script, SRT, timeline and SHA manifest",
+      "priority": "P0",
+      "status": "CODE_COMPLETE_TESTED_OFFLINE__WINDOWS_BROWSER_4GB_PENDING",
+      "acceptanceSummary": "Small ZIP64 archive opened by Python zipfile/unzip, SHA checked, safe paths, authenticated controller and ZIP file-picker SDK/UI. Not a native editor import or SQLite backup.",
+      "verifiedTests": [
+        "npm run test:r311 (7/7)",
+        "packages/contracts/test/contracts-r005.test.mjs (6/6)",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        ">4GB ZIP64 stress and disk-full/abort",
+        "Windows Fastify/browser",
+        "HyperFrames live and 35-minute output"
+      ]
+    },
+    {
+      "id": "R3-12",
+      "title": "Render Drawer and truthful progress",
+      "priority": "P0",
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "R3-12 focused and real local FFmpeg 720p; HyperFrames and Windows blocked",
+      "remainingGate": [
+        "real HyperFrames",
+        "browser",
+        "Windows"
+      ]
+    },
+    {
+      "id": "R3-13",
+      "title": "Render recovery and disk safety",
+      "priority": "P0",
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "acceptanceSummary": "statfs.bavail preflight+worker, process tree cancellation, 24-hour conservative orphan cleanup, existing SP-04 fencing and SHA FFmpeg cache; 6 focused tests passed",
+      "verifiedTests": [
+        "npm run test:r313-r314",
+        "npm run test:r312",
+        "npm run test:ext040506"
+      ],
+      "remainingGate": [
+        "real Windows process kill/restart",
+        "35min HyperFrames recovery",
+        "low disk during real encoding"
+      ]
+    },
+    {
+      "id": "R3-14",
+      "title": "Full-system 35-minute acceptance",
+      "priority": "P0",
+      "status": "BLOCKED_HARDWARE_DEPENDENCIES",
+      "acceptanceSummary": "R3-14 automated gate harness and real short FFmpeg + 300-scene planning evidence; explicitly NOT release ready",
+      "verifiedTests": [
+        "npm run test:r313-r314",
+        "npm run acceptance:r314"
+      ],
+      "remainingGate": [
+        "HyperFrames real render",
+        "Vite Fastify production build",
+        "Windows browser",
+        "30-40min real MP4",
+        "real AI providers",
+        "OS kill/resume long render"
+      ]
+    },
+    {
+      "id": "R4-01",
+      "title": "Channel preset diff and explicit selective apply",
+      "priority": "P1",
+      "status": "CODE_COMPLETE_TESTED_OFFLINE",
+      "dependsOn": [
+        "R0-11",
+        "R2-06"
+      ],
+      "acceptanceSummary": "Read-only latest channel vs effective video differences; selectable scalar fields; impact preview; SHA digest/version guarded atomic commit; does not change original snapshot, queue work, or auto-pay. 12/12 focused; 20/20 regressions.",
+      "verifiedTests": [
+        "npm run test:r401 (12/12)",
+        "video-config-r011 + domain + contracts (20/20)",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control"
+      ],
+      "remainingGate": [
+        "Full test:all rerun to completion (prior attempt timed out)",
+        "Vite build/browser UI on Windows",
+        "R3-14 real HyperFrames and 35-min acceptance"
+      ]
+    },
+    {
+      "id": "R4-02",
+      "title": "Verified offline SQLite/media backup and new-location restore",
+      "priority": "P1",
+      "status": "IMPLEMENTED_OFFLINE_CLI__LIVE_RESTORE_PENDING",
+      "dependsOn": [
+        "R3-11"
+      ],
+      "acceptanceSummary": "WAL-safe SQLite snapshot, manifest+sha verified media, explicit dry-run/confirm empty restore; no vault keys",
+      "remainingGate": [
+        "Large, cross-device/Windows, secret vault, live application restore not accepted"
+      ],
+      "verifiedTests": [
+        "npm run test:r402-r408 (10/10)",
+        "npm run check",
+        "npm run typecheck:sdk"
+      ]
+    },
+    {
+      "id": "R4-03",
+      "title": "Storage analyzer and conservative quarantine",
+      "priority": "P1",
+      "status": "IMPLEMENTED_DRY_RUN_QUARANTINE__UX_PENDING",
+      "acceptanceSummary": "Inventory and digest-fenced quarantine only >24h staging; no user assets hard-deleted",
+      "remainingGate": [
+        "No interactive cleanup UI or verified large workspace"
+      ],
+      "verifiedTests": [
+        "npm run test:r402-r408 (10/10)"
+      ]
+    },
+    {
+      "id": "R4-04",
+      "title": "Advanced Job Center",
+      "priority": "P1",
+      "status": "PARTIAL_UI_GROUP_FILTER__BULK_PENDING",
+      "acceptanceSummary": "Public DTO group counts, search and stale-pending observations plus prior safe single job control",
+      "remainingGate": [
+        "Batch actions and history UI pending; Vite/browser untested"
+      ],
+      "verifiedTests": [
+        "npm run test:r402-r408 (10/10)"
+      ]
+    },
+    {
+      "id": "R4-05",
+      "title": "Advanced Subtitle Editor",
+      "priority": "P1",
+      "status": "QUEUE_INTEGRATED_FFMPEG_E2E_PASS__HYPERFRAMES_REAL_PENDING",
+      "acceptanceSummary": "User-approved multi-cue draft pinned into render snapshot; real FFmpeg burn-in and matching SRT tested; actual HyperFrames MP4 unverified.",
+      "remainingGate": [
+        "real HyperFrames MP4",
+        "Windows/browser integrated subtitle editor QA"
+      ],
+      "verifiedTests": [
+        "npm run test:r402-r408 (10/10)"
+      ]
+    },
+    {
+      "id": "R4-06",
+      "title": "Background Music mixing",
+      "priority": "P1",
+      "status": "QUEUE_INTEGRATED_LOCAL_POSTMIX_E2E_PASS__HYPERFRAMES_REAL_PENDING",
+      "acceptanceSummary": "Local audio import/list, checksum pin, explicit selection, queued FFmpeg music postmix passed H264/AAC FFprobe; primary HyperFrames run unverified.",
+      "remainingGate": [
+        "real HyperFrames music export",
+        "music upload >640 KiB",
+        "ducking and music license metadata"
+      ],
+      "verifiedTests": [
+        "npm run test:r402-r408 (10/10)"
+      ]
+    },
+    {
+      "id": "R4-07",
+      "title": "Character and Style consistency",
+      "priority": "P1",
+      "status": "HEURISTIC_READ_ONLY__REAL_IDENTITY_PENDING",
+      "acceptanceSummary": "Deterministic prompt token lint, warning UI and read-only API",
+      "remainingGate": [
+        "No image embeddings/reference model, cannot prove consistency"
+      ],
+      "verifiedTests": [
+        "npm run test:r402-r408 (10/10)"
+      ]
+    },
+    {
+      "id": "R4-08",
+      "title": "Performance, Security & Release",
+      "priority": "P1",
+      "status": "FI01_HARDENED__AUDIT_11_PASS_13_BLOCKED__NOT_READY",
+      "acceptanceSummary": "FI01 all offline Node 852/852 PASS; audit 11 PASS/13 BLOCKED/0 FAIL; pinned local HyperFrames + real-only runtime proof added, dependencies/lock/browser/long/HF still blocked.",
+      "remainingGate": [
+        "full offline green suite",
+        "Vite/Fastify live build",
+        "HyperFrames/Windows/browser QA",
+        "35-minute measured E2E",
+        "production security review"
+      ],
+      "verifiedTests": [
+        "npm run test:r402-r408 (10/10)"
+      ]
+    },
+    {
+      "id": "FI-02",
+      "title": "Production readiness and reproducible Windows release gates",
+      "priority": "P0",
+      "dependsOn": [
+        "FI-01"
+      ],
+      "status": "CODE_COMPLETE_TESTED_FOCUSED__RELEASE_NOT_READY",
+      "verifiedTests": [
+        "npm run test:fi02",
+        "npm run test:fi01",
+        "npm run check",
+        "npm run typecheck:sdk",
+        "npm run test:negative-control",
+        "npm run acceptance:fi02:focused"
+      ],
+      "remainingGate": [
+        "lockfile",
+        "Windows browser",
+        "real HyperFrames",
+        "35-minute real render",
+        "restart recovery",
+        "security review",
+        "new complete test:all"
+      ]
+    }
+  ],
+  "liveValidationOpen": [
+    "30-40min-export",
+    "EXT03 Remotion vs HyperFrames npm install and fair trials",
+    "EXT07 browser/real cost measurements",
+    "EXT08 30-40min Windows render",
+    "Vietnamese-word-alignment",
+    "Windows-browser-Fastify",
+    "live-gpu-models",
+    "long-30-to-40-minute-benchmark",
+    "native-VieNeu-Piper-Edge",
+    "native-piper-vieneu-edge",
+    "npm-install-and-real-engine-render",
+    "real-disk-full",
+    "windows-browser-http"
+  ],
+  "sourceWorkspace": "R4-02..08 partial integration workspace 2026-10-16",
+  "baseEvidence": {
+    "r2Progress": "R2-01..R2-13_CODE_COMPLETE_TESTED_OFFLINE",
+    "r2Completed": 13,
+    "r2OriginalTotal": 13,
+    "lastTask": "R1-EXT-01",
+    "lastTaskFocusedTests": "10/10",
+    "lastFullSuite": "744/744",
+    "releaseReady": false,
+    "unverified": [
+      "Windows",
+      "Vite/browser/Fastify",
+      "live GPU/TTS/HTTP429",
+      "disk full",
+      "30–40 min actual output"
+    ]
+  },
+  "originalR2Remaining": [],
+  "newExtensionsNotImplemented": [
+    "R2-EXT-03_REAL_REMOTION_HYPERFRAMES_BENCHMARK"
+  ],
+  "phaseGates": {
+    "A-video-MP4-no-paid": [
+      "R2-EXT-01",
+      "R2-EXT-02",
+      "R2-EXT-03",
+      "R2-EXT-04",
+      "R2-EXT-06"
+    ],
+    "B-selective-edit-reuse": [
+      "R2-06",
+      "R2-07",
+      "R2-EXT-05"
+    ],
+    "C-cost-motion-quality": [
+      "R2-EXT-07",
+      "R2-EXT-08"
+    ],
+    "nextImplementationTask": "R4-05/R4-06 production render integration",
+    "r312CodeStatus": "CODE_COMPLETE_TESTED_OFFLINE__REAL_HYPERFRAMES_WINDOWS_BROWSER_PENDING",
+    "releaseStatus": "NOT_READY",
+    "rendererDecision": "HyperFrames primary; FFmpeg manually selected; output resolution derivative from pinned v2; true HyperFrames still unverified.",
+    "lastFullSuiteResult": "R3-12 first completed run 810/811, one introduced preflight error code mismatch; fixed and IA-01 4/4 + R3-12 6/6 confirmed; second global rerun incomplete; no 811/811 claim"
+  },
+  "nextImplementationTask": "Generate/review/commit npm lock on networked Windows PC; genuine HF subtitle/music render, UI build/live HTTP, 35min & recovery/security acceptance",
+  "rendererDecision": "HyperFrames primary; FFmpeg only explicit manual fallback; snapshot pinned in both; cache only FFmpeg today.",
+  "releaseStatus": "NOT_READY",
+  "r301CodeStatus": "CODE_COMPLETE_TESTED_OFFLINE",
+  "r302_304CodeStatus": "CODE_COMPLETE_TESTED_OFFLINE",
+  "r305CodeStatus": "CODE_COMPLETE_TESTED_LOCAL_FFMPEG__HYPERFRAMES_REAL_BLOCKED",
+  "r306CodeStatus": "CODE_COMPLETE_TESTED_OFFLINE",
+  "lastFullSuiteResult": "FI01 852/852 PASS baseline; FI02 full suite attempt TIMED OUT at #629, no new full-suite PASS",
+  "lastFocusedR305R306": "8/8 render + 10/10 editor/waveform PASS",
+  "r307_310CodeStatus": "FFmpeg/local tests PASS; HyperFrames real & 35min pending",
+  "r311CodeStatus": "CODE_COMPLETE_TESTED_OFFLINE__REAL_ZIP64_SMALL__LARGE_WINDOWS_PENDING",
+  "r401CodeStatus": "CODE_COMPLETE_TESTED_OFFLINE__BROWSER_NOT_VERIFIED",
+  "fi01Integration": {
+    "status": "CODE_COMPLETE_TESTED_OFFLINE",
+    "nodeTestsPass": 852,
+    "nodeTestsFail": 0,
+    "auditPass": 11,
+    "auditBlocked": 13,
+    "auditFail": 0,
+    "hyperframesPinnedVersion": "0.8.159",
+    "packageLockCommitted": false,
+    "realHyperframesRender": "BLOCKED_NOT_INSTALLED",
+    "next": "Windows npm lock generation, Vite/Fastify build/live HTTP, real HyperFrames edited subtitles+music MP4, 35 minute durable queue & restart QA"
+  },
+  "fi02ProductionReadiness": {
+    "codeStatus": "CODE_COMPLETE_TESTED_FOCUSED",
+    "focusedTests": "7/7 PASS",
+    "audit": "8 PASS / 12 BLOCKED / 0 FAIL",
+    "release": "NOT_READY",
+    "lockfile": "MISSING due npm registry EAI_AGAIN",
+    "browser": "NOT_TESTED",
+    "hyperframesActual": "NOT_TESTED",
+    "longMp4Actual": "NOT_TESTED"
+  },
+  "FI03": {
+    "status": "PARTIALLY_UNBLOCKED__NOT_READY",
+    "details": "See docs/FI03_STATUS.md; launcher and credential hardening resolved, real Windows/HyperFrames/provider/1080p long render unverified."
+  }
+}

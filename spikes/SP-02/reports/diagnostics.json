@@ -1,0 +1,26 @@
+{
+  "edge": {
+    "status": "dependency_unavailable"
+  },
+  "edgeVoices": [
+    {
+      "id": "vi-VN-HoaiMyNeural",
+      "name": "Hoài My",
+      "locale": "vi-VN",
+      "gender": "female"
+    },
+    {
+      "id": "vi-VN-NamMinhNeural",
+      "name": "Nam Minh",
+      "locale": "vi-VN",
+      "gender": "male"
+    }
+  ],
+  "local": {
+    "status": "not_configured"
+  },
+  "espeak": {
+    "status": "ready"
+  },
+  "note": "Edge dependency check does not contact Microsoft; synthesis not verified"
+}

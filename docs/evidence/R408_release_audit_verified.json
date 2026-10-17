@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 2,
+  "checkedAt": "2026-10-16T15:25:08.673Z",
+  "platform": "linux",
+  "primaryEngine": "hyperframes",
+  "ffmpegFallback": "manual",
+  "status": "NOT_READY",
+  "summary": {
+    "pass": 11,
+    "blocked": 13,
+    "fail": 0
+  },
+  "gates": {
+    "node22": {
+      "status": "PASS",
+      "reason": "Node 22.16.0"
+    },
+    "ffmpeg": {
+      "status": "PASS",
+      "reason": "local media encoder installed"
+    },
+    "ffprobe": {
+      "status": "PASS",
+      "reason": "local media probe installed"
+    },
+    "frontendDeps": {
+      "status": "BLOCKED",
+      "reason": "Install locked dependencies on target machine"
+    },
+    "backendDeps": {
+      "status": "BLOCKED",
+      "reason": "Install locked dependencies on target machine"
+    },
+    "dependencyLock": {
+      "status": "BLOCKED",
+      "reason": "No committed npm package-lock.json. npm ci is not reproducible until it is generated online and committed."
+    },
+    "rendererPinned": {
+      "status": "PASS",
+      "reason": "Local HyperFrames pinned version: 0.8.159"
+    },
+    "hyperframesCli": {
+      "status": "BLOCKED",
+      "reason": "Verified local CLI not available: HYPERFRAMES_NOT_INSTALLED"
+    },
+    "previousAcceptanceAvailable": {
+      "status": "PASS",
+      "reason": "Historical report exists; not a fresh production acceptance"
+    },
+    "r405_r406_realMp4": {
+      "status": "PASS",
+      "reason": "Executed locally (no remote model calls)",
+      "proof": {
+        "status": "PASS",
+        "exitCode": 0,
+        "error": null,
+        "durationMs": 2629
+      }
+    },
+    "r402_r408_regression": {
+      "status": "PASS",
+      "reason": "Executed locally (no remote model calls)",
+      "proof": {
+        "status": "PASS",
+        "exitCode": 0,
+        "error": null,
+        "durationMs": 1144
+      }
+    },
+    "r312_render_regression": {
+      "status": "PASS",
+      "reason": "Executed locally (no remote model calls)",
+      "proof": {
+        "status": "PASS",
+        "exitCode": 0,
+        "error": null,
+        "durationMs": 1737
+      }
+    },
+    "contract": {
+      "status": "PASS",
+      "reason": "Executed locally (no remote model calls)",
+      "proof": {
+        "status": "PASS",
+        "exitCode": 0,
+        "error": null,
+        "durationMs": 478
+      }
+    },
+    "sdkTypecheck": {
+      "status": "PASS",
+      "reason": "Executed locally (no remote model calls)",
+      "proof": {
+        "status": "PASS",
+        "exitCode": 0,
+        "error": null,
+        "durationMs": 985
+      }
+    },
+    "negativeControl": {
+      "status": "PASS",
+      "reason": "Executed locally (no remote model calls)",
+      "proof": {
+        "status": "PASS",
+        "exitCode": 0,
+        "error": null,
+        "durationMs": 204
+      }
+    },
+    "browserBuild": {
+      "status": "BLOCKED",
+      "reason": "Vite not installed / build not executed"
+    },
+    "liveHttp": {
+      "status": "BLOCKED",
+      "reason": "Fastify not installed / live API not executed"
+    },
+    "liveWindowsBrowser": {
+      "status": "BLOCKED",
+      "reason": "No Windows browser drag/drop, subtitle and music playback evidence"
+    },
+    "real35MinMp4": {
+      "status": "BLOCKED",
+      "reason": "No 30–40 minute HyperFrames job completed with measured CPU/RAM/output frames"
+    },
+    "liveProviders": {
+      "status": "BLOCKED",
+      "reason": "No real local TTS/ComfyUI end-to-end run"
+    },
+    "restartLongRender": {
+      "status": "BLOCKED",
+      "reason": "No OS-kill/restart recovery acceptance on a long render"
+    },
+    "productionSecurityReview": {
+      "status": "BLOCKED",
+      "reason": "No dedicated security review, package audit or penetration test"
+    },
+    "realHyperframesMp4": {
+      "status": "BLOCKED",
+      "reason": "Exact local HyperFrames not installed/validated; no real MP4 proof"
+    },
+    "realHyperframesSubtitleMusic": {
+      "status": "BLOCKED",
+      "reason": "Genuine HyperFrames edited-cues + music finishing test not executed or CLI unavailable"
+    }
+  },
+  "warning": "BLOCKED is not PASS. An FFmpeg control render does not establish HyperFrames, Windows, GPU, long-video or security acceptance.",
+  "next": "Generate/commit package-lock.json on networked developer machine; npm ci on Windows; verify genuine HyperFrames+subtitle+music output, browser, 35min and crash recovery."
+}

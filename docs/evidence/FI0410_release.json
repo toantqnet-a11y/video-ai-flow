@@ -1,0 +1,74 @@
+{
+  "task": "FI-04-10",
+  "timestamp": "2026-10-17T02:10:45.341Z",
+  "status": "NOT_READY",
+  "gates": {
+    "fullGreenSuite": "BLOCKED",
+    "reviewedNpmLock": "BLOCKED",
+    "viteBuildLiveHttp": "BLOCKED",
+    "fiveSceneRealHyperframes": "BLOCKED",
+    "windowsBrowserUx": "BLOCKED",
+    "long35MinRealHyperframes": "BLOCKED",
+    "realOsKillRecovery": "BLOCKED",
+    "actualLocalAiInference": "BLOCKED",
+    "dependencyAndSecurityReview": "BLOCKED",
+    "manualVideoAudioReview": "BLOCKED"
+  },
+  "blocked": [
+    "fullGreenSuite",
+    "reviewedNpmLock",
+    "viteBuildLiveHttp",
+    "fiveSceneRealHyperframes",
+    "windowsBrowserUx",
+    "long35MinRealHyperframes",
+    "realOsKillRecovery",
+    "actualLocalAiInference",
+    "dependencyAndSecurityReview",
+    "manualVideoAudioReview"
+  ],
+  "evidence": {
+    "runtimePrerequisites": {
+      "lock": {
+        "status": "BLOCKED",
+        "reason": "No committed npm package-lock.json. npm ci is not reproducible until it is generated online and committed."
+      },
+      "node": {
+        "status": "PASS",
+        "version": "22.16.0"
+      },
+      "vite": {
+        "status": "BLOCKED"
+      },
+      "fastify": {
+        "status": "BLOCKED"
+      },
+      "hyperframes": {
+        "status": "BLOCKED"
+      }
+    },
+    "hyperframesPrerequisites": {
+      "status": "BLOCKED",
+      "dependencyLock": "BLOCKED",
+      "cliInstalled": false,
+      "rendererPin": "0.8.159",
+      "blocker": "HYPERFRAMES_NOT_INSTALLED"
+    },
+    "securityInventory": {
+      "lock": "BLOCKED",
+      "focusedSecurityTests": "BLOCKED",
+      "npmAudit": "BLOCKED"
+    },
+    "providers": {
+      "ollamaHandshake": "BLOCKED",
+      "comfyUiHandshake": "BLOCKED",
+      "nativeTtsVietnameseAudio": "BLOCKED",
+      "localModelInference": "BLOCKED",
+      "liveTtsInference": "BLOCKED",
+      "liveComfyVideoOrImageInference": "BLOCKED",
+      "quotaAndHttp429Real": "BLOCKED",
+      "paidOrCloudCalls": "DISABLED"
+    }
+  },
+  "releaseReady": false,
+  "limitation": "Windows interactive checks, actual 35min HyperFrames, crash recovery, provider inference and manual visual/audio approval are not achievable by reading repo history."
+}

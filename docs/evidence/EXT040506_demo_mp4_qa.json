@@ -1,0 +1,39 @@
+{
+  "testFixture": true,
+  "modelInference": false,
+  "source": "spikes/EXT-03/assets",
+  "result": {
+    "videoId": "b240e640-bb16-4b55-8132-92d976f6e49c",
+    "compositionDigest": "a5bb8c92e6a207e7c8874ad92995b39bdc71375994eb7c7bb8ab17ea1f86c351",
+    "relativePath": "renders/b240e640-bb16-4b55-8132-92d976f6e49c/a5bb8c92e6a207e7c8874ad92995b39bdc71375994eb7c7bb8ab17ea1f86c351.mp4",
+    "bytes": 606505,
+    "metadata": {
+      "durationSeconds": 8.533008,
+      "bytes": 606505,
+      "videoCodec": "h264",
+      "audioCodec": "aac",
+      "width": 1920,
+      "height": 1080,
+      "fps": "30/1"
+    },
+    "qa": {
+      "passed": true,
+      "expectedSeconds": 8.533333333333333,
+      "actualSeconds": 8.533008,
+      "driftSeconds": 0,
+      "profile": {
+        "width": 1920,
+        "height": 1080,
+        "fps": 30
+      },
+      "checks": {
+        "h264": true,
+        "aac": true,
+        "dimensions": true,
+        "framerate": true,
+        "duration": true
+      }
+    },
+    "engine": "ffmpeg-fastpath"
+  }
+}

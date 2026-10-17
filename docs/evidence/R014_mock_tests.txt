@@ -1,0 +1,52 @@
+
+> contentstudio@0.9.3-r014 test:mock
+> node --test packages/providers/testkit/mock-providers.test.mjs apps/api/test/mock-pipeline-r014.test.mjs
+
+TAP version 13
+# (node:25626) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: LLM → 3 asset jobs → SQLite commit → asset promotion, no duplicate revisions
+ok 1 - LLM → 3 asset jobs → SQLite commit → asset promotion, no duplicate revisions
+  ---
+  duration_ms: 69.569818
+  type: 'test'
+  ...
+# Subtest: terminal failure does not promote asset or consume paid quota
+ok 2 - terminal failure does not promote asset or consume paid quota
+  ---
+  duration_ms: 30.042609
+  type: 'test'
+  ...
+# Subtest: all four modalities create deterministic, LOCAL artifacts and never call fetch
+ok 3 - all four modalities create deterministic, LOCAL artifacts and never call fetch
+  ---
+  duration_ms: 18.714338
+  type: 'test'
+  ...
+# Subtest: provider mock supports retryable and permanent failures without exposing prompts
+ok 4 - provider mock supports retryable and permanent failures without exposing prompts
+  ---
+  duration_ms: 1.583578
+  type: 'test'
+  ...
+# Subtest: mock input validation and cancellation always fail without network
+ok 5 - mock input validation and cancellation always fail without network
+  ---
+  duration_ms: 82.362108
+  type: 'test'
+  ...
+# Subtest: mock providers never weaken paid or remote consent policy
+ok 6 - mock providers never weaken paid or remote consent policy
+  ---
+  duration_ms: 1.555286
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 171.509377

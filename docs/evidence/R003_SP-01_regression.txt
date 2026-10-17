@@ -1,0 +1,38 @@
+
+> contentstudio-sprint0-sp01@0.1.0 test
+> node --test
+
+TAP version 13
+# Subtest: GET /api/v1/system/diagnostics returns JSON on loopback
+ok 1 - GET /api/v1/system/diagnostics returns JSON on loopback
+  ---
+  duration_ms: 232.802772
+  type: 'test'
+  ...
+# Subtest: diagnostics: valid schema, disk, CPU, no host/user identity
+ok 2 - diagnostics: valid schema, disk, CPU, no host/user identity
+  ---
+  duration_ms: 141.911747
+  type: 'test'
+  ...
+# Subtest: prerequisites: missing codecs fail closed
+ok 3 - prerequisites: missing codecs fail closed
+  ---
+  duration_ms: 0.755703
+  type: 'test'
+  ...
+# Subtest: benchmark: synthetic mp4 with validated duration/codecs
+ok 4 - benchmark: synthetic mp4 with validated duration/codecs
+  ---
+  duration_ms: 284.399347
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 513.341234

@@ -1,0 +1,3 @@
+# The upstream edge-tts library is unofficial and needs internet access.
+# Install into your own Python venv: python -m pip install -r requirements-edge.txt
+edge-tts>=7.0,<9.0

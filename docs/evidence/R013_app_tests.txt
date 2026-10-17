@@ -1,0 +1,1146 @@
+
+> contentstudio@0.9.2-r013 test
+> node --test packages/core/test/*.test.mjs apps/api/test/*.test.mjs apps/web/src/*.test.mjs packages/contracts/test/*.test.mjs packages/sdk/test/*.test.mjs
+
+TAP version 13
+# (node:22303) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: R0-01 route lifecycle: list, summary, archive, restore, soft-delete
+ok 1 - R0-01 route lifecycle: list, summary, archive, restore, soft-delete
+  ---
+  duration_ms: 17.214906
+  type: 'test'
+  ...
+# (node:22304) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: evaluator reports render capabilities, defers real inference/Windows validation
+ok 2 - evaluator reports render capabilities, defers real inference/Windows validation
+  ---
+  duration_ms: 2.019485
+  type: 'test'
+  ...
+# Subtest: missing ffmpeg cannot be marked render ready even if ffprobe exists
+ok 3 - missing ffmpeg cannot be marked render ready even if ffprobe exists
+  ---
+  duration_ms: 0.229266
+  type: 'test'
+  ...
+# Subtest: missing H.264 codec prevents MP4 readiness, not general SQLite editing
+ok 4 - missing H.264 codec prevents MP4 readiness, not general SQLite editing
+  ---
+  duration_ms: 0.18523
+  type: 'test'
+  ...
+# Subtest: storage less than 2GiB blocks render readiness and shows warning
+ok 5 - storage less than 2GiB blocks render readiness and shows warning
+  ---
+  duration_ms: 0.156486
+  type: 'test'
+  ...
+# Subtest: SQLite error disables editing even when FFmpeg is present
+ok 6 - SQLite error disables editing even when FFmpeg is present
+  ---
+  duration_ms: 0.178079
+  type: 'test'
+  ...
+# Subtest: sensitive machine data and raw provider URLs never appear in result
+ok 7 - sensitive machine data and raw provider URLs never appear in result
+  ---
+  duration_ms: 0.264158
+  type: 'test'
+  ...
+# Subtest: configured local endpoint responding does not mean AI inference verified
+ok 8 - configured local endpoint responding does not mean AI inference verified
+  ---
+  duration_ms: 0.29198
+  type: 'test'
+  ...
+# Subtest: invalid status and nonallowlisted host fields are normalized
+ok 9 - invalid status and nonallowlisted host fields are normalized
+  ---
+  duration_ms: 0.588016
+  type: 'test'
+  ...
+# Subtest: service cache avoids redundant subprocesses and supports explicit refresh
+ok 10 - service cache avoids redundant subprocesses and supports explicit refresh
+  ---
+  duration_ms: 2.310033
+  type: 'test'
+  ...
+# Subtest: concurrent dashboard GET and refresh share one active probe
+ok 11 - concurrent dashboard GET and refresh share one active probe
+  ---
+  duration_ms: 0.767588
+  type: 'test'
+  ...
+# Subtest: unconfigured ComfyUI never triggers an outbound fetch
+ok 12 - unconfigured ComfyUI never triggers an outbound fetch
+  ---
+  duration_ms: 0.539133
+  type: 'test'
+  ...
+# Subtest: configured ComfyUI pings only explicitly local endpoint
+ok 13 - configured ComfyUI pings only explicitly local endpoint
+  ---
+  duration_ms: 0.477259
+  type: 'test'
+  ...
+# Subtest: probe failure is isolated; dashboard still returns bounded error state
+ok 14 - probe failure is isolated; dashboard still returns bounded error state
+  ---
+  duration_ms: 1.360211
+  type: 'test'
+  ...
+# Subtest: SQLite sync query failure safely degrades with no thrown DB paths
+ok 15 - SQLite sync query failure safely degrades with no thrown DB paths
+  ---
+  duration_ms: 0.413874
+  type: 'test'
+  ...
+# Subtest: remote ComfyUI URL is rejected before any fetch
+ok 16 - remote ComfyUI URL is rejected before any fetch
+  ---
+  duration_ms: 0.290768
+  type: 'test'
+  ...
+# Subtest: local ComfyUI probe allows 200, rejects redirect and never follows it
+ok 17 - local ComfyUI probe allows 200, rejects redirect and never follows it
+  ---
+  duration_ms: 0.320744
+  type: 'test'
+  ...
+# Subtest: systemCommand reports NOT_INSTALLED without leaking the child error message
+ok 18 - systemCommand reports NOT_INSTALLED without leaking the child error message
+  ---
+  duration_ms: 4.348377
+  type: 'test'
+  ...
+# Subtest: API route exposes GET and protected POST refresh with no arbitrary input
+ok 19 - API route exposes GET and protected POST refresh with no arbitrary input
+  ---
+  duration_ms: 1.92673
+  type: 'test'
+  ...
+# Subtest: global security still guards new /api/system routes
+ok 20 - global security still guards new /api/system routes
+  ---
+  duration_ms: 0.774759
+  type: 'test'
+  ...
+# (node:22305) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: shared database for domain and existing SP04 queue
+ok 21 - shared database for domain and existing SP04 queue
+  ---
+  duration_ms: 22.202287
+  type: 'test'
+  ...
+# Subtest: real handler system:diagnostic is executed by existing queue runner
+ok 22 - real handler system:diagnostic is executed by existing queue runner
+  ---
+  duration_ms: 102.807713
+  type: 'test'
+  ...
+# Subtest: controller rejects missing/invalid asset jobs before external calls
+ok 23 - controller rejects missing/invalid asset jobs before external calls
+  ---
+  duration_ms: 14.936211
+  type: 'test'
+  ...
+# Subtest: token gate denies fake origins and writes without CSRF
+ok 24 - token gate denies fake origins and writes without CSRF
+  ---
+  duration_ms: 0.838254
+  type: 'test'
+  ...
+# Subtest: provider registry never auto-escalates local to remote or paid
+ok 25 - provider registry never auto-escalates local to remote or paid
+  ---
+  duration_ms: 0.574927
+  type: 'test'
+  ...
+# Subtest: auth pairing locks after repeated wrong codes
+ok 26 - auth pairing locks after repeated wrong codes
+  ---
+  duration_ms: 0.226231
+  type: 'test'
+  ...
+# Subtest: actual JobRunner + local fixture adapter + durable promotion across components
+ok 27 - actual JobRunner + local fixture adapter + durable promotion across components
+  ---
+  duration_ms: 34.841094
+  type: 'test'
+  ...
+# (node:22337) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: safe projection strips payload, result, leases, worker and provider secrets
+ok 28 - safe projection strips payload, result, leases, worker and provider secrets
+  ---
+  duration_ms: 4.027733
+  type: 'test'
+  ...
+# Subtest: filter and limit are strict; status totals are durable
+ok 29 - filter and limit are strict; status totals are durable
+  ---
+  duration_ms: 1.401283
+  type: 'test'
+  ...
+# Subtest: state machine pause/resume/cancel and safe conflict
+ok 30 - state machine pause/resume/cancel and safe conflict
+  ---
+  duration_ms: 1.695747
+  type: 'test'
+  ...
+# Subtest: events replay from durable cursor, sanitize detail, no duplicate cursor
+ok 31 - events replay from durable cursor, sanitize detail, no duplicate cursor
+  ---
+  duration_ms: 1.544108
+  type: 'test'
+  ...
+# Subtest: HTTP adapter registers control/history routes, does not return prompt
+ok 32 - HTTP adapter registers control/history routes, does not return prompt
+  ---
+  duration_ms: 8.101896
+  type: 'test'
+  ...
+# Subtest: HTTP request policy allows only explicit job filter/cursor keys
+ok 33 - HTTP request policy allows only explicit job filter/cursor keys
+  ---
+  duration_ms: 0.845054
+  type: 'test'
+  ...
+# Subtest: OpenAPI operations expose only safe public DTO and explicitly list writes
+ok 34 - OpenAPI operations expose only safe public DTO and explicitly list writes
+  ---
+  duration_ms: 0.217889
+  type: 'test'
+  ...
+# Subtest: same durable SQLite queue resumes status and outbox cursor after reopen
+ok 35 - same durable SQLite queue resumes status and outbox cursor after reopen
+  ---
+  duration_ms: 3.162709
+  type: 'test'
+  ...
+# Subtest: enqueue response is sanitized even when a scene contains confidential script
+ok 36 - enqueue response is sanitized even when a scene contains confidential script
+  ---
+  duration_ms: 8.363691
+  type: 'test'
+  ...
+# (node:22343) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: controller approval is blocked for unrelated or unplanned paid model
+ok 37 - controller approval is blocked for unrelated or unplanned paid model
+  ---
+  duration_ms: 27.78869
+  type: 'test'
+  ...
+# Subtest: API exposes consent, read audit and revoke but never accepts arbitrary provider invoke
+ok 38 - API exposes consent, read audit and revoke but never accepts arbitrary provider invoke
+  ---
+  duration_ms: 1.004134
+  type: 'test'
+  ...
+# (node:22360) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: R0-08 guarded routes save, list and fetch immutable revisions
+ok 39 - R0-08 guarded routes save, list and fetch immutable revisions
+  ---
+  duration_ms: 10.234211
+  type: 'test'
+  ...
+# Subtest: R0-08 routes return sanitized conflicts and do not mutate history on stale save
+ok 40 - R0-08 routes return sanitized conflicts and do not mutate history on stale save
+  ---
+  duration_ms: 5.726244
+  type: 'test'
+  ...
+# Subtest: R0-08 published OpenAPI references the exact canonical preset schema
+ok 41 - R0-08 published OpenAPI references the exact canonical preset schema
+  ---
+  duration_ms: 1.151116
+  type: 'test'
+  ...
+# Subtest: R0-07 delete blocked if encrypted credential is still referenced
+ok 42 - R0-07 delete blocked if encrypted credential is still referenced
+  ---
+  duration_ms: 1.262533
+  type: 'test'
+  ...
+# (node:22382) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: R0-07 account/model routes CRUD and dry-route preview registered
+ok 43 - R0-07 account/model routes CRUD and dry-route preview registered
+  ---
+  duration_ms: 10.402936
+  type: 'test'
+  ...
+# Subtest: R0-07 controller validates bound vault credentials ownership without reading secret
+ok 44 - R0-07 controller validates bound vault credentials ownership without reading secret
+  ---
+  duration_ms: 5.799955
+  type: 'test'
+  ...
+# Subtest: R0-07 model quota input cannot forge verified quota at HTTP boundary
+ok 45 - R0-07 model quota input cannot forge verified quota at HTTP boundary
+  ---
+  duration_ms: 6.703858
+  type: 'test'
+  ...
+# Subtest: R0-07 remote readiness never performs fetch even with probe=true and credentials
+ok 46 - R0-07 remote readiness never performs fetch even with probe=true and credentials
+  ---
+  duration_ms: 1.154951
+  type: 'test'
+  ...
+# Subtest: R0-07 unauthenticated remote account needs key but never checks its validity
+ok 47 - R0-07 unauthenticated remote account needs key but never checks its validity
+  ---
+  duration_ms: 0.248975
+  type: 'test'
+  ...
+# Subtest: R0-07 safe local probe checks exact static URL without inference
+ok 48 - R0-07 safe local probe checks exact static URL without inference
+  ---
+  duration_ms: 1.469926
+  type: 'test'
+  ...
+# Subtest: R0-07 custom endpoint never probed, disabled account never probed
+ok 49 - R0-07 custom endpoint never probed, disabled account never probed
+  ---
+  duration_ms: 0.273783
+  type: 'test'
+  ...
+# Subtest: R0-07 known local probe failure reports unavailable not verified
+ok 50 - R0-07 known local probe failure reports unavailable not verified
+  ---
+  duration_ms: 0.517631
+  type: 'test'
+  ...
+# (node:22389) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: route contract: create channel → video, API errors mapped to 409
+ok 51 - route contract: create channel → video, API errors mapped to 409
+  ---
+  duration_ms: 17.568631
+  type: 'test'
+  ...
+# Subtest: vault routes: encrypt secret, list without key, lock then block writes
+ok 52 - vault routes: encrypt secret, list without key, lock then block writes
+  ---
+  duration_ms: 70.391837
+  type: 'test'
+  ...
+# Subtest: request boundary rejects wrong Host, Origin, peer, forwarded and header-smuggling
+ok 53 - request boundary rejects wrong Host, Origin, peer, forwarded and header-smuggling
+  ---
+  duration_ms: 2.066916
+  type: 'test'
+  ...
+# Subtest: request boundary rejects CORS probes, cross-site, path decoding tricks and query secrets
+ok 54 - request boundary rejects CORS probes, cross-site, path decoding tricks and query secrets
+  ---
+  duration_ms: 1.135061
+  type: 'test'
+  ...
+# Subtest: global Fastify hook protects every API route including vault and SSE
+ok 55 - global Fastify hook protects every API route including vault and SSE
+  ---
+  duration_ms: 1.164366
+  type: 'test'
+  ...
+# Subtest: vault HTTP facade stores ciphertext; no HTTP plaintext getter; wrong schemas rejected
+ok 56 - vault HTTP facade stores ciphertext; no HTTP plaintext getter; wrong schemas rejected
+  ---
+  duration_ms: 138.418673
+  type: 'test'
+  ...
+# Subtest: vault unlock throttle expires after a minute and serializes parallel attempts
+ok 57 - vault unlock throttle expires after a minute and serializes parallel attempts
+  ---
+  duration_ms: 297.44634
+  type: 'test'
+  ...
+# Subtest: Safe Fastify request serializer never includes URL, tokens or prompt text
+ok 58 - Safe Fastify request serializer never includes URL, tokens or prompt text
+  ---
+  duration_ms: 0.341895
+  type: 'test'
+  ...
+# Subtest: same-origin dev frontend allowed only when explicitly enabled
+ok 59 - same-origin dev frontend allowed only when explicitly enabled
+  ---
+  duration_ms: 0.378961
+  type: 'test'
+  ...
+# (node:22426) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: R0-11 saved revisions + preview are reachable through canonical controllers
+ok 60 - R0-11 saved revisions + preview are reachable through canonical controllers
+  ---
+  duration_ms: 14.86962
+  type: 'test'
+  ...
+# Subtest: R0-11 HTTP adapter returns explicit impact error not internal exception
+ok 61 - R0-11 HTTP adapter returns explicit impact error not internal exception
+  ---
+  duration_ms: 10.266169
+  type: 'test'
+  ...
+# Subtest: R0-11 asset jobs default to VIDEO settings, not updated channel preset
+ok 62 - R0-11 asset jobs default to VIDEO settings, not updated channel preset
+  ---
+  duration_ms: 7.919911
+  type: 'test'
+  ...
+# (node:22437) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: R0-12 POST create and page read use stable API contract
+ok 63 - R0-12 POST create and page read use stable API contract
+  ---
+  duration_ms: 15.972223
+  type: 'test'
+  ...
+# Subtest: R0-12 scoped resume and stale version use stable 404/409
+ok 64 - R0-12 scoped resume and stale version use stable 404/409
+  ---
+  duration_ms: 8.418904
+  type: 'test'
+  ...
+# Subtest: R0-12 local transport explicitly allowlists paged video query only
+ok 65 - R0-12 local transport explicitly allowlists paged video query only
+  ---
+  duration_ms: 1.348283
+  type: 'test'
+  ...
+# Subtest: R0-01 draft is copied, not mutating original preset
+ok 66 - R0-01 draft is copied, not mutating original preset
+  ---
+  duration_ms: 0.677711
+  type: 'test'
+  ...
+# Subtest: R0-01 previews prompt locally including Vietnamese channel context
+ok 67 - R0-01 previews prompt locally including Vietnamese channel context
+  ---
+  duration_ms: 0.214494
+  type: 'test'
+  ...
+# Subtest: R0-01 validates form before API writes
+ok 68 - R0-01 validates form before API writes
+  ---
+  duration_ms: 0.194053
+  type: 'test'
+  ...
+# Subtest: R0-01 status and search filter do not include deleted records in active list
+ok 69 - R0-01 status and search filter do not include deleted records in active list
+  ---
+  duration_ms: 0.35789
+  type: 'test'
+  ...
+# Subtest: status labels and the provider state never display raw system errors
+ok 70 - status labels and the provider state never display raw system errors
+  ---
+  duration_ms: 6.216333
+  type: 'test'
+  ...
+# Subtest: GB formatting is predictable and ignores invalid values
+ok 71 - GB formatting is predictable and ignores invalid values
+  ---
+  duration_ms: 17.814571
+  type: 'test'
+  ...
+# (node:22465) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: R0-08 UI diff reports only changed allowlisted preset properties
+ok 72 - R0-08 UI diff reports only changed allowlisted preset properties
+  ---
+  duration_ms: 1.718501
+  type: 'test'
+  ...
+# Subtest: R0-08 UI diff ignores unknown secret-bearing properties and handles empty values
+ok 73 - R0-08 UI diff ignores unknown secret-bearing properties and handles empty values
+  ---
+  duration_ms: 0.257458
+  type: 'test'
+  ...
+# Subtest: R0-11 UI starts inherited, stores only changed fields
+ok 74 - R0-11 UI starts inherited, stores only changed fields
+  ---
+  duration_ms: 1.062442
+  type: 'test'
+  ...
+# Subtest: R0-11 UI reset one field preserves other changed fields
+ok 75 - R0-11 UI reset one field preserves other changed fields
+  ---
+  duration_ms: 1.612452
+  type: 'test'
+  ...
+# Subtest: R0-12 statuses never manufacture video progress
+ok 76 - R0-12 statuses never manufacture video progress
+  ---
+  duration_ms: 0.665723
+  type: 'test'
+  ...
+# Subtest: R0-12 duration label distinguishes actual from target
+ok 77 - R0-12 duration label distinguishes actual from target
+  ---
+  duration_ms: 0.151118
+  type: 'test'
+  ...
+# Subtest: R0-12 query and form validation are explicit
+ok 78 - R0-12 query and form validation are explicit
+  ---
+  duration_ms: 0.992596
+  type: 'test'
+  ...
+# (node:22503) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: every registered route has exactly one operation and vice versa
+ok 79 - every registered route has exactly one operation and vice versa
+  ---
+  duration_ms: 3.018551
+  type: 'test'
+  ...
+# Subtest: OpenAPI 3.1 operations, security and SSE media match the catalog
+ok 80 - OpenAPI 3.1 operations, security and SSE media match the catalog
+  ---
+  duration_ms: 2.701994
+  type: 'test'
+  ...
+# Subtest: GET response contract does not expose credential plaintext fields
+ok 81 - GET response contract does not expose credential plaintext fields
+  ---
+  duration_ms: 1.053228
+  type: 'test'
+  ...
+# Subtest: query parameters in OpenAPI must be allowed by local security gate
+ok 82 - query parameters in OpenAPI must be allowed by local security gate
+  ---
+  duration_ms: 1.742748
+  type: 'test'
+  ...
+# Subtest: checked-in OpenAPI is freshly generated and has local-only server URL
+ok 83 - checked-in OpenAPI is freshly generated and has local-only server URL
+  ---
+  duration_ms: 12.658086
+  type: 'test'
+  ...
+# Subtest: unexpected handler failure becomes sanitized 500, not a misleading 400 or stack
+ok 84 - unexpected handler failure becomes sanitized 500, not a misleading 400 or stack
+  ---
+  duration_ms: 0.661708
+  type: 'test'
+  ...
+# (node:22504) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: asset import uses immutable UUID path and scene pointer
+ok 85 - asset import uses immutable UUID path and scene pointer
+  ---
+  duration_ms: 25.042219
+  type: 'test'
+  ...
+# Subtest: manifest reconciliation marks missing files and does not delete orphans
+ok 86 - manifest reconciliation marks missing files and does not delete orphans
+  ---
+  duration_ms: 13.800158
+  type: 'test'
+  ...
+# Subtest: queue commit promotion is replayable and fenced without re-running provider
+ok 87 - queue commit promotion is replayable and fenced without re-running provider
+  ---
+  duration_ms: 23.114562
+  type: 'test'
+  ...
+# Subtest: queue promotion reports mismatched checksums, does not update scene
+ok 88 - queue promotion reports mismatched checksums, does not update scene
+  ---
+  duration_ms: 10.14041
+  type: 'test'
+  ...
+# (node:22525) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: R0-01 idempotent create is persisted in SQLite and detects payload mismatch
+ok 89 - R0-01 idempotent create is persisted in SQLite and detects payload mismatch
+  ---
+  duration_ms: 9.704312
+  type: 'test'
+  ...
+# Subtest: R0-01 preset saves version only when content changes, old video snapshot stays frozen
+ok 90 - R0-01 preset saves version only when content changes, old video snapshot stays frozen
+  ---
+  duration_ms: 7.071362
+  type: 'test'
+  ...
+# Subtest: R0-01 archive/restore/delete preserve video assets and hide tombstones
+ok 91 - R0-01 archive/restore/delete preserve video assets and hide tombstones
+  ---
+  duration_ms: 8.581574
+  type: 'test'
+  ...
+# Subtest: R0-01 rejects unknown nested preset fields and accidental paid settings
+ok 92 - R0-01 rejects unknown nested preset fields and accidental paid settings
+  ---
+  duration_ms: 6.682336
+  type: 'test'
+  ...
+# Subtest: R0-01 queued or running media job blocks archive and deletion
+ok 93 - R0-01 queued or running media job blocks archive and deletion
+  ---
+  duration_ms: 16.103411
+  type: 'test'
+  ...
+# Subtest: R0-01 state survives restart and migrations preserve versions
+ok 94 - R0-01 state survives restart and migrations preserve versions
+  ---
+  duration_ms: 16.666089
+  type: 'test'
+  ...
+# Subtest: R0-01 portrait/square render presets must match selected media aspect
+ok 95 - R0-01 portrait/square render presets must match selected media aspect
+  ---
+  duration_ms: 7.424044
+  type: 'test'
+  ...
+# Subtest: R0-01 upgrades existing v3 database without data loss
+ok 96 - R0-01 upgrades existing v3 database without data loss
+  ---
+  duration_ms: 11.213107
+  type: 'test'
+  ...
+# (node:22536) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: migration creates canonical tables and is repeatable
+ok 97 - migration creates canonical tables and is repeatable
+  ---
+  duration_ms: 9.199781
+  type: 'test'
+  ...
+# Subtest: channel create/list/archive with preset revision and optimistic locking
+ok 98 - channel create/list/archive with preset revision and optimistic locking
+  ---
+  duration_ms: 7.250312
+  type: 'test'
+  ...
+# Subtest: video freezes preset snapshot when channel changes
+ok 99 - video freezes preset snapshot when channel changes
+  ---
+  duration_ms: 6.328732
+  type: 'test'
+  ...
+# Subtest: video cannot be added to archived channel or missing channel
+ok 100 - video cannot be added to archived channel or missing channel
+  ---
+  duration_ms: 4.491282
+  type: 'test'
+  ...
+# Subtest: script and scenes state progress with version check
+ok 101 - script and scenes state progress with version check
+  ---
+  duration_ms: 5.997233
+  type: 'test'
+  ...
+# Subtest: invalid scene batch rolls back without deleting earlier scenes
+ok 102 - invalid scene batch rolls back without deleting earlier scenes
+  ---
+  duration_ms: 4.775531
+  type: 'test'
+  ...
+# Subtest: timeline saves versioned clips and rejects foreign scenes
+ok 103 - timeline saves versioned clips and rejects foreign scenes
+  ---
+  duration_ms: 5.580094
+  type: 'test'
+  ...
+# Subtest: paid/remote cannot be enabled by directly editing preset
+ok 104 - paid/remote cannot be enabled by directly editing preset
+  ---
+  duration_ms: 5.051967
+  type: 'test'
+  ...
+# Subtest: domain tables persist across new processes / reopening db file
+ok 105 - domain tables persist across new processes / reopening db file
+  ---
+  duration_ms: 19.166669
+  type: 'test'
+  ...
+# (node:22547) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: R0-02 fresh database bootstraps v1..v6 without redundant backup
+ok 106 - R0-02 fresh database bootstraps v1..v6 without redundant backup
+  ---
+  duration_ms: 23.213802
+  type: 'test'
+  ...
+# Subtest: R0-02 upgrade v4 with data in WAL creates verified private pre-upgrade snapshot
+ok 107 - R0-02 upgrade v4 with data in WAL creates verified private pre-upgrade snapshot
+  ---
+  duration_ms: 10.785553
+  type: 'test'
+  ...
+# Subtest: R0-02 upgrades v3 through v4+v5 without replacing preset history
+ok 108 - R0-02 upgrades v3 through v4+v5 without replacing preset history
+  ---
+  duration_ms: 9.119781
+  type: 'test'
+  ...
+# Subtest: R0-02 altered history checksum is rejected without modifying or backing up DB
+ok 109 - R0-02 altered history checksum is rejected without modifying or backing up DB
+  ---
+  duration_ms: 3.962405
+  type: 'test'
+  ...
+# Subtest: R0-02 unknown newer schema is refused, no attempt to downgrade
+ok 110 - R0-02 unknown newer schema is refused, no attempt to downgrade
+  ---
+  duration_ms: 3.066704
+  type: 'test'
+  ...
+# Subtest: R0-02 schema ledger gap is rejected
+ok 111 - R0-02 schema ledger gap is rejected
+  ---
+  duration_ms: 2.995838
+  type: 'test'
+  ...
+# Subtest: R0-02 missing ledger with domain tables fails closed, without creating ledger
+ok 112 - R0-02 missing ledger with domain tables fails closed, without creating ledger
+  ---
+  duration_ms: 1.677079
+  type: 'test'
+  ...
+# Subtest: R0-02 refuses unrelated SQLite files but supports queue-only database
+ok 113 - R0-02 refuses unrelated SQLite files but supports queue-only database
+  ---
+  duration_ms: 1.773184
+  type: 'test'
+  ...
+# Subtest: R0-02 migration failure is atomic and previous backup can be restored
+ok 114 - R0-02 migration failure is atomic and previous backup can be restored
+  ---
+  duration_ms: 10.991773
+  type: 'test'
+  ...
+# Subtest: R0-02 v5 cross-video asset mismatch rejected at DB boundary
+ok 115 - R0-02 v5 cross-video asset mismatch rejected at DB boundary
+  ---
+  duration_ms: 11.647081
+  type: 'test'
+  ...
+# Subtest: R0-02 detects foreign key violation before upgrades
+ok 116 - R0-02 detects foreign key violation before upgrades
+  ---
+  duration_ms: 3.113034
+  type: 'test'
+  ...
+# Subtest: R0-02 existing queue-only database is retained and backed up before domain install
+ok 117 - R0-02 existing queue-only database is retained and backed up before domain install
+  ---
+  duration_ms: 11.198325
+  type: 'test'
+  ...
+# Subtest: R0-02 existing schema with valid checksums but altered required columns is rejected
+ok 118 - R0-02 existing schema with valid checksums but altered required columns is rejected
+  ---
+  duration_ms: 3.384182
+  type: 'test'
+  ...
+# Subtest: R0-02 backup is restorable into a separate data root (manual recovery proof)
+ok 119 - R0-02 backup is restorable into a separate data root (manual recovery proof)
+  ---
+  duration_ms: 10.239439
+  type: 'test'
+  ...
+# Subtest: R0-02 refuses cross-video asset associations in older schema
+ok 120 - R0-02 refuses cross-video asset associations in older schema
+  ---
+  duration_ms: 3.841112
+  type: 'test'
+  ...
+# (node:22580) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:22604) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: R0-02 maintenance CLI reports metadata only; creates verified manual snapshot
+ok 121 - R0-02 maintenance CLI reports metadata only; creates verified manual snapshot
+  ---
+  duration_ms: 102.139686
+  type: 'test'
+  ...
+# (node:22558) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: v10 database creates paid tables without plaintext key columns
+ok 122 - v10 database creates paid tables without plaintext key columns
+  ---
+  duration_ms: 11.50655
+  type: 'test'
+  ...
+# Subtest: requires explicit typed confirmation and a real configured paid model
+ok 123 - requires explicit typed confirmation and a real configured paid model
+  ---
+  duration_ms: 8.228577
+  type: 'test'
+  ...
+# Subtest: approval is scoped to job/account/model, with strict per-call and aggregate ceiling
+ok 124 - approval is scoped to job/account/model, with strict per-call and aggregate ceiling
+  ---
+  duration_ms: 8.616041
+  type: 'test'
+  ...
+# Subtest: duplicate network attempt cannot replay a reserved invocation after restart
+ok 125 - duplicate network attempt cannot replay a reserved invocation after restart
+  ---
+  duration_ms: 6.721324
+  type: 'test'
+  ...
+# Subtest: revoke and expiry prevent new paid dispatch without deleting past audit
+ok 126 - revoke and expiry prevent new paid dispatch without deleting past audit
+  ---
+  duration_ms: 5.359802
+  type: 'test'
+  ...
+# Subtest: disabled or changed model/account invalidates a grant at invocation time
+ok 127 - disabled or changed model/account invalidates a grant at invocation time
+  ---
+  duration_ms: 4.923684
+  type: 'test'
+  ...
+# Subtest: paid ProviderRegistry cannot be bypassed by forged paidApproval JSON
+ok 128 - paid ProviderRegistry cannot be bypassed by forged paidApproval JSON
+  ---
+  duration_ms: 7.489973
+  type: 'test'
+  ...
+# Subtest: provider errors are conservatively held as uncertain cost (no automatic refund)
+ok 129 - provider errors are conservatively held as uncertain cost (no automatic refund)
+  ---
+  duration_ms: 4.590181
+  type: 'test'
+  ...
+# Subtest: unknown-pricing provider remains blocked even with fake approval
+ok 130 - unknown-pricing provider remains blocked even with fake approval
+  ---
+  duration_ms: 0.407113
+  type: 'test'
+  ...
+# Subtest: user-labeled free tier cannot trigger unverified remote billing
+ok 131 - user-labeled free tier cannot trigger unverified remote billing
+  ---
+  duration_ms: 0.373713
+  type: 'test'
+  ...
+# Subtest: paid reservations persist across closing and reopening a disk-backed SQLite database
+ok 132 - paid reservations persist across closing and reopening a disk-backed SQLite database
+  ---
+  duration_ms: 17.496061
+  type: 'test'
+  ...
+# Subtest: migration v10 preserves prior schema ledger and takes a WAL-safe snapshot
+ok 133 - migration v10 preserves prior schema ledger and takes a WAL-safe snapshot
+  ---
+  duration_ms: 10.747445
+  type: 'test'
+  ...
+# (node:22565) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: R0-08 schema is canonical and validates the default on both layers
+ok 134 - R0-08 schema is canonical and validates the default on both layers
+  ---
+  duration_ms: 2.691658
+  type: 'test'
+  ...
+# Subtest: R0-08 saves each semantic preset change as an immutable, ordered revision
+ok 135 - R0-08 saves each semantic preset change as an immutable, ordered revision
+  ---
+  duration_ms: 11.816963
+  type: 'test'
+  ...
+# Subtest: R0-08 stable serialization avoids duplicate revisions on reordered keys
+ok 136 - R0-08 stable serialization avoids duplicate revisions on reordered keys
+  ---
+  duration_ms: 6.674704
+  type: 'test'
+  ...
+# Subtest: R0-08 schema rejects unknown nested secret keys, arbitrary objects, invalid numbers
+ok 137 - R0-08 schema rejects unknown nested secret keys, arbitrary objects, invalid numbers
+  ---
+  duration_ms: 0.797051
+  type: 'test'
+  ...
+# Subtest: R0-08 paid/remote flags require approval outside channel preset
+ok 138 - R0-08 paid/remote flags require approval outside channel preset
+  ---
+  duration_ms: 0.310098
+  type: 'test'
+  ...
+# Subtest: R0-08 rejects stale row version without creating orphan revision or activity
+ok 139 - R0-08 rejects stale row version without creating orphan revision or activity
+  ---
+  duration_ms: 5.042033
+  type: 'test'
+  ...
+# Subtest: R0-08 revisions and snapshot survive SQLite process restart
+ok 140 - R0-08 revisions and snapshot survive SQLite process restart
+  ---
+  duration_ms: 14.43857
+  type: 'test'
+  ...
+# Subtest: R0-08 upgrades existing v5 to immutable v6 without changing prior checksums
+ok 141 - R0-08 upgrades existing v5 to immutable v6 without changing prior checksums
+  ---
+  duration_ms: 11.881866
+  type: 'test'
+  ...
+# (node:22587) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: R0-07 provider metadata and models persisted with no stored API key
+ok 142 - R0-07 provider metadata and models persisted with no stored API key
+  ---
+  duration_ms: 9.204759
+  type: 'test'
+  ...
+# Subtest: R0-07 refuses provider secrets and unexpected fields everywhere
+ok 143 - R0-07 refuses provider secrets and unexpected fields everywhere
+  ---
+  duration_ms: 4.744704
+  type: 'test'
+  ...
+# Subtest: R0-07 models only support provider capability and fixed safe location/cost tier
+ok 144 - R0-07 models only support provider capability and fixed safe location/cost tier
+  ---
+  duration_ms: 5.022683
+  type: 'test'
+  ...
+# Subtest: R0-07 account disabling/optimistic locking and model uniqueness
+ok 145 - R0-07 account disabling/optimistic locking and model uniqueness
+  ---
+  duration_ms: 5.386782
+  type: 'test'
+  ...
+# Subtest: R0-07 untrusted quota updates cannot claim provider_verified
+ok 146 - R0-07 untrusted quota updates cannot claim provider_verified
+  ---
+  duration_ms: 4.912037
+  type: 'test'
+  ...
+# Subtest: R0-07 usage recording is idempotent after queue replay
+ok 147 - R0-07 usage recording is idempotent after queue replay
+  ---
+  duration_ms: 5.725133
+  type: 'test'
+  ...
+# Subtest: R0-07 routing refuses remote without consent, key refs and paid without approval
+ok 148 - R0-07 routing refuses remote without consent, key refs and paid without approval
+  ---
+  duration_ms: 5.416046
+  type: 'test'
+  ...
+# Subtest: R0-07 remote endpoints must not be local or contain auth/query
+ok 149 - R0-07 remote endpoints must not be local or contain auth/query
+  ---
+  duration_ms: 6.864029
+  type: 'test'
+  ...
+# Subtest: R0-07 v7 -> v8 migration preserves existing channels/videos and creates a backup
+ok 150 - R0-07 v7 -> v8 migration preserves existing channels/videos and creates a backup
+  ---
+  duration_ms: 21.463102
+  type: 'test'
+  ...
+# Subtest: R0-07 registry persists model state and quota across process restarts
+ok 151 - R0-07 registry persists model state and quota across process restarts
+  ---
+  duration_ms: 12.233285
+  type: 'test'
+  ...
+# Subtest: R0-07 read-only preview does not write audit event or mutate DB
+ok 152 - R0-07 read-only preview does not write audit event or mutate DB
+  ---
+  duration_ms: 6.458748
+  type: 'test'
+  ...
+# (node:22597) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: R0-11 new video has immutable original snapshot and initial config revision
+ok 153 - R0-11 new video has immutable original snapshot and initial config revision
+  ---
+  duration_ms: 10.064485
+  type: 'test'
+  ...
+# Subtest: R0-11 preview has no write, save uses row lock, no-op creates no revision
+ok 154 - R0-11 preview has no write, save uses row lock, no-op creates no revision
+  ---
+  duration_ms: 7.028748
+  type: 'test'
+  ...
+# Subtest: R0-11 field-level changes can reset to original channel source
+ok 155 - R0-11 field-level changes can reset to original channel source
+  ---
+  duration_ms: 5.84308
+  type: 'test'
+  ...
+# Subtest: R0-11 rejects paid/remote activation and arbitrary secret/unknown fields
+ok 156 - R0-11 rejects paid/remote activation and arbitrary secret/unknown fields
+  ---
+  duration_ms: 6.480111
+  type: 'test'
+  ...
+# Subtest: R0-11 existing assets require explicit review, never alter assets or queue
+ok 157 - R0-11 existing assets require explicit review, never alter assets or queue
+  ---
+  duration_ms: 7.024492
+  type: 'test'
+  ...
+# Subtest: R0-11 script/content change flagged for review if master script exists
+ok 158 - R0-11 script/content change flagged for review if master script exists
+  ---
+  duration_ms: 8.011801
+  type: 'test'
+  ...
+# Subtest: R0-11 editing one video does not mutate another or subsequent channel snapshots
+ok 159 - R0-11 editing one video does not mutate another or subsequent channel snapshots
+  ---
+  duration_ms: 10.536547
+  type: 'test'
+  ...
+# Subtest: R0-11 editing video config refuses jobs still pending/running
+ok 160 - R0-11 editing video config refuses jobs still pending/running
+  ---
+  duration_ms: 8.437682
+  type: 'test'
+  ...
+# Subtest: R0-11 v6 -> v7 migration backfills legacy videos, preserves v1-v6 checksums
+ok 161 - R0-11 v6 -> v7 migration backfills legacy videos, preserves v1-v6 checksums
+  ---
+  duration_ms: 24.742628
+  type: 'test'
+  ...
+# Subtest: R0-11 rejected override cannot mutate SQLite or append audit event
+ok 162 - R0-11 rejected override cannot mutate SQLite or append audit event
+  ---
+  duration_ms: 6.954706
+  type: 'test'
+  ...
+# (node:22624) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: R0-12 create is atomic and snapshots preset + duration without starting jobs
+ok 163 - R0-12 create is atomic and snapshots preset + duration without starting jobs
+  ---
+  duration_ms: 10.719122
+  type: 'test'
+  ...
+# Subtest: R0-12 create idempotency survives retries and refuses conflicting body
+ok 164 - R0-12 create idempotency survives retries and refuses conflicting body
+  ---
+  duration_ms: 9.785851
+  type: 'test'
+  ...
+# Subtest: R0-12 library isolates channels, escapes SQL wildcard, preserves cursor ties
+ok 165 - R0-12 library isolates channels, escapes SQL wildcard, preserves cursor ties
+  ---
+  duration_ms: 23.317107
+  type: 'test'
+  ...
+# Subtest: R0-12 resume step validates persisted script and scenes
+ok 166 - R0-12 resume step validates persisted script and scenes
+  ---
+  duration_ms: 6.767805
+  type: 'test'
+  ...
+# Subtest: R0-12 rename and soft delete enforce version and restore data
+ok 167 - R0-12 rename and soft delete enforce version and restore data
+  ---
+  duration_ms: 6.875066
+  type: 'test'
+  ...
+# Subtest: R0-12 cloning copies script and selected settings but NEVER assets, scenes or jobs
+ok 168 - R0-12 cloning copies script and selected settings but NEVER assets, scenes or jobs
+  ---
+  duration_ms: 6.736818
+  type: 'test'
+  ...
+# Subtest: R0-12 prevents deletion while jobs are active, retains video after rejection
+ok 169 - R0-12 prevents deletion while jobs are active, retains video after rejection
+  ---
+  duration_ms: 11.926773
+  type: 'test'
+  ...
+# Subtest: R0-12 migration upgrades v8 without mutating historical checksums
+ok 170 - R0-12 migration upgrades v8 without mutating historical checksums
+  ---
+  duration_ms: 11.736296
+  type: 'test'
+  ...
+# Subtest: R0-12 list payload stays light even for a long master script
+ok 171 - R0-12 list payload stays light even for a long master script
+  ---
+  duration_ms: 5.686084
+  type: 'test'
+  ...
+# Subtest: session uses in-memory bearer + mutation CSRF; never leaks token in path/body
+ok 172 - session uses in-memory bearer + mutation CSRF; never leaks token in path/body
+  ---
+  duration_ms: 1.98941
+  type: 'test'
+  ...
+# Subtest: runtime catalog blocks unknown paths, query secrets and path traversal
+ok 173 - runtime catalog blocks unknown paths, query secrets and path traversal
+  ---
+  duration_ms: 1.940496
+  type: 'test'
+  ...
+# Subtest: existing channel/video/screens compatibility uses contract operations
+ok 174 - existing channel/video/screens compatibility uses contract operations
+  ---
+  duration_ms: 0.750862
+  type: 'test'
+  ...
+# Subtest: stable machine-code error and 401 expires the session; no server text reflection
+ok 175 - stable machine-code error and 401 expires the session; no server text reflection
+  ---
+  duration_ms: 0.603791
+  type: 'test'
+  ...
+# Subtest: SSE parser handles UTF-8 split bytes, data fragments, comments and cursor
+ok 176 - SSE parser handles UTF-8 split bytes, data fragments, comments and cursor
+  ---
+  duration_ms: 4.371762
+  type: 'test'
+  ...
+# Subtest: SSE drops unfinished tail; detects bad payload and oversize frames
+ok 177 - SSE drops unfinished tail; detects bad payload and oversize frames
+  ---
+  duration_ms: 0.61659
+  type: 'test'
+  ...
+# Subtest: SSE resume after interrupted fetch sends last-event-id as header (not URL)
+ok 178 - SSE resume after interrupted fetch sends last-event-id as header (not URL)
+  ---
+  duration_ms: 6.206488
+  type: 'test'
+  ...
+# Subtest: SDK must never send bearer to arbitrary network origin
+ok 179 - SDK must never send bearer to arbitrary network origin
+  ---
+  duration_ms: 0.567716
+  type: 'test'
+  ...
+# Subtest: SSE avoids duplicate replay and rejects mismatched transport cursor
+ok 180 - SSE avoids duplicate replay and rejects mismatched transport cursor
+  ---
+  duration_ms: 0.541196
+  type: 'test'
+  ...
+# Subtest: unauthenticated /health resolves outside /api and needs no authorization header
+ok 181 - unauthenticated /health resolves outside /api and needs no authorization header
+  ---
+  duration_ms: 0.544761
+  type: 'test'
+  ...
+1..181
+# tests 181
+# suites 0
+# pass 181
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1265.084072

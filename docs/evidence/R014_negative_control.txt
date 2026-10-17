@@ -1,0 +1,1 @@
+PASS: deliberate regression produced a nonzero test exit and a TAP "not ok" result.

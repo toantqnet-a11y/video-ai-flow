@@ -1,0 +1,175 @@
+{
+  "status": "NOT_RUN",
+  "protocol": "3 workloads x 3 repeats x 2 engines; deterministic AB/BA order",
+  "environment": {
+    "os": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "python": "3.13.5",
+    "node": "v22.16.0",
+    "npm": "10.9.2",
+    "ffmpeg": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers",
+    "ffprobe": "ffprobe version 7.1.5-0+deb13u1 Copyright (c) 2007-2026 the FFmpeg developers",
+    "chromium": "Chromium 144.0.7559.96 built on Debian GNU/Linux 13 (trixie)",
+    "cpuCount": 5,
+    "memoryGB": 5.81,
+    "psutil": true
+  },
+  "versionPins": {
+    "remotion": {
+      "remotion": null,
+      "@remotion/cli": null
+    },
+    "hyperframes": {
+      "hyperframes": null,
+      "gsap": null
+    }
+  },
+  "workloads": {
+    "short": {
+      "scenes": 1,
+      "frames": 86,
+      "seconds": 2.8666666666666667
+    },
+    "standard": {
+      "scenes": 5,
+      "frames": 459,
+      "seconds": 15.3
+    },
+    "medium": {
+      "scenes": 15,
+      "frames": 1377,
+      "seconds": 45.9
+    }
+  },
+  "blockers": [
+    "remotion: missing node_modules/remotion; npm install explicitly required",
+    "hyperframes: missing node_modules/hyperframes; npm install explicitly required"
+  ],
+  "runs": [
+    {
+      "engine": "remotion",
+      "workload": "short",
+      "iteration": 1,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "hyperframes",
+      "workload": "short",
+      "iteration": 1,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "hyperframes",
+      "workload": "short",
+      "iteration": 2,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "remotion",
+      "workload": "short",
+      "iteration": 2,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "remotion",
+      "workload": "short",
+      "iteration": 3,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "hyperframes",
+      "workload": "short",
+      "iteration": 3,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "remotion",
+      "workload": "standard",
+      "iteration": 1,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "hyperframes",
+      "workload": "standard",
+      "iteration": 1,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "hyperframes",
+      "workload": "standard",
+      "iteration": 2,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "remotion",
+      "workload": "standard",
+      "iteration": 2,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "remotion",
+      "workload": "standard",
+      "iteration": 3,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "hyperframes",
+      "workload": "standard",
+      "iteration": 3,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "remotion",
+      "workload": "medium",
+      "iteration": 1,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "hyperframes",
+      "workload": "medium",
+      "iteration": 1,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "hyperframes",
+      "workload": "medium",
+      "iteration": 2,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "remotion",
+      "workload": "medium",
+      "iteration": 2,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "remotion",
+      "workload": "medium",
+      "iteration": 3,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    },
+    {
+      "engine": "hyperframes",
+      "workload": "medium",
+      "iteration": 3,
+      "status": "NOT_RUN",
+      "reason": "missing installed dependencies or --run not selected"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+
+> contentstudio@0.3.2-r003 check
+> node --check apps/api/src/server.mjs && node --check apps/api/src/routes.mjs && node --check apps/api/src/security.mjs && node --check apps/api/src/request-policy.mjs && node --check apps/api/src/vault-routes.mjs && node --check packages/security/src/credential-access.mjs
+

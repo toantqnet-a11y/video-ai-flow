@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "task": "FI-04-02/FI-04-03",
+  "timestamp": "2026-10-16T23:38:07.800Z",
+  "platform": "linux",
+  "mode": "verify",
+  "status": "NOT_READY",
+  "gates": {
+    "node": {
+      "status": "PASS",
+      "version": "22.16.0"
+    },
+    "dependencyLock": {
+      "status": "BLOCKED",
+      "reason": "No committed npm package-lock.json. npm ci is not reproducible until it is generated online and committed."
+    },
+    "vite": {
+      "status": "BLOCKED"
+    },
+    "fastify": {
+      "status": "BLOCKED"
+    },
+    "hyperframes": {
+      "status": "BLOCKED"
+    },
+    "frontendBuild": {
+      "status": "BLOCKED",
+      "detail": "Dependency/lock prerequisites BLOCKED, not a fake build success"
+    },
+    "liveFastifyHttp": {
+      "status": "BLOCKED",
+      "detail": "Dependency/lock prerequisites BLOCKED, not an offline mock"
+    }
+  },
+  "caveat": "This is only dependency/build/live-HTTP acceptance, NOT HyperFrames render, Windows UX, provider or 35min release certification."
+}

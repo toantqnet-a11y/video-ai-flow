@@ -1,0 +1,14 @@
+{
+  "name": "video-ai-flow-hyperframes-poc",
+  "private": true,
+  "scripts": {
+    "preview": "hyperframes preview",
+    "lint": "hyperframes lint",
+    "check": "hyperframes check",
+    "render": "echo \"Run via python scripts/benchmark-r2ext03.py to pin output and workload\""
+  },
+  "dependencies": {
+    "hyperframes": "0.8.161",
+    "gsap": "3.14.0"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "task": "WI-01",
+  "timestamp": "2026-10-17T02:30:28.811Z",
+  "hostPlatform": "linux",
+  "status": "BLOCKED",
+  "checks": {
+    "windowsHost": {
+      "status": "BLOCKED",
+      "detail": "Windows acceptance host required (Windows 11 target)"
+    },
+    "node22": {
+      "status": "PASS",
+      "detail": "Node >=22.13"
+    },
+    "architecture": {
+      "status": "PASS",
+      "detail": "64-bit Node required"
+    },
+    "npmLock": {
+      "status": "BLOCKED",
+      "detail": "Verified local npm workspace lock required"
+    },
+    "vite": {
+      "status": "BLOCKED",
+      "detail": "Installed Vite resolved from workspace"
+    },
+    "fastify": {
+      "status": "BLOCKED",
+      "detail": "Installed Fastify resolved from workspace"
+    },
+    "hyperframes": {
+      "status": "BLOCKED",
+      "detail": "Installed HyperFrames resolved from project"
+    },
+    "rendererCli": {
+      "status": "BLOCKED",
+      "detail": "Local pinned HyperFrames CLI 0.8.159 required"
+    },
+    "ffmpeg": {
+      "status": "PASS",
+      "detail": "Local FFmpeg binary exits successfully"
+    },
+    "ffprobe": {
+      "status": "PASS",
+      "detail": "Local FFprobe binary exits successfully"
+    },
+    "browser": {
+      "status": "BLOCKED",
+      "detail": "Chrome/Edge installed on Windows (not interaction verified)"
+    },
+    "disk": {
+      "status": "PASS",
+      "detail": "Conservative 20 GiB free-disk preflight threshold; not a video benchmark"
+    }
+  },
+  "actions": [
+    {
+      "gate": "windowsHost",
+      "action": "RUN_ON_WINDOWS_11"
+    },
+    {
+      "gate": "npmLock",
+      "action": "RESOLVE_REVIEW_AND_COMMIT_LOCK_ON_TRUSTED_NETWORK"
+    },
+    {
+      "gate": "vite",
+      "action": "RUN_REVIEWED_NPM_CI"
+    },
+    {
+      "gate": "fastify",
+      "action": "RUN_REVIEWED_NPM_CI"
+    },
+    {
+      "gate": "hyperframes",
+      "action": "INSTALL_PINNED_HYPERFRAMES_0_8_159_WITH_NPM_CI"
+    },
+    {
+      "gate": "rendererCli",
+      "action": "VERIFY_PROJECT_LOCAL_HYPERFRAMES_CLI"
+    },
+    {
+      "gate": "browser",
+      "action": "INSTALL_CHROME_OR_EDGE"
+    }
+  ],
+  "operatorAcceptanceStatus": "NOT_RUN",
+  "releaseStatus": "NOT_READY",
+  "diskFreeGiB": 29,
+  "warning": "Preflight checks binaries and workspace state only. No browser actions, real HyperFrames MP4, AI inference, or Windows acceptance have been performed."
+}

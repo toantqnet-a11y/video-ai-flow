@@ -1,0 +1,2 @@
+JSX parse PASS apps/web/src/VideoProviderCapabilities.jsx
+JSX parse PASS apps/web/src/ProviderWorkspace.jsx

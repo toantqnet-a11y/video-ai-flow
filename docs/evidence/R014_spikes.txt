@@ -1,0 +1,897 @@
+Running 20 test files (--spikes); fixture failure tests excluded.
+TAP version 13
+# Subtest: GET /api/v1/system/diagnostics returns JSON on loopback
+ok 1 - GET /api/v1/system/diagnostics returns JSON on loopback
+  ---
+  duration_ms: 267.694076
+  type: 'test'
+  ...
+# Subtest: diagnostics: valid schema, disk, CPU, no host/user identity
+ok 2 - diagnostics: valid schema, disk, CPU, no host/user identity
+  ---
+  duration_ms: 142.982049
+  type: 'test'
+  ...
+# Subtest: prerequisites: missing codecs fail closed
+ok 3 - prerequisites: missing codecs fail closed
+  ---
+  duration_ms: 1.026678
+  type: 'test'
+  ...
+# Subtest: benchmark: synthetic mp4 with validated duration/codecs
+ok 4 - benchmark: synthetic mp4 with validated duration/codecs
+  ---
+  duration_ms: 394.538091
+  type: 'test'
+  ...
+# Subtest: Vietnamese Edge voice catalog is explicit and metadata has free-tier disclaimer
+ok 5 - Vietnamese Edge voice catalog is explicit and metadata has free-tier disclaimer
+  ---
+  duration_ms: 1.169814
+  type: 'test'
+  ...
+# Subtest: missing Python interpreter produces dependency error instead of silent success
+ok 6 - missing Python interpreter produces dependency error instead of silent success
+  ---
+  duration_ms: 9.162766
+  type: 'test'
+  ...
+# Subtest: Edge Python subprocess sends private script via stdin and validates saved MP3 (mock bridge)
+ok 7 - Edge Python subprocess sends private script via stdin and validates saved MP3 (mock bridge)
+  ---
+  duration_ms: 1520.146355
+  type: 'test'
+  ...
+# Subtest: invalid Edge voice is rejected before sending private data
+ok 8 - invalid Edge voice is rejected before sending private data
+  ---
+  duration_ms: 0.400764
+  type: 'test'
+  ...
+# Subtest: offline Vietnamese speech really synthesized, committed, and probed (eSpeak installed only)
+ok 9 - offline Vietnamese speech really synthesized, committed, and probed (eSpeak installed only)
+  ---
+  duration_ms: 91.877766
+  type: 'test'
+  ...
+# Subtest: offline voice provider absent returns a clear dependency error
+ok 10 - offline voice provider absent returns a clear dependency error
+  ---
+  duration_ms: 6.234581
+  type: 'test'
+  ...
+# Subtest: local JSON adapter transmits text/voice to loopback, accepts playable WAV
+ok 11 - local JSON adapter transmits text/voice to loopback, accepts playable WAV
+  ---
+  duration_ms: 33.230627
+  type: 'test'
+  ...
+# Subtest: local text/plain mode works for Piper-style raw text endpoint
+ok 12 - local text/plain mode works for Piper-style raw text endpoint
+  ---
+  duration_ms: 6.115651
+  type: 'test'
+  ...
+# Subtest: remote URLs, credentials and other schemes blocked by default
+ok 13 - remote URLs, credentials and other schemes blocked by default
+  ---
+  duration_ms: 0.528517
+  type: 'test'
+  ...
+# Subtest: HTTP errors and invalid HTML responses cannot be saved as speech
+ok 14 - HTTP errors and invalid HTML responses cannot be saved as speech
+  ---
+  duration_ms: 8.524084
+  type: 'test'
+  ...
+# Subtest: local body size limit prevents unbounded response buffering
+ok 15 - local body size limit prevents unbounded response buffering
+  ---
+  duration_ms: 4.346593
+  type: 'test'
+  ...
+# Subtest: local endpoint health without healthUrl is explicitly unverified
+ok 16 - local endpoint health without healthUrl is explicitly unverified
+  ---
+  duration_ms: 0.2191
+  type: 'test'
+  ...
+# Subtest: local adapter cancellation and timeout are distinguishable
+ok 17 - local adapter cancellation and timeout are distinguishable
+  ---
+  duration_ms: 4027.862988
+  type: 'test'
+  ...
+# Subtest: commits real valid WAV bytes atomically; ffprobe gives duration; repeated requests create versions
+ok 18 - commits real valid WAV bytes atomically; ffprobe gives duration; repeated requests create versions
+  ---
+  duration_ms: 236.165787
+  type: 'test'
+  ...
+# Subtest: retryable Edge failure falls back to configured local adapter, with voice remapping
+ok 19 - retryable Edge failure falls back to configured local adapter, with voice remapping
+  ---
+  duration_ms: 71.289313
+  type: 'test'
+  ...
+# Subtest: non-retryable invalid input does not fall back silently
+ok 20 - non-retryable invalid input does not fall back silently
+  ---
+  duration_ms: 4.840238
+  type: 'test'
+  ...
+# Subtest: rejects path traversal, invalid script and unknown provider before creating files
+ok 21 - rejects path traversal, invalid script and unknown provider before creating files
+  ---
+  duration_ms: 1.961037
+  type: 'test'
+  ...
+# Subtest: no paid provider used without explicit approval
+ok 22 - no paid provider used without explicit approval
+  ---
+  duration_ms: 0.787197
+  type: 'test'
+  ...
+# Subtest: bad audio or failed verification leaves no partial asset
+ok 23 - bad audio or failed verification leaves no partial asset
+  ---
+  duration_ms: 3.113494
+  type: 'test'
+  ...
+# Subtest: cancelled request never falls back
+ok 24 - cancelled request never falls back
+  ---
+  duration_ms: 1.0412
+  type: 'test'
+  ...
+# Subtest: symlinked scene folder cannot escape local data directory
+ok 25 - symlinked scene folder cannot escape local data directory
+  ---
+  duration_ms: 2.306938
+  type: 'test'
+  ...
+# Subtest: remote HTTP TTS cannot bypass paid approval via allowRemote configuration
+ok 26 - remote HTTP TTS cannot bypass paid approval via allowRemote configuration
+  ---
+  duration_ms: 1.184926
+  type: 'test'
+  ...
+# Subtest: nvidia-smi parsing returns MiB but does not certify model execution
+ok 27 - nvidia-smi parsing returns MiB but does not certify model execution
+  ---
+  duration_ms: 1.062062
+  type: 'test'
+  ...
+# Subtest: without NVIDIA on Linux GPU status stays unknown
+ok 28 - without NVIDIA on Linux GPU status stays unknown
+  ---
+  duration_ms: 0.219351
+  type: 'test'
+  ...
+# Subtest: Windows fallback lists display devices but does not invent VRAM
+ok 29 - Windows fallback lists display devices but does not invent VRAM
+  ---
+  duration_ms: 0.182725
+  type: 'test'
+  ...
+# Subtest: offline selection preserves manual import when no local provider or remote approval
+ok 30 - offline selection preserves manual import when no local provider or remote approval
+  ---
+  duration_ms: 0.210136
+  type: 'test'
+  ...
+# Subtest: local ComfyUI reachable does not pretend model generation is verified
+ok 31 - local ComfyUI reachable does not pretend model generation is verified
+  ---
+  duration_ms: 0.164347
+  type: 'test'
+  ...
+# Subtest: remote selection requires both data consent and cost approval
+ok 32 - remote selection requires both data consent and cost approval
+  ---
+  duration_ms: 0.101143
+  type: 'test'
+  ...
+# Subtest: generated PNG is genuine and ffprobe verifies dimensions
+ok 33 - generated PNG is genuine and ffprobe verifies dimensions
+  ---
+  duration_ms: 160.765867
+  type: 'test'
+  ...
+# Subtest: non-image provider JSON and empty content are rejected
+ok 34 - non-image provider JSON and empty content are rejected
+  ---
+  duration_ms: 0.579084
+  type: 'test'
+  ...
+# Subtest: PNG huge/zero dimensions rejected
+ok 35 - PNG huge/zero dimensions rejected
+  ---
+  duration_ms: 1.128742
+  type: 'test'
+  ...
+# Subtest: reject oversize image buffer
+ok 36 - reject oversize image buffer
+  ---
+  duration_ms: 0.1654
+  type: 'test'
+  ...
+# Subtest: reject scene path traversal
+ok 37 - reject scene path traversal
+  ---
+  duration_ms: 0.508026
+  type: 'test'
+  ...
+# Subtest: empty prompt and unreasonable dimensions rejected
+ok 38 - empty prompt and unreasonable dimensions rejected
+  ---
+  duration_ms: 0.272271
+  type: 'test'
+  ...
+# Subtest: loopback endpoint blocks credentialed, remote and alternate path URLs
+ok 39 - loopback endpoint blocks credentialed, remote and alternate path URLs
+  ---
+  duration_ms: 0.436679
+  type: 'test'
+  ...
+# Subtest: corrupted PNG pixel payload is rejected by full decoder
+ok 40 - corrupted PNG pixel payload is rejected by full decoder
+  ---
+  duration_ms: 656.512224
+  type: 'test'
+  ...
+# Subtest: ComfyUI integration: POST API workflow, poll history, download genuine image
+ok 41 - ComfyUI integration: POST API workflow, poll history, download genuine image
+  ---
+  duration_ms: 39.050312
+  type: 'test'
+  ...
+# Subtest: ComfyUI rejects broken workflow input bindings
+ok 42 - ComfyUI rejects broken workflow input bindings
+  ---
+  duration_ms: 0.917884
+  type: 'test'
+  ...
+# Subtest: ComfyUI rejects unsafe image filename returned by provider
+ok 43 - ComfyUI rejects unsafe image filename returned by provider
+  ---
+  duration_ms: 8.773549
+  type: 'test'
+  ...
+# Subtest: ComfyUI reports execution failure without attempting download
+ok 44 - ComfyUI reports execution failure without attempting download
+  ---
+  duration_ms: 5.980778
+  type: 'test'
+  ...
+# Subtest: ComfyUI timeout is bounded if history is never ready
+ok 45 - ComfyUI timeout is bounded if history is never ready
+  ---
+  duration_ms: 47.672061
+  type: 'test'
+  ...
+# Subtest: ComfyUI cancelled during polling stops without presenting a result
+ok 46 - ComfyUI cancelled during polling stops without presenting a result
+  ---
+  duration_ms: 20.720593
+  type: 'test'
+  ...
+# Subtest: readLimited rejects streaming body exceeding max size
+ok 47 - readLimited rejects streaming body exceeding max size
+  ---
+  duration_ms: 0.926557
+  type: 'test'
+  ...
+# Subtest: Cloudflare adapter parses official JSON base64 image result with stub transport
+ok 48 - Cloudflare adapter parses official JSON base64 image result with stub transport
+  ---
+  duration_ms: 1.183605
+  type: 'test'
+  ...
+# Subtest: Cloudflare malformed image response is rejected
+ok 49 - Cloudflare malformed image response is rejected
+  ---
+  duration_ms: 0.403228
+  type: 'test'
+  ...
+# Subtest: Cloudflare does not call HTTP without credentials
+ok 50 - Cloudflare does not call HTTP without credentials
+  ---
+  duration_ms: 0.388126
+  type: 'test'
+  ...
+# Subtest: real manual image import persists verified PNG and privacy-safe provenance
+ok 51 - real manual image import persists verified PNG and privacy-safe provenance
+  ---
+  duration_ms: 173.88941
+  type: 'test'
+  ...
+# Subtest: generated asset creates immutable versions, does not leak prompt into metadata/log
+ok 52 - generated asset creates immutable versions, does not leak prompt into metadata/log
+  ---
+  duration_ms: 288.694832
+  type: 'test'
+  ...
+# Subtest: retryable local failure falls back only to explicitly selected second provider
+ok 53 - retryable local failure falls back only to explicitly selected second provider
+  ---
+  duration_ms: 136.187027
+  type: 'test'
+  ...
+# Subtest: malformed image is terminal: does not fallback invisibly
+ok 54 - malformed image is terminal: does not fallback invisibly
+  ---
+  duration_ms: 1.354833
+  type: 'test'
+  ...
+# Subtest: remote providers are never chosen implicitly
+ok 55 - remote providers are never chosen implicitly
+  ---
+  duration_ms: 1.004434
+  type: 'test'
+  ...
+# Subtest: remote consent and paid approval both required
+ok 56 - remote consent and paid approval both required
+  ---
+  duration_ms: 0.532643
+  type: 'test'
+  ...
+# Subtest: remote cannot be reached when consent denied even if provider explicitly selected
+ok 57 - remote cannot be reached when consent denied even if provider explicitly selected
+  ---
+  duration_ms: 0.915901
+  type: 'test'
+  ...
+# Subtest: cancelled prior to generation creates no asset
+ok 58 - cancelled prior to generation creates no asset
+  ---
+  duration_ms: 0.818374
+  type: 'test'
+  ...
+# Subtest: decoder failure rolls back partial and final files
+ok 59 - decoder failure rolls back partial and final files
+  ---
+  duration_ms: 4.291561
+  type: 'test'
+  ...
+# Subtest: reject image output escape through symlinked scene directory
+ok 60 - reject image output escape through symlinked scene directory
+  ---
+  duration_ms: 4.656016
+  type: 'test'
+  ...
+# Subtest: allow explicitly authorized remote provider using cost budget
+ok 61 - allow explicitly authorized remote provider using cost budget
+  ---
+  duration_ms: 158.104895
+  type: 'test'
+  ...
+# (node:24143) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: read-only HTTP summary, event replay and SSE Last-Event-ID
+ok 62 - read-only HTTP summary, event replay and SSE Last-Event-ID
+  ---
+  duration_ms: 47.853115
+  type: 'test'
+  ...
+# (node:24172) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: real OS kill & restart after partial completion: 100 jobs exactly one committed logical revision, SSE outbox replays
+ok 63 - real OS kill & restart after partial completion: 100 jobs exactly one committed logical revision, SSE outbox replays
+  ---
+  duration_ms: 723.058142
+  type: 'test'
+  ...
+# (node:24265) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: 100 durable jobs finish, concurrency capped, dependencies retained
+ok 64 - 100 durable jobs finish, concurrency capped, dependencies retained
+  ---
+  duration_ms: 145.573245
+  type: 'test'
+  ...
+# Subtest: retry transient worker error without losing other successful jobs
+ok 65 - retry transient worker error without losing other successful jobs
+  ---
+  duration_ms: 25.478798
+  type: 'test'
+  ...
+# Subtest: aborted job is fenced even when handler ignores AbortSignal
+ok 66 - aborted job is fenced even when handler ignores AbortSignal
+  ---
+  duration_ms: 122.321615
+  type: 'test'
+  ...
+# (node:24276) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: enqueues idempotently without silent payload mutation
+ok 67 - enqueues idempotently without silent payload mutation
+  ---
+  duration_ms: 4.730553
+  type: 'test'
+  ...
+# Subtest: atomic dependency DAG scheduling and full event replay
+ok 68 - atomic dependency DAG scheduling and full event replay
+  ---
+  duration_ms: 4.122676
+  type: 'test'
+  ...
+# Subtest: claim and stale completion are fenced by expiring lease and token
+ok 69 - claim and stale completion are fenced by expiring lease and token
+  ---
+  duration_ms: 2.32165
+  type: 'test'
+  ...
+# Subtest: heartbeat renews live lease, outdated lease is rejected
+ok 70 - heartbeat renews live lease, outdated lease is rejected
+  ---
+  duration_ms: 1.525671
+  type: 'test'
+  ...
+# Subtest: immutable asset revision: stale/competing revision cannot be active
+ok 71 - immutable asset revision: stale/competing revision cannot be active
+  ---
+  duration_ms: 2.578398
+  type: 'test'
+  ...
+# Subtest: retry bounded exponential and terminal dependency propagation
+ok 72 - retry bounded exponential and terminal dependency propagation
+  ---
+  duration_ms: 4.004939
+  type: 'test'
+  ...
+# Subtest: pause/resume/cancel invalidate running token and do not allow late commit
+ok 73 - pause/resume/cancel invalidate running token and do not allow late commit
+  ---
+  duration_ms: 2.239016
+  type: 'test'
+  ...
+# Subtest: missing dependencies, duplicated deps and invalid claim rejected
+ok 74 - missing dependencies, duplicated deps and invalid claim rejected
+  ---
+  duration_ms: 1.212519
+  type: 'test'
+  ...
+# Subtest: outbox and committed job state survive reopening database
+ok 75 - outbox and committed job state survive reopening database
+  ---
+  duration_ms: 2.106947
+  type: 'test'
+  ...
+# Subtest: two independent SQLite clients cannot claim same job
+ok 76 - two independent SQLite clients cannot claim same job
+  ---
+  duration_ms: 2.117774
+  type: 'test'
+  ...
+# Subtest: 500 scenes cover precisely 35 minutes
+ok 77 - 500 scenes cover precisely 35 minutes
+  ---
+  duration_ms: 1.381233
+  type: 'test'
+  ...
+# Subtest: reject nonsensical or extreme fixture sizes
+ok 78 - reject nonsensical or extreme fixture sizes
+  ---
+  duration_ms: 0.221203
+  type: 'test'
+  ...
+# Subtest: viewport virtualization at start, middle and end
+ok 79 - viewport virtualization at start, middle and end
+  ---
+  duration_ms: 0.489979
+  type: 'test'
+  ...
+# Subtest: viewport intersects expected scenes even on zoom extremes
+ok 80 - viewport intersects expected scenes even on zoom extremes
+  ---
+  duration_ms: 1.033829
+  type: 'test'
+  ...
+# Subtest: timestamp mapping picks correct clip at boundaries
+ok 81 - timestamp mapping picks correct clip at boundaries
+  ---
+  duration_ms: 0.309517
+  type: 'test'
+  ...
+# Subtest: reorder is immutable and preserves all ID references and duration
+ok 82 - reorder is immutable and preserves all ID references and duration
+  ---
+  duration_ms: 0.288715
+  type: 'test'
+  ...
+# Subtest: invalid reorder index rejected
+ok 83 - invalid reorder index rejected
+  ---
+  duration_ms: 0.671473
+  type: 'test'
+  ...
+# Subtest: trim clamps at min/max and preserves other scene records
+ok 84 - trim clamps at min/max and preserves other scene records
+  ---
+  duration_ms: 0.598082
+  type: 'test'
+  ...
+# Subtest: trim rejects unknown scenes
+ok 85 - trim rejects unknown scenes
+  ---
+  duration_ms: 0.359552
+  type: 'test'
+  ...
+# Subtest: text edit selectively invalidates voice, image edit selectively invalidates image
+ok 86 - text edit selectively invalidates voice, image edit selectively invalidates image
+  ---
+  duration_ms: 0.506494
+  type: 'test'
+  ...
+# Subtest: only whitelist text fields accepted
+ok 87 - only whitelist text fields accepted
+  ---
+  duration_ms: 0.249356
+  type: 'test'
+  ...
+# Subtest: format time with and without milliseconds
+ok 88 - format time with and without milliseconds
+  ---
+  duration_ms: 0.104848
+  type: 'test'
+  ...
+# Subtest: lower bound handles repeated and non-existent values
+ok 89 - lower bound handles repeated and non-existent values
+  ---
+  duration_ms: 0.059229
+  type: 'test'
+  ...
+# Subtest: waveform analysis processes real PCM amplitude
+ok 90 - waveform analysis processes real PCM amplitude
+  ---
+  duration_ms: 0.607456
+  type: 'test'
+  ...
+# Subtest: waveform analysis rejects empty audio
+ok 91 - waveform analysis rejects empty audio
+  ---
+  duration_ms: 0.083246
+  type: 'test'
+  ...
+# Subtest: bad duration rejected by authoritative timeline
+ok 92 - bad duration rejected by authoritative timeline
+  ---
+  duration_ms: 0.175805
+  type: 'test'
+  ...
+# Subtest: public address classifier refuses local, metadata, private and docs
+ok 93 - public address classifier refuses local, metadata, private and docs
+  ---
+  duration_ms: 4.521999
+  type: 'test'
+  ...
+# Subtest: local endpoints allow only loopback
+ok 94 - local endpoints allow only loopback
+  ---
+  duration_ms: 0.933187
+  type: 'test'
+  ...
+# Subtest: remote allows only allowlisted HTTPS with public DNS
+ok 95 - remote allows only allowlisted HTTPS with public DNS
+  ---
+  duration_ms: 0.57043
+  type: 'test'
+  ...
+# Subtest: disallows embedded credentials, query API keys, fragments and unsafe schemes
+ok 96 - disallows embedded credentials, query API keys, fragments and unsafe schemes
+  ---
+  duration_ms: 0.304319
+  type: 'test'
+  ...
+# Subtest: local pinned HTTP request works without external network
+ok 97 - local pinned HTTP request works without external network
+  ---
+  duration_ms: 15.036362
+  type: 'test'
+  ...
+# Subtest: redirect response is blocked and not followed
+ok 98 - redirect response is blocked and not followed
+  ---
+  duration_ms: 3.462421
+  type: 'test'
+  ...
+# Subtest: caps response bytes
+ok 99 - caps response bytes
+  ---
+  duration_ms: 4.507171
+  type: 'test'
+  ...
+# Subtest: request cannot override pinned Host or disable network limits
+ok 100 - request cannot override pinned Host or disable network limits
+  ---
+  duration_ms: 0.453013
+  type: 'test'
+  ...
+# Subtest: loopback binding and minimal unauthenticated health
+ok 101 - loopback binding and minimal unauthenticated health
+  ---
+  duration_ms: 37.499693
+  type: 'test'
+  ...
+# Subtest: credentials API requires bearer, second CSRF token and redacts secret
+ok 102 - credentials API requires bearer, second CSRF token and redacts secret
+  ---
+  duration_ms: 73.339488
+  type: 'test'
+  ...
+# Subtest: malicious Origin, null Origin, and host rebinding attempts rejected
+ok 103 - malicious Origin, null Origin, and host rebinding attempts rejected
+  ---
+  duration_ms: 17.32954
+  type: 'test'
+  ...
+# Subtest: rejects browser CORS preflight even when supplied credentials
+ok 104 - rejects browser CORS preflight even when supplied credentials
+  ---
+  duration_ms: 2.613621
+  type: 'test'
+  ...
+# Subtest: wrong CSRF token and bad authorization blocked
+ok 105 - wrong CSRF token and bad authorization blocked
+  ---
+  duration_ms: 4.393635
+  type: 'test'
+  ...
+# Subtest: invalid JSON, content type, oversized body
+ok 106 - invalid JSON, content type, oversized body
+  ---
+  duration_ms: 6.955368
+  type: 'test'
+  ...
+# Subtest: vault locks, unlocks and throttles bad passphrases
+ok 107 - vault locks, unlocks and throttles bad passphrases
+  ---
+  duration_ms: 263.569597
+  type: 'test'
+  ...
+# Subtest: secret metadata only in errors and audit stream, never raw passwords or tokens
+ok 108 - secret metadata only in errors and audit stream, never raw passwords or tokens
+  ---
+  duration_ms: 48.374781
+  type: 'test'
+  ...
+# Subtest: delete endpoint and reject escaped path
+ok 109 - delete endpoint and reject escaped path
+  ---
+  duration_ms: 50.655879
+  type: 'test'
+  ...
+# Subtest: duplicated Host headers rejected (parser disagreement)
+ok 110 - duplicated Host headers rejected (parser disagreement)
+  ---
+  duration_ms: 2.319377
+  type: 'test'
+  ...
+# Subtest: raw HTTP with two Host headers never reaches API
+ok 111 - raw HTTP with two Host headers never reaches API
+  ---
+  duration_ms: 2.542534
+  type: 'test'
+  ...
+# Subtest: foreign Origin blocks an authenticated write even with bearer+CSRF
+ok 112 - foreign Origin blocks an authenticated write even with bearer+CSRF
+  ---
+  duration_ms: 2.587361
+  type: 'test'
+  ...
+# Subtest: status uninitialized and fail closed
+ok 113 - status uninitialized and fail closed
+  ---
+  duration_ms: 10.69048
+  type: 'test'
+  ...
+# Subtest: encryption protects raw secret, plaintext not in disk file
+ok 114 - encryption protects raw secret, plaintext not in disk file
+  ---
+  duration_ms: 54.17031
+  type: 'test'
+  ...
+# Subtest: lock / restart / valid unlock / wrong unlock
+ok 115 - lock / restart / valid unlock / wrong unlock
+  ---
+  duration_ms: 131.056911
+  type: 'test'
+  ...
+# Subtest: vault init rejects weak passphrase and reinitialization
+ok 116 - vault init rejects weak passphrase and reinitialization
+  ---
+  duration_ms: 51.596088
+  type: 'test'
+  ...
+# Subtest: authenticity: record tamper fails decryption
+ok 117 - authenticity: record tamper fails decryption
+  ---
+  duration_ms: 46.18552
+  type: 'test'
+  ...
+# Subtest: authenticity: swapping ciphertext between refs fails AAD
+ok 118 - authenticity: swapping ciphertext between refs fails AAD
+  ---
+  duration_ms: 56.641987
+  type: 'test'
+  ...
+# Subtest: authenticity: verifier tamper blocks unlock
+ok 119 - authenticity: verifier tamper blocks unlock
+  ---
+  duration_ms: 87.020962
+  type: 'test'
+  ...
+# Subtest: reference validation disallows path traversal and huge credentials
+ok 120 - reference validation disallows path traversal and huge credentials
+  ---
+  duration_ms: 40.163565
+  type: 'test'
+  ...
+# Subtest: concurrent writes retain all records (no lost updates)
+ok 121 - concurrent writes retain all records (no lost updates)
+  ---
+  duration_ms: 69.477476
+  type: 'test'
+  ...
+# Subtest: delete removes record; list metadata never leaks secret
+ok 122 - delete removes record; list metadata never leaks secret
+  ---
+  duration_ms: 41.016464
+  type: 'test'
+  ...
+# Subtest: refuses preexisting symlink vault file
+ok 123 - refuses preexisting symlink vault file
+  ---
+  duration_ms: 1.416165
+  type: 'test'
+  ...
+# Subtest: kdf params tamper cannot expand KDF cost
+ok 124 - kdf params tamper cannot expand KDF cost
+  ---
+  duration_ms: 41.101624
+  type: 'test'
+  ...
+# Subtest: not a relative storage directory
+ok 125 - not a relative storage directory
+  ---
+  duration_ms: 0.219602
+  type: 'test'
+  ...
+# Subtest: local endpoint strictly refuses arbitrary SSRF destinations, URL credentials and paths
+ok 126 - local endpoint strictly refuses arbitrary SSRF destinations, URL credentials and paths
+  ---
+  duration_ms: 88.595977
+  type: 'test'
+  ...
+# Subtest: hard cost + remote data-transfer gates block nonlocal providers
+ok 127 - hard cost + remote data-transfer gates block nonlocal providers
+  ---
+  duration_ms: 0.363658
+  type: 'test'
+  ...
+# Subtest: T2V and I2V input validation enforce image, prompt, duration and limits
+ok 128 - T2V and I2V input validation enforce image, prompt, duration and limits
+  ---
+  duration_ms: 0.39174
+  type: 'test'
+  ...
+# Subtest: T2V uses explicit API-format workflow bindings, polls history and fetches actual video bytes
+ok 129 - T2V uses explicit API-format workflow bindings, polls history and fetches actual video bytes
+  ---
+  duration_ms: 33.165248
+  type: 'test'
+  ...
+# Subtest: I2V uploads image reference locally before posting configured image-node binding
+ok 130 - I2V uploads image reference locally before posting configured image-node binding
+  ---
+  duration_ms: 19.751041
+  type: 'test'
+  ...
+# Subtest: workflow rejects UI JSON and invalid mappings (never guesses Wan node IDs)
+ok 131 - workflow rejects UI JSON and invalid mappings (never guesses Wan node IDs)
+  ---
+  duration_ms: 0.890433
+  type: 'test'
+  ...
+# Subtest: provider history rejects failures and missing mp4 output
+ok 132 - provider history rejects failures and missing mp4 output
+  ---
+  duration_ms: 0.376428
+  type: 'test'
+  ...
+# Subtest: ComfyUI connection check does not prove GPU generation occurred
+ok 133 - ComfyUI connection check does not prove GPU generation occurred
+  ---
+  duration_ms: 4.786977
+  type: 'test'
+  ...
+# Subtest: poll waits for history then completes
+ok 134 - poll waits for history then completes
+  ---
+  duration_ms: 23.404059
+  type: 'test'
+  ...
+# Subtest: abort while queued cancels local waiting without claiming provider work interrupted
+ok 135 - abort while queued cancels local waiting without claiming provider work interrupted
+  ---
+  duration_ms: 47.51238
+  type: 'test'
+  ...
+# Subtest: timeouts have retryable classification; empty history never yields fake output
+ok 136 - timeouts have retryable classification; empty history never yields fake output
+  ---
+  duration_ms: 84.171406
+  type: 'test'
+  ...
+# Subtest: malicious redirect to external file is blocked (no provider-controlled fetch target)
+ok 137 - malicious redirect to external file is blocked (no provider-controlled fetch target)
+  ---
+  duration_ms: 5.083365
+  type: 'test'
+  ...
+# Subtest: response body enforces streaming size even without Content-Length
+ok 138 - response body enforces streaming size even without Content-Length
+  ---
+  duration_ms: 0.7428
+  type: 'test'
+  ...
+# Subtest: same video request hashes to same fingerprint; changed reference invalidates it
+ok 139 - same video request hashes to same fingerprint; changed reference invalidates it
+  ---
+  duration_ms: 0.180011
+  type: 'test'
+  ...
+# (node:24363) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: ffprobe rejects random media and validates actual file duration/codec
+ok 140 - ffprobe rejects random media and validates actual file duration/codec
+  ---
+  duration_ms: 206.272142
+  type: 'test'
+  ...
+# Subtest: manual clip import produces immutable validated revision + metadata + checksum
+ok 141 - manual clip import produces immutable validated revision + metadata + checksum
+  ---
+  duration_ms: 163.740727
+  type: 'test'
+  ...
+# Subtest: manual import rejects unsafe projectId / sceneId traversal
+ok 142 - manual import rejects unsafe projectId / sceneId traversal
+  ---
+  duration_ms: 1.787124
+  type: 'test'
+  ...
+# Subtest: unplayable provider result is removed; no finished asset or metadata left
+ok 143 - unplayable provider result is removed; no finished asset or metadata left
+  ---
+  duration_ms: 63.818077
+  type: 'test'
+  ...
+# Subtest: AI video service refuses paid/remote, even with arbitrary request payload
+ok 144 - AI video service refuses paid/remote, even with arbitrary request payload
+  ---
+  duration_ms: 0.401125
+  type: 'test'
+  ...
+# Subtest: save emits immutable AI revision, preserving media provenance and original bytes
+ok 145 - save emits immutable AI revision, preserving media provenance and original bytes
+  ---
+  duration_ms: 68.842512
+  type: 'test'
+  ...
+# Subtest: SP-04 integration: 1 real MP4 saved as asset; duplicate enqueue uses existing job
+ok 146 - SP-04 integration: 1 real MP4 saved as asset; duplicate enqueue uses existing job
+  ---
+  duration_ms: 86.168372
+  type: 'test'
+  ...
+1..146
+# tests 146
+# suites 0
+# pass 146
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4767.597836

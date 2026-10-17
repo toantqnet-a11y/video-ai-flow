@@ -1,0 +1,72 @@
+{
+  "taskId": "R1-08",
+  "mode": "MOCK_ONLY_NO_EXTERNAL_REQUESTS",
+  "simulatedVideoMinutes": 35,
+  "chapterCount": 5,
+  "modelCount": 3,
+  "jobCount": 15,
+  "successfulJobs": 15,
+  "failedJobs": 0,
+  "repeatedRequestCreatedJobs": false,
+  "maxObservedConcurrentCalls": 3,
+  "totalAttempts": 16,
+  "transientFailureInjected": true,
+  "elapsedMs": 59,
+  "master": {
+    "approvalRecorded": true,
+    "wordCount": 5075,
+    "approvedVersion": 1,
+    "sourceChapterCount": 5
+  },
+  "contentAudit": {
+    "wpm": 145,
+    "expectedMinutes": 35,
+    "modelCount": 3,
+    "plannedWords": 5075,
+    "models": [
+      {
+        "modelId": "qa_model_a",
+        "chapterCount": 5,
+        "expectedChapters": 5,
+        "words": 5075,
+        "plannedWords": 5075,
+        "estimatedMinutes": 35,
+        "warningCodes": [],
+        "readiness": "METRIC_CHECKS_PASS"
+      },
+      {
+        "modelId": "qa_model_b",
+        "chapterCount": 5,
+        "expectedChapters": 5,
+        "words": 5075,
+        "plannedWords": 5075,
+        "estimatedMinutes": 35,
+        "warningCodes": [],
+        "readiness": "METRIC_CHECKS_PASS"
+      },
+      {
+        "modelId": "qa_model_c",
+        "chapterCount": 5,
+        "expectedChapters": 5,
+        "words": 5075,
+        "plannedWords": 5075,
+        "estimatedMinutes": 35,
+        "warningCodes": [],
+        "readiness": "METRIC_CHECKS_PASS"
+      }
+    ],
+    "semanticQualityVerified": false,
+    "ttsDurationVerified": false,
+    "methodology": "Deterministic structural/length and exact-repeat checks; not a factual or editorial review."
+  },
+  "providerCalls": {
+    "external": 0,
+    "paid": 0
+  },
+  "acceptance": "OFFLINE_STRUCTURAL_CHECKS_ONLY",
+  "limitations": [
+    "Synthetic content is not validated for correctness, language quality, or factual consistency.",
+    "Word-count duration is an estimate, not a TTS or completed MP4 duration.",
+    "No live provider, Fastify browser, Windows hardware or GPU was tested."
+  ]
+}

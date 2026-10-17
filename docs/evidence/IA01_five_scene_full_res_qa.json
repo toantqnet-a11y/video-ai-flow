@@ -1,0 +1,36 @@
+{
+  "id": "IA-01",
+  "result": "PASS",
+  "platform": "linux",
+  "profile": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "aspectRatio": "9:16",
+    "codec": "h264"
+  },
+  "sceneCount": 5,
+  "totalFrames": 429,
+  "expectedSeconds": 14.3,
+  "durationSeconds": 14.3,
+  "driftSeconds": 0,
+  "qa": {
+    "h264": true,
+    "aac": true,
+    "dimensions": true,
+    "framerate": true,
+    "frames": true,
+    "duration": true
+  },
+  "mp4Bytes": 1546300,
+  "renderSha256": "30325749e62fa907e48113682456bd42aaa51e918a36ccfaed711f2deadfb5cb",
+  "renderDurationMs": 8357,
+  "persistedQueueSucceeded": true,
+  "idempotencyPreventsDuplicate": true,
+  "localFixtureOnly": true,
+  "realAiInference": false,
+  "paidApiCalls": 0,
+  "browserWindowsGpuAccepted": false,
+  "longFormMp4Accepted": false,
+  "outputPath": "/mnt/data/Video_AI_Flow_IA01_5Scenes_1080x1920.mp4"
+}

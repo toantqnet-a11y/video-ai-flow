@@ -1,0 +1,4 @@
+
+> contentstudio@0.9.4-r0vid01 typecheck:sdk
+> tsc --noEmit --strict --target ES2022 --module NodeNext --moduleResolution NodeNext --lib ES2022,DOM packages/sdk/types/typecheck-r005.mts
+

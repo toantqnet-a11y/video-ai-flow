@@ -1,0 +1,13 @@
+ContentStudio R1-08 — 2026-10-14 — Linux, Node 22.16.0
+
+npm run test:r108        PASS 11/11
+npm run test:all         PASS 479/479
+npm run check            PASS (includes OpenAPI contract checks)
+npm run typecheck:sdk    PASS
+npm run rehearsal:r108   PASS (synthetic 5x3 workload, 35-minute nominal word estimate)
+npm run build:web        BLOCKED: vite: not found (dependencies unavailable)
+npm run test:live-http   BLOCKED: ERR_MODULE_NOT_FOUND (Fastify dependencies unavailable)
+Windows, real AI models, GPU, real 35-minute voice/video & browser E2E: NOT TESTED.
+
+Rehearsal metric evidence: docs/evidence/R108_long_form_rehearsal.json
+Full explanation: docs/TEST_REPORT_R108.md

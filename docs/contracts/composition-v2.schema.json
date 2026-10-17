@@ -1,0 +1,582 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contentstudio.local/schemas/composition-v2.schema.json",
+  "title": "ContentStudio FFprobe measured timing v2",
+  "description": "No synthetic word alignment; all files reverified at render dispatch.",
+  "$ref": "#/$defs/TimedCompositionDocument",
+  "$defs": {
+    "CompositionAssetPin": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "voice",
+            "image",
+            "video"
+          ]
+        },
+        "sha256": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "relativePath": {
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "sha256",
+        "bytes",
+        "relativePath"
+      ],
+      "additionalProperties": false
+    },
+    "CompositionVoice": {
+      "type": "object",
+      "properties": {
+        "asset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CompositionAssetPin"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "measuredDurationMs": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "asset",
+        "measuredDurationMs"
+      ],
+      "additionalProperties": false
+    },
+    "CompositionVisual": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "image",
+            "video"
+          ]
+        },
+        "motion": {
+          "type": "string",
+          "enum": [
+            "none",
+            "zoom",
+            "pan",
+            "ken_burns"
+          ]
+        },
+        "asset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CompositionAssetPin"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "motion",
+        "asset"
+      ],
+      "additionalProperties": false
+    },
+    "CompositionCue": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "maxLength": 20000
+        },
+        "startFrame": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "endFrame": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "text",
+        "startFrame",
+        "endFrame"
+      ],
+      "additionalProperties": false
+    },
+    "CompositionSource": {
+      "type": "object",
+      "properties": {
+        "videoRowVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "configRevision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sceneRevision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "timelineRowVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "scriptSha256": {
+          "type": "string",
+          "maxLength": 64
+        }
+      },
+      "required": [
+        "videoRowVersion",
+        "configRevision",
+        "sceneRevision",
+        "timelineRowVersion",
+        "scriptSha256"
+      ],
+      "additionalProperties": false
+    },
+    "CompositionProfile": {
+      "type": "object",
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "fps": {
+          "type": "integer",
+          "minimum": 24
+        },
+        "aspectRatio": {
+          "type": "string",
+          "enum": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ]
+        },
+        "codec": {
+          "type": "string",
+          "enum": [
+            "h264"
+          ]
+        }
+      },
+      "required": [
+        "width",
+        "height",
+        "fps",
+        "aspectRatio",
+        "codec"
+      ],
+      "additionalProperties": false
+    },
+    "CompositionBlocker": {
+      "type": "object",
+      "properties": {
+        "sceneId": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "code": {
+          "type": "string",
+          "enum": [
+            "VOICE_MISSING",
+            "VOICE_UNHEALTHY",
+            "VOICE_STALE",
+            "VISUAL_MISSING",
+            "VISUAL_UNHEALTHY",
+            "VISUAL_STALE"
+          ]
+        }
+      },
+      "required": [
+        "sceneId",
+        "code"
+      ],
+      "additionalProperties": false
+    },
+    "CompositionReadiness": {
+      "type": "object",
+      "properties": {
+        "ready": {
+          "type": "boolean"
+        },
+        "blockers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CompositionBlocker"
+          }
+        }
+      },
+      "required": [
+        "ready",
+        "blockers"
+      ],
+      "additionalProperties": false
+    },
+    "TimedCompositionPreviewInput": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/$defs/CompositionProfileInput"
+        },
+        "tailPaddingMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5000
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "TimedCompositionPublishInput": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "$ref": "#/$defs/CompositionProfileInput"
+        },
+        "tailPaddingMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5000
+        },
+        "expectedDigest": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "expectedVideoRowVersion": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "expectedDigest",
+        "expectedVideoRowVersion"
+      ],
+      "additionalProperties": false
+    },
+    "TimedCompositionTiming": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "voice_measured",
+            "manual_locked",
+            "estimate_only"
+          ]
+        },
+        "audioMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "audioFrames": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "paddingFrames": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tailPaddingMs": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "mode",
+        "audioMs",
+        "audioFrames",
+        "paddingFrames",
+        "tailPaddingMs"
+      ],
+      "additionalProperties": false
+    },
+    "TimedCompositionCaptions": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "measured_scene",
+            "manual_locked",
+            "scene_estimate"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "scene_text",
+            "timeline_locked"
+          ]
+        },
+        "cues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CompositionCue"
+          }
+        }
+      },
+      "required": [
+        "mode",
+        "source",
+        "cues"
+      ],
+      "additionalProperties": false
+    },
+    "TimedCompositionVisualWindow": {
+      "type": "object",
+      "properties": {
+        "inFrame": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "outFrame": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "inFrame",
+        "outFrame"
+      ],
+      "additionalProperties": false
+    },
+    "TimedCompositionScene": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sceneRowVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 20000
+        },
+        "textSha256": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "mediaType": {
+          "type": "string",
+          "enum": [
+            "image_motion",
+            "ai_video",
+            "import_video"
+          ]
+        },
+        "startFrame": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "endFrame": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "durationMs": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "durationFrames": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "durationBasis": {
+          "type": "string",
+          "enum": [
+            "voice_measured",
+            "manual_locked",
+            "scene_estimate"
+          ]
+        },
+        "voice": {
+          "$ref": "#/$defs/CompositionVoice"
+        },
+        "visual": {
+          "$ref": "#/$defs/CompositionVisual"
+        },
+        "visualWindow": {
+          "$ref": "#/$defs/TimedCompositionVisualWindow"
+        },
+        "captions": {
+          "$ref": "#/$defs/TimedCompositionCaptions"
+        },
+        "timing": {
+          "$ref": "#/$defs/TimedCompositionTiming"
+        }
+      },
+      "required": [
+        "id",
+        "index",
+        "sceneRowVersion",
+        "text",
+        "textSha256",
+        "mediaType",
+        "startFrame",
+        "endFrame",
+        "durationMs",
+        "durationFrames",
+        "durationBasis",
+        "voice",
+        "visual",
+        "captions",
+        "timing"
+      ],
+      "additionalProperties": false
+    },
+    "TimedCompositionBlocker": {
+      "type": "object",
+      "properties": {
+        "sceneId": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "code": {
+          "type": "string",
+          "enum": [
+            "VOICE_MISSING",
+            "VOICE_UNHEALTHY",
+            "VOICE_STALE",
+            "VISUAL_MISSING",
+            "VISUAL_UNHEALTHY",
+            "VISUAL_STALE",
+            "VOICE_DURATION_UNAVAILABLE",
+            "VOICE_DURATION_OVERRUN",
+            "TIMING_LOCK_CONFLICT",
+            "VISUAL_WINDOW_CONFLICT"
+          ]
+        }
+      },
+      "required": [
+        "sceneId",
+        "code"
+      ],
+      "additionalProperties": false
+    },
+    "TimedCompositionReadiness": {
+      "type": "object",
+      "properties": {
+        "ready": {
+          "type": "boolean"
+        },
+        "blockers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TimedCompositionBlocker"
+          }
+        }
+      },
+      "required": [
+        "ready",
+        "blockers"
+      ],
+      "additionalProperties": false
+    },
+    "TimedCompositionDocument": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "integer",
+          "const": 2
+        },
+        "videoId": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "source": {
+          "$ref": "#/$defs/CompositionSource"
+        },
+        "profile": {
+          "$ref": "#/$defs/CompositionProfile"
+        },
+        "scenes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TimedCompositionScene"
+          }
+        },
+        "totalFrames": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "readiness": {
+          "$ref": "#/$defs/TimedCompositionReadiness"
+        },
+        "digest": {
+          "type": "string",
+          "maxLength": 64
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "videoId",
+        "source",
+        "profile",
+        "scenes",
+        "totalFrames",
+        "readiness",
+        "digest"
+      ],
+      "additionalProperties": false
+    },
+    "TimedCompositionPublishResult": {
+      "type": "object",
+      "properties": {
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "unchanged": {
+          "type": "boolean"
+        },
+        "composition": {
+          "$ref": "#/$defs/TimedCompositionDocument"
+        }
+      },
+      "required": [
+        "revision",
+        "unchanged",
+        "composition"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

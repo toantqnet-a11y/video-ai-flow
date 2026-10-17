@@ -1,0 +1,126 @@
+{
+  "id": "R3-14",
+  "at": "2026-10-16T08:03:13.712Z",
+  "platform": "linux",
+  "primaryEngine": "hyperframes",
+  "ffmpegManualFallbackOnly": true,
+  "remotePaidCalls": 0,
+  "release": "NOT_READY",
+  "summary": {
+    "pass": 8,
+    "blocked": 14,
+    "fail": 0
+  },
+  "gates": [
+    {
+      "id": "node-22",
+      "status": "PASS",
+      "detail": "v22.16.0"
+    },
+    {
+      "id": "ffmpeg-cli",
+      "status": "PASS",
+      "detail": "installed"
+    },
+    {
+      "id": "ffprobe-cli",
+      "status": "PASS",
+      "detail": "installed"
+    },
+    {
+      "id": "vite-installed",
+      "status": "BLOCKED",
+      "detail": "Needed for actual compiled React UI"
+    },
+    {
+      "id": "react-installed",
+      "status": "BLOCKED",
+      "detail": "Needed for browser UI"
+    },
+    {
+      "id": "fastify-installed",
+      "status": "BLOCKED",
+      "detail": "Needed for live HTTP/API tests"
+    },
+    {
+      "id": "hyperframes-local",
+      "status": "BLOCKED",
+      "detail": "Only a project-local package is accepted; no npx auto-install"
+    },
+    {
+      "id": "windows-host",
+      "status": "BLOCKED",
+      "detail": "Target Windows host not tested"
+    },
+    {
+      "id": "hyperframes-html-contract",
+      "status": "PASS",
+      "detail": "5 real pinned PNG/WAV scenes; root has no-timeline and zero start"
+    },
+    {
+      "id": "web-build",
+      "status": "BLOCKED",
+      "detail": "Vite missing; web build NOT_RUN"
+    },
+    {
+      "id": "fastify-live-http",
+      "status": "BLOCKED",
+      "detail": "Fastify missing; live HTTP NOT_RUN"
+    },
+    {
+      "id": "ffmpeg-five-scene",
+      "status": "PASS",
+      "detail": "429 actual H264/AAC frames; f10474f305b4 SHA"
+    },
+    {
+      "id": "hyperframes-real-five-scene",
+      "status": "BLOCKED",
+      "detail": "HyperFrames missing; NEVER replaced with FFmpeg"
+    },
+    {
+      "id": "production-ai-providers",
+      "status": "BLOCKED",
+      "detail": "Real LLM/TTS/ComfyUI with consent not tested"
+    },
+    {
+      "id": "30-40min-mp4",
+      "status": "BLOCKED",
+      "detail": "Long timeline planned only; long MP4 not rendered"
+    },
+    {
+      "id": "browser-ux",
+      "status": "BLOCKED",
+      "detail": "No completed interactive visual review or Playwright acceptance"
+    },
+    {
+      "id": "35min-disk-headroom",
+      "status": "PASS",
+      "detail": "9677MiB estimated scratch + 512MiB reserve; capacity is not an output guarantee"
+    },
+    {
+      "id": "crash-disk-zip-tests",
+      "status": "PASS",
+      "detail": "all requested test files passed"
+    },
+    {
+      "id": "35min-plan-300-scenes",
+      "status": "PASS",
+      "detail": "65400 frames, 36.33min; NOT a rendered video"
+    },
+    {
+      "id": "long-mp4-technical-qa",
+      "status": "BLOCKED",
+      "detail": "No actual 30–40 minute MP4 provided"
+    },
+    {
+      "id": "35min-app-job-provenance",
+      "status": "BLOCKED",
+      "detail": "No real HyperFrames 35-minute completed SP-04 job with QA evidence"
+    },
+    {
+      "id": "render-recovery-process-kill",
+      "status": "BLOCKED",
+      "detail": "OS-level kill/restart while encoding a real long project remains untested"
+    }
+  ]
+}

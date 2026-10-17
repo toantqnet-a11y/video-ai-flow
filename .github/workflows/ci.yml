@@ -1,0 +1,117 @@
+# GitHub Actions: honest two-tier verification for ContentStudio.
+# Fast offline suite never installs packages or invokes remote/paid providers.
+# Live dependency/build checks require a reviewed committed package-lock.json.
+name: ContentStudio CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      include_windows:
+        description: "Also run Windows compatibility tests (uses additional runner minutes)"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: contentstudio-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  offline-linux:
+    name: Offline regression (Ubuntu, no npm install)
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Confirm FFmpeg and FFprobe
+        shell: bash
+        run: |
+          ffmpeg -version
+          ffprobe -version
+      - name: Run isolated full offline suite
+        run: npm run test:all:batched
+      - name: Verify API/contracts, backlog and negative control
+        run: |
+          npm run check
+          npm run backlog:check:fi04
+          npm run test:negative-control
+
+  # Windows run is manual and opt-in to avoid unnecessary runner-minute costs.
+  offline-windows:
+    name: Offline regression (Windows opt-in)
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.include_windows }}
+    runs-on: windows-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Confirm FFmpeg and FFprobe
+        shell: pwsh
+        run: |
+          if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) { choco install ffmpeg -y --no-progress }
+          ffmpeg -version
+          ffprobe -version
+      - name: Run isolated full offline suite
+        run: npm run test:all:batched
+      - name: Verify API/contracts, backlog and negative control
+        run: |
+          npm run check
+          npm run backlog:check:fi04
+          npm run test:negative-control
+
+  locked-runtime-linux:
+    name: Reviewed dependencies, build & HTTP (Ubuntu)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+        # No npm cache until a reviewed package-lock.json is committed.
+        # `ci-github-lock.mjs` will accurately block runtime checks before npm ci.
+      - name: Verify committed workspace lock
+        run: node tools/ci-github-lock.mjs
+      - name: Reproducible installation (no floating npm install)
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verify SDK, Vite bundle and real Fastify HTTP
+        run: |
+          npm run typecheck:sdk
+          npm run build:web
+          npm run test:live-http
+      - name: Report dependency vulnerabilities
+        run: npm audit --audit-level=high
+
+  locked-runtime-windows:
+    name: Reviewed dependencies, build & HTTP (Windows opt-in)
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.include_windows }}
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify committed workspace lock
+        run: node tools/ci-github-lock.mjs
+      - name: Reproducible installation (no floating npm install)
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verify SDK, Vite bundle and real Fastify HTTP
+        run: |
+          npm run typecheck:sdk
+          npm run build:web
+          npm run test:live-http
+
+# NOT tested here: real HyperFrames MP4/35min, GPU, local provider inference,
+# visual browser interaction and crash-recovery acceptance on the user's PC.

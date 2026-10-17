@@ -1,0 +1,12 @@
+{
+  "task": "FI-04-04",
+  "timestamp": "2026-10-16T23:55:23.423Z",
+  "mode": "inspect",
+  "status": "BLOCKED",
+  "dependencyLock": "BLOCKED",
+  "cliInstalled": false,
+  "rendererPin": "0.8.159",
+  "blocker": "HYPERFRAMES_NOT_INSTALLED",
+  "releaseGateSatisfied": false,
+  "notice": "Read-only prerequisites, never render proof"
+}

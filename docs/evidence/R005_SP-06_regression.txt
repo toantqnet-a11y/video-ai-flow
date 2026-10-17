@@ -1,0 +1,212 @@
+
+> contentstudio-sp06-local-security@0.1.0 test
+> node --test test/*.test.mjs
+
+TAP version 13
+# Subtest: public address classifier refuses local, metadata, private and docs
+ok 1 - public address classifier refuses local, metadata, private and docs
+  ---
+  duration_ms: 7.790741
+  type: 'test'
+  ...
+# Subtest: local endpoints allow only loopback
+ok 2 - local endpoints allow only loopback
+  ---
+  duration_ms: 1.306938
+  type: 'test'
+  ...
+# Subtest: remote allows only allowlisted HTTPS with public DNS
+ok 3 - remote allows only allowlisted HTTPS with public DNS
+  ---
+  duration_ms: 1.027975
+  type: 'test'
+  ...
+# Subtest: disallows embedded credentials, query API keys, fragments and unsafe schemes
+ok 4 - disallows embedded credentials, query API keys, fragments and unsafe schemes
+  ---
+  duration_ms: 0.343744
+  type: 'test'
+  ...
+# Subtest: local pinned HTTP request works without external network
+ok 5 - local pinned HTTP request works without external network
+  ---
+  duration_ms: 15.814127
+  type: 'test'
+  ...
+# Subtest: redirect response is blocked and not followed
+ok 6 - redirect response is blocked and not followed
+  ---
+  duration_ms: 4.949333
+  type: 'test'
+  ...
+# Subtest: caps response bytes
+ok 7 - caps response bytes
+  ---
+  duration_ms: 6.897861
+  type: 'test'
+  ...
+# Subtest: request cannot override pinned Host or disable network limits
+ok 8 - request cannot override pinned Host or disable network limits
+  ---
+  duration_ms: 0.487254
+  type: 'test'
+  ...
+# Subtest: loopback binding and minimal unauthenticated health
+ok 9 - loopback binding and minimal unauthenticated health
+  ---
+  duration_ms: 53.398466
+  type: 'test'
+  ...
+# Subtest: credentials API requires bearer, second CSRF token and redacts secret
+ok 10 - credentials API requires bearer, second CSRF token and redacts secret
+  ---
+  duration_ms: 115.415679
+  type: 'test'
+  ...
+# Subtest: malicious Origin, null Origin, and host rebinding attempts rejected
+ok 11 - malicious Origin, null Origin, and host rebinding attempts rejected
+  ---
+  duration_ms: 19.729905
+  type: 'test'
+  ...
+# Subtest: rejects browser CORS preflight even when supplied credentials
+ok 12 - rejects browser CORS preflight even when supplied credentials
+  ---
+  duration_ms: 3.715784
+  type: 'test'
+  ...
+# Subtest: wrong CSRF token and bad authorization blocked
+ok 13 - wrong CSRF token and bad authorization blocked
+  ---
+  duration_ms: 6.309338
+  type: 'test'
+  ...
+# Subtest: invalid JSON, content type, oversized body
+ok 14 - invalid JSON, content type, oversized body
+  ---
+  duration_ms: 9.481772
+  type: 'test'
+  ...
+# Subtest: vault locks, unlocks and throttles bad passphrases
+ok 15 - vault locks, unlocks and throttles bad passphrases
+  ---
+  duration_ms: 353.029988
+  type: 'test'
+  ...
+# Subtest: secret metadata only in errors and audit stream, never raw passwords or tokens
+ok 16 - secret metadata only in errors and audit stream, never raw passwords or tokens
+  ---
+  duration_ms: 72.364045
+  type: 'test'
+  ...
+# Subtest: delete endpoint and reject escaped path
+ok 17 - delete endpoint and reject escaped path
+  ---
+  duration_ms: 68.920971
+  type: 'test'
+  ...
+# Subtest: duplicated Host headers rejected (parser disagreement)
+ok 18 - duplicated Host headers rejected (parser disagreement)
+  ---
+  duration_ms: 3.829526
+  type: 'test'
+  ...
+# Subtest: raw HTTP with two Host headers never reaches API
+ok 19 - raw HTTP with two Host headers never reaches API
+  ---
+  duration_ms: 3.295392
+  type: 'test'
+  ...
+# Subtest: foreign Origin blocks an authenticated write even with bearer+CSRF
+ok 20 - foreign Origin blocks an authenticated write even with bearer+CSRF
+  ---
+  duration_ms: 3.672173
+  type: 'test'
+  ...
+# Subtest: status uninitialized and fail closed
+ok 21 - status uninitialized and fail closed
+  ---
+  duration_ms: 13.05871
+  type: 'test'
+  ...
+# Subtest: encryption protects raw secret, plaintext not in disk file
+ok 22 - encryption protects raw secret, plaintext not in disk file
+  ---
+  duration_ms: 89.638047
+  type: 'test'
+  ...
+# Subtest: lock / restart / valid unlock / wrong unlock
+ok 23 - lock / restart / valid unlock / wrong unlock
+  ---
+  duration_ms: 188.710883
+  type: 'test'
+  ...
+# Subtest: vault init rejects weak passphrase and reinitialization
+ok 24 - vault init rejects weak passphrase and reinitialization
+  ---
+  duration_ms: 61.003012
+  type: 'test'
+  ...
+# Subtest: authenticity: record tamper fails decryption
+ok 25 - authenticity: record tamper fails decryption
+  ---
+  duration_ms: 61.455953
+  type: 'test'
+  ...
+# Subtest: authenticity: swapping ciphertext between refs fails AAD
+ok 26 - authenticity: swapping ciphertext between refs fails AAD
+  ---
+  duration_ms: 70.53458
+  type: 'test'
+  ...
+# Subtest: authenticity: verifier tamper blocks unlock
+ok 27 - authenticity: verifier tamper blocks unlock
+  ---
+  duration_ms: 117.644717
+  type: 'test'
+  ...
+# Subtest: reference validation disallows path traversal and huge credentials
+ok 28 - reference validation disallows path traversal and huge credentials
+  ---
+  duration_ms: 78.485928
+  type: 'test'
+  ...
+# Subtest: concurrent writes retain all records (no lost updates)
+ok 29 - concurrent writes retain all records (no lost updates)
+  ---
+  duration_ms: 90.451454
+  type: 'test'
+  ...
+# Subtest: delete removes record; list metadata never leaks secret
+ok 30 - delete removes record; list metadata never leaks secret
+  ---
+  duration_ms: 49.621256
+  type: 'test'
+  ...
+# Subtest: refuses preexisting symlink vault file
+ok 31 - refuses preexisting symlink vault file
+  ---
+  duration_ms: 2.611241
+  type: 'test'
+  ...
+# Subtest: kdf params tamper cannot expand KDF cost
+ok 32 - kdf params tamper cannot expand KDF cost
+  ---
+  duration_ms: 52.521916
+  type: 'test'
+  ...
+# Subtest: not a relative storage directory
+ok 33 - not a relative storage directory
+  ---
+  duration_ms: 0.279629
+  type: 'test'
+  ...
+1..33
+# tests 33
+# suites 0
+# pass 33
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 985.328649

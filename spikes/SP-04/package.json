@@ -1,0 +1,12 @@
+{
+  "name": "contentstudio-sprint0-sp04-durable-queue",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "test": "node --test --test-concurrency=1 test/*.test.js",
+    "demo": "node src/cli.js demo",
+    "status": "node src/cli.js status"
+  }
+}

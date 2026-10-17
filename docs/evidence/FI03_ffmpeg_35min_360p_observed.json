@@ -1,0 +1,27 @@
+{
+  "task": "FI-03",
+  "date": "2026-10-16",
+  "host": "Linux (container)",
+  "path": "external artifact: /mnt/data/ContentStudio_FI03_evidence/ffmpeg_35min_360p_control.mp4",
+  "engine": "FFmpeg",
+  "testType": "synthetic_low_res_long_duration_control",
+  "durationSeconds": 2100,
+  "frames": 63000,
+  "video": "H264 640x360 30fps static color",
+  "audio": "AAC synthetic sine 48kHz",
+  "fileBytes": 11166870,
+  "sha256": "7ffae72f4eba927d7bc0a239d35cc85ea8f72ccb734f985ca3fff6e4de248bfb",
+  "elapsedWallClock": "0:24.78",
+  "peakRssKiB": 54672,
+  "exitCode": 0,
+  "productionHyperframesGatePassed": false,
+  "notProven": [
+    "1080p",
+    "real scene composition",
+    "Windows",
+    "HyperFrames",
+    "GPU",
+    "real provider",
+    "long job restart recovery"
+  ]
+}

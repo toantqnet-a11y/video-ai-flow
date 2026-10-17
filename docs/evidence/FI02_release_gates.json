@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "task": "FI-02",
+  "timestamp": "2026-10-16T15:46:24.586Z",
+  "platform": "linux",
+  "engine": "hyperframes",
+  "fallback": "ffmpeg-explicit-only",
+  "status": "NOT_READY",
+  "summary": {
+    "pass": 8,
+    "blocked": 12,
+    "fail": 0
+  },
+  "gates": {
+    "node22": {
+      "status": "PASS",
+      "detail": "Node 22.16.0"
+    },
+    "ffmpeg": {
+      "status": "PASS",
+      "detail": "ffmpeg local binary",
+      "proof": {
+        "exitCode": 0,
+        "signal": null,
+        "errorCode": null,
+        "durationMs": 59
+      }
+    },
+    "ffprobe": {
+      "status": "PASS",
+      "detail": "ffprobe local binary",
+      "proof": {
+        "exitCode": 0,
+        "signal": null,
+        "errorCode": null,
+        "durationMs": 58
+      }
+    },
+    "rendererPinned": {
+      "status": "PASS",
+      "detail": "Exact local HyperFrames version declared"
+    },
+    "dependencyLock": {
+      "status": "BLOCKED",
+      "detail": "No committed npm package-lock.json. npm ci is not reproducible until it is generated online and committed."
+    },
+    "localHyperframesCli": {
+      "status": "BLOCKED",
+      "detail": "Genuine project-local HyperFrames CLI unavailable: HYPERFRAMES_NOT_INSTALLED"
+    },
+    "fullOfflineSuite": {
+      "status": "BLOCKED",
+      "detail": "Evidence not collected on this host"
+    },
+    "fi02FocusedTests": {
+      "status": "PASS",
+      "detail": "fi02FocusedTests: command executed locally",
+      "proof": {
+        "exitCode": 0,
+        "signal": null,
+        "errorCode": null,
+        "durationMs": 522,
+        "tests": 7,
+        "failed": 0,
+        "skipped": 0
+      }
+    },
+    "apiContract": {
+      "status": "PASS",
+      "detail": "apiContract: command executed locally",
+      "proof": {
+        "exitCode": 0,
+        "signal": null,
+        "errorCode": null,
+        "durationMs": 460
+      }
+    },
+    "sdkTypecheck": {
+      "status": "PASS",
+      "detail": "sdkTypecheck: command executed locally",
+      "proof": {
+        "exitCode": 0,
+        "signal": null,
+        "errorCode": null,
+        "durationMs": 1175
+      }
+    },
+    "negativeControl": {
+      "status": "PASS",
+      "detail": "negativeControl: command executed locally",
+      "proof": {
+        "exitCode": 0,
+        "signal": null,
+        "errorCode": null,
+        "durationMs": 217
+      }
+    },
+    "frontendBuild": {
+      "status": "BLOCKED",
+      "detail": "Evidence not collected on this host"
+    },
+    "liveHttp": {
+      "status": "BLOCKED",
+      "detail": "Evidence not collected on this host"
+    },
+    "realHyperframesFinishing": {
+      "status": "BLOCKED",
+      "detail": "Evidence not collected on this host"
+    },
+    "windowsBrowserUX": {
+      "status": "BLOCKED",
+      "detail": "Windows/browser interactive acceptance not performed on this host"
+    },
+    "real35MinuteRender": {
+      "status": "BLOCKED",
+      "detail": "No actual >=35-minute queued HyperFrames MP4 with frame/codec/CPU/RAM/time measurements"
+    },
+    "longRenderRestartRecovery": {
+      "status": "BLOCKED",
+      "detail": "No observed Windows forced-restart and genuine long-job recovery proof"
+    },
+    "realProvidersWithConsent": {
+      "status": "BLOCKED",
+      "detail": "No consented local LLM/TTS/ComfyUI complete production verification"
+    },
+    "dependencySecurityAudit": {
+      "status": "BLOCKED",
+      "detail": "Evidence not collected on this host"
+    },
+    "productionSecurityReview": {
+      "status": "BLOCKED",
+      "detail": "No formal live production security/secret-handling review evidence"
+    }
+  },
+  "freshLiveEvidenceComplete": false,
+  "note": "Offline PASS != release approval. BLOCKED remains BLOCKED. No provider or paid API was contacted by this orchestrator."
+}

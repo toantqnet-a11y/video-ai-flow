@@ -1,0 +1,154 @@
+
+> contentstudio@0.2.0-arc01 test
+> node --test packages/core/test/*.test.mjs apps/api/test/*.test.mjs
+
+TAP version 13
+# (node:4785) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: shared database for domain and existing SP04 queue
+ok 1 - shared database for domain and existing SP04 queue
+  ---
+  duration_ms: 10.01719
+  type: 'test'
+  ...
+# Subtest: real handler system:diagnostic is executed by existing queue runner
+ok 2 - real handler system:diagnostic is executed by existing queue runner
+  ---
+  duration_ms: 91.528328
+  type: 'test'
+  ...
+# Subtest: controller rejects missing/invalid asset jobs before external calls
+ok 3 - controller rejects missing/invalid asset jobs before external calls
+  ---
+  duration_ms: 5.846747
+  type: 'test'
+  ...
+# Subtest: token gate denies fake origins and writes without CSRF
+ok 4 - token gate denies fake origins and writes without CSRF
+  ---
+  duration_ms: 0.62172
+  type: 'test'
+  ...
+# Subtest: provider registry never auto-escalates local to remote or paid
+ok 5 - provider registry never auto-escalates local to remote or paid
+  ---
+  duration_ms: 0.497672
+  type: 'test'
+  ...
+# Subtest: auth pairing locks after repeated wrong codes
+ok 6 - auth pairing locks after repeated wrong codes
+  ---
+  duration_ms: 0.207364
+  type: 'test'
+  ...
+# Subtest: actual JobRunner + local fixture adapter + durable promotion across components
+ok 7 - actual JobRunner + local fixture adapter + durable promotion across components
+  ---
+  duration_ms: 27.6426
+  type: 'test'
+  ...
+# (node:4786) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: route contract: create channel → video, API errors mapped to 409
+ok 8 - route contract: create channel → video, API errors mapped to 409
+  ---
+  duration_ms: 13.081477
+  type: 'test'
+  ...
+# Subtest: vault routes: encrypt secret, list without key, lock then block writes
+ok 9 - vault routes: encrypt secret, list without key, lock then block writes
+  ---
+  duration_ms: 61.945662
+  type: 'test'
+  ...
+# (node:4787) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: asset import uses immutable UUID path and scene pointer
+ok 10 - asset import uses immutable UUID path and scene pointer
+  ---
+  duration_ms: 13.984436
+  type: 'test'
+  ...
+# Subtest: manifest reconciliation marks missing files and does not delete orphans
+ok 11 - manifest reconciliation marks missing files and does not delete orphans
+  ---
+  duration_ms: 8.610314
+  type: 'test'
+  ...
+# Subtest: queue commit promotion is replayable and fenced without re-running provider
+ok 12 - queue commit promotion is replayable and fenced without re-running provider
+  ---
+  duration_ms: 10.151714
+  type: 'test'
+  ...
+# Subtest: queue promotion reports mismatched checksums, does not update scene
+ok 13 - queue promotion reports mismatched checksums, does not update scene
+  ---
+  duration_ms: 6.870795
+  type: 'test'
+  ...
+# (node:4819) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: migration creates canonical tables and is repeatable
+ok 14 - migration creates canonical tables and is repeatable
+  ---
+  duration_ms: 4.077704
+  type: 'test'
+  ...
+# Subtest: channel create/list/archive with preset revision and optimistic locking
+ok 15 - channel create/list/archive with preset revision and optimistic locking
+  ---
+  duration_ms: 3.067837
+  type: 'test'
+  ...
+# Subtest: video freezes preset snapshot when channel changes
+ok 16 - video freezes preset snapshot when channel changes
+  ---
+  duration_ms: 2.127636
+  type: 'test'
+  ...
+# Subtest: video cannot be added to archived channel or missing channel
+ok 17 - video cannot be added to archived channel or missing channel
+  ---
+  duration_ms: 1.425314
+  type: 'test'
+  ...
+# Subtest: script and scenes state progress with version check
+ok 18 - script and scenes state progress with version check
+  ---
+  duration_ms: 2.154076
+  type: 'test'
+  ...
+# Subtest: invalid scene batch rolls back without deleting earlier scenes
+ok 19 - invalid scene batch rolls back without deleting earlier scenes
+  ---
+  duration_ms: 1.824247
+  type: 'test'
+  ...
+# Subtest: timeline saves versioned clips and rejects foreign scenes
+ok 20 - timeline saves versioned clips and rejects foreign scenes
+  ---
+  duration_ms: 2.682825
+  type: 'test'
+  ...
+# Subtest: paid/remote cannot be enabled by directly editing preset
+ok 21 - paid/remote cannot be enabled by directly editing preset
+  ---
+  duration_ms: 1.096778
+  type: 'test'
+  ...
+# Subtest: domain tables persist across new processes / reopening db file
+ok 22 - domain tables persist across new processes / reopening db file
+  ---
+  duration_ms: 12.46476
+  type: 'test'
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 22
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 200.589596

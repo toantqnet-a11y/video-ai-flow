@@ -1,0 +1,20 @@
+{
+  "checkedAt": "2026-10-16T13:22:59.388Z",
+  "status": "NOT_READY",
+  "gates": {
+    "node22": true,
+    "ffmpeg": true,
+    "ffprobe": true,
+    "frontendDeps": false,
+    "backendDeps": false,
+    "hyperframesCli": false,
+    "previousAcceptanceAvailable": true,
+    "liveWindowsBrowser": false,
+    "realHyperframesMp4": false,
+    "real35MinMp4": false,
+    "liveProviders": false,
+    "restartLongRender": false
+  },
+  "warning": "Missing evidence is BLOCKED, not PASS. This command does NOT execute 35-minute render, npm install, GPU or Windows acceptance.",
+  "actionable": "Re-run IA-02 / R3-14 strict acceptance on configured Windows machine before release."
+}

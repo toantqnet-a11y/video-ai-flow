@@ -1,0 +1,13 @@
+{
+  "name": "contentstudio-sprint0-sp03-images",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "diagnose": "node src/cli.js diagnose",
+    "import": "node src/cli.js import",
+    "generate": "node src/cli.js generate"
+  }
+}

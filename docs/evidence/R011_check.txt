@@ -1,0 +1,9 @@
+
+> contentstudio@0.6.0-r008 check
+> node --check apps/api/src/server.mjs && node --check apps/api/src/routes.mjs && node --check apps/api/src/security.mjs && node --check apps/api/src/request-policy.mjs && node --check apps/api/src/vault-routes.mjs && node --check packages/security/src/credential-access.mjs && node --check apps/api/src/diagnostics.mjs && node --check tools/diagnostics-r004.mjs && node --check packages/contracts/src/catalog.mjs && node --check packages/contracts/src/openapi.mjs && node --check packages/sdk/src/client.mjs && npm run api:check
+
+
+> contentstudio@0.6.0-r008 api:check
+> node tools/generate-api.mjs --check
+
+GENERATED_ARTIFACTS_UP_TO_DATE

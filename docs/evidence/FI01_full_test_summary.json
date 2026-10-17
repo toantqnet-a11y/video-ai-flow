@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "runAt": "2026-10-16",
+  "command": "npm run test:all",
+  "exitCode": 0,
+  "counts": {
+    "tests": 852,
+    "pass": 852,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "note": "Complete TAP output captured; this verifies offline tests only, not browser/live render."
+}

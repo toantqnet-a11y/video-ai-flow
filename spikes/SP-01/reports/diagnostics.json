@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "collectedAt": "2026-10-13T07:33:39.878Z",
+  "targetPlatform": "Windows 11",
+  "actualPlatform": {
+    "platform": "linux",
+    "release": "6.18.44",
+    "arch": "x64",
+    "windowsTargetValidated": false
+  },
+  "machine": {
+    "logicalCores": 5,
+    "cpuModel": "AMD EPYC 9V74 80-Core Processor",
+    "totalRamBytes": 6236880896,
+    "freeRamBytes": 4904902656
+  },
+  "gpu": {
+    "nvidiaSmiAvailable": false,
+    "nvidia": [],
+    "windows": null,
+    "verifiedAiVideoViability": false
+  },
+  "disk": {
+    "root": "/mnt/data/contentstudio-sprint0/SP-01/output",
+    "freeBytes": 32026341376,
+    "totalBytes": 33770192896
+  },
+  "media": {
+    "ffmpeg": "/usr/bin/ffmpeg",
+    "ffprobe": "/usr/bin/ffprobe",
+    "version": "ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers",
+    "encoders": {
+      "libx264": true,
+      "h264_nvenc": true,
+      "h264_qsv": true,
+      "aac": true
+    },
+    "note": "Encoder listed does not prove hardware encoder works; benchmark required."
+  },
+  "privacy": "No API keys, host name, or hardware serial numbers are collected. Executable paths and disk root may reveal usernames; review before sharing.",
+  "verdict": "WINDOWS_TEST_PENDING_NON_WINDOWS_RUN",
+  "prerequisites": {
+    "readyForSyntheticBenchmark": true,
+    "missing": []
+  }
+}

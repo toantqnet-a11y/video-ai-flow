@@ -1,0 +1,45 @@
+{
+  "task": "R2-13",
+  "result": "OFFLINE_VERIFICATION_ONLY",
+  "releaseStatus": "NOT_READY",
+  "prerequisites": {
+    "platform": "linux",
+    "nodeVersion": "v22.16.0",
+    "viteAvailable": false,
+    "ffmpegAvailable": true,
+    "ffprobeAvailable": true
+  },
+  "automatedCoverage": {
+    "G3": "Run npm run test:r213 and npm run test:all; lossless scene/source checks",
+    "G4": "Run npm run test:r213; 106 assets, restart, rollback and corruption checks",
+    "G5": "Run npm run test:r213 and npm run test:negative-control; consent, retry, fence checks"
+  },
+  "outstandingGates": [
+    {
+      "id": "G6-WINDOWS",
+      "status": "PENDING_HARDWARE_VALIDATION",
+      "action": "Execute test suite and launcher on Windows target"
+    },
+    {
+      "id": "G6-BROWSER",
+      "status": "PENDING_BROWSER_VALIDATION",
+      "action": "Install Vite and run build, HTTP smoke and UI browser acceptance"
+    },
+    {
+      "id": "G6-PROVIDERS",
+      "status": "PENDING_LIVE_PROVIDER_VALIDATION",
+      "action": "Run native Edge/Piper/VieNeu, real ComfyUI checkpoint and verify costs"
+    },
+    {
+      "id": "G6-STORAGE",
+      "status": "PENDING_HARDWARE_VALIDATION",
+      "action": "Validate real ENOSPC/crash/filesystem protection with backups"
+    },
+    {
+      "id": "G6-LONG_FORM",
+      "status": "PENDING_LONG_FORM_VALIDATION",
+      "action": "Benchmark 30–40 minute workload and eventual MP4 export once renderer is implemented"
+    }
+  ],
+  "warning": "This snapshot performs no AI inference, remote API requests, render, or browser tests."
+}

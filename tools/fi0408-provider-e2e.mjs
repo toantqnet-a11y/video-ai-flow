@@ -1,0 +1,44 @@
+#!/usr/bin/env node
+/** FI-04-08: local endpoint handshake inventory; NOT synthetic inference or
+ * model output. Fixed routes, no arbitrary URL fetch, no secret env reads,
+ * no paid/remote fallback, and no internal/LAN host scanning. */
+import {resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {options,reportFile,output,timestamp} from './fi04-final-gate-core.mjs';
+
+export function safeLoopbackPort(raw){
+ const n=Number(raw);if(!Number.isSafeInteger(n)||n<1024||n>65535)throw Error('FI0408_PORT_INVALID');return n;
+}
+export function providerInventory({ollama,comfyui,ttsFileVerified=false,operatorConsent=false}={}){
+ const gates={ollamaHandshake:ollama===true?'PASS':'BLOCKED',comfyUiHandshake:comfyui===true?'PASS':'BLOCKED',
+  nativeTtsVietnameseAudio:ttsFileVerified&&operatorConsent?'MANUAL_REVIEW_REQUIRED':'BLOCKED',
+  localModelInference:'BLOCKED',liveTtsInference:'BLOCKED',liveComfyVideoOrImageInference:'BLOCKED',
+  quotaAndHttp429Real:'BLOCKED',paidOrCloudCalls:'DISABLED'};
+ return {status:'NOT_READY',gates,paidProviderCalls:0,actualInferenceVerified:false};
+}
+async function probeLocal(port,path,expected,fetchImpl=fetch){
+ const ctrl=new AbortController(),timeout=setTimeout(()=>ctrl.abort(),2500);
+ try{
+  const res=await fetchImpl(`http://127.0.0.1:${port}${path}`,{method:'GET',redirect:'error',signal:ctrl.signal,headers:{accept:'application/json'},credentials:'omit'});
+  if(!res.ok||Number(res.headers.get('content-length')??0)>131072)return false;
+  const body=await res.text();if(body.length>131072)return false;
+  const json=JSON.parse(body);return expected(json);
+ }catch{return false}finally{clearTimeout(timeout)}
+}
+export async function inspectLocalProviders({ollamaPort=11434,comfyPort=8188,fetchImpl=fetch}={}){
+ const o=safeLoopbackPort(ollamaPort),c=safeLoopbackPort(comfyPort);
+ const [ollama,comfyui]=await Promise.all([
+  probeLocal(o,'/api/tags',x=>Array.isArray(x.models),fetchImpl),
+  probeLocal(c,'/system_stats',x=>typeof x==='object'&&x!==null&&('system'in x||'devices'in x),fetchImpl),
+ ]);
+ return providerInventory({ollama,comfyui});
+}
+async function main(){const a=options(process.argv.slice(2),['inspect','probe-local'],['ollama-port','comfy-port','report']);
+ if(!!a.inspect===!!a['probe-local'])throw Error('FI0408_MODE_REQUIRED');
+ // `--inspect` does no HTTP requests; only `--probe-local` contacts fixed
+ // loopback routes in an operator's explicitly chosen local application.
+ let r={task:'FI-04-08',timestamp:timestamp(),...providerInventory(),mode:'inspect'};
+ if(a['probe-local'])r={...r,...await inspectLocalProviders({ollamaPort:a['ollama-port']??11434,comfyPort:a['comfy-port']??8188}),mode:'read-only-loopback-handshake'};
+ await reportFile(a.report,r);output(r,!!a['probe-local']);
+}
+if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url))await main();

@@ -1,0 +1,19 @@
+{
+  "task": "FI-04-07",
+  "timestamp": "2026-10-17T02:04:25.775Z",
+  "status": "NOT_READY",
+  "releaseGateSatisfied": false,
+  "reason": "Real Windows >=35min HyperFrames interrupted while encoding and recovered output not verified",
+  "checks": {
+    "succeeded": true,
+    "multipleAttempts": true,
+    "leaseRecoveryEvent": true,
+    "staleLeaseCannotCommit": true
+  },
+  "syntheticOsProcessKilled": true,
+  "recoveredLeases": 1,
+  "attempts": 2,
+  "provesActualLongRender": false,
+  "realWindowsRecovery": "BLOCKED",
+  "syntheticRecovery": "PASS"
+}

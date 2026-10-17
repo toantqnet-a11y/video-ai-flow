@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "task": "FI-04-05",
+  "mode": "inspect",
+  "platform": "linux",
+  "timestamp": "2026-10-17T01:55:16.538Z",
+  "note": "Automated keyboard/DOM smoke is not Windows drag/trim human acceptance or a rendered video. Missing proof always BLOCKED.",
+  "status": "NOT_READY",
+  "blockedReason": "INSPECT_ONLY_NO_BROWSER_PROOF",
+  "gates": {
+    "browserChromeEdgeWindows": {
+      "status": "BLOCKED",
+      "detail": "Acceptance must run on Windows, not spoofed userAgent"
+    },
+    "authenticatedTimelineVisible": {
+      "status": "BLOCKED",
+      "detail": "Not observed"
+    },
+    "keyboardSeeking": {
+      "status": "BLOCKED",
+      "detail": "Not observed"
+    },
+    "reorderDrag": {
+      "status": "BLOCKED",
+      "detail": "Requires witnessed interactive Windows verification; DOM control existence is not edit, audio or render proof"
+    },
+    "reorderButtons": {
+      "status": "BLOCKED",
+      "detail": "Requires witnessed interactive Windows verification; DOM control existence is not edit, audio or render proof"
+    },
+    "trimCancelAndSave": {
+      "status": "BLOCKED",
+      "detail": "Requires witnessed interactive Windows verification; DOM control existence is not edit, audio or render proof"
+    },
+    "zoomScroll": {
+      "status": "BLOCKED",
+      "detail": "Requires witnessed interactive Windows verification; DOM control existence is not edit, audio or render proof"
+    },
+    "undoRedo": {
+      "status": "BLOCKED",
+      "detail": "Requires witnessed interactive Windows verification; DOM control existence is not edit, audio or render proof"
+    },
+    "waveformSync": {
+      "status": "BLOCKED",
+      "detail": "Requires witnessed interactive Windows verification; DOM control existence is not edit, audio or render proof"
+    },
+    "500SceneViewport": {
+      "status": "BLOCKED",
+      "detail": "Not observed"
+    }
+  },
+  "manualRequired": [
+    "browserChromeEdgeWindows",
+    "authenticatedTimelineVisible",
+    "keyboardSeeking",
+    "reorderDrag",
+    "reorderButtons",
+    "trimCancelAndSave",
+    "zoomScroll",
+    "undoRedo",
+    "waveformSync",
+    "500SceneViewport"
+  ]
+}

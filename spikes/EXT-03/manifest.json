@@ -1,0 +1,231 @@
+{
+  "title": "Video AI Flow • Render Engine POC",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "paddingSeconds": 0.45,
+  "scenes": [
+    {
+      "id": "01",
+      "title": "MAKE VIDEO",
+      "text": "Create video from one simple idea.",
+      "image": "background-01.png",
+      "audio": "voice-01.wav",
+      "audioDurationSeconds": 2.415,
+      "durationFrames": 86,
+      "startFrame": 0,
+      "wordSlots": [
+        {
+          "text": "Create",
+          "startSeconds": 0.0,
+          "endSeconds": 0.403
+        },
+        {
+          "text": "video",
+          "startSeconds": 0.403,
+          "endSeconds": 0.805
+        },
+        {
+          "text": "from",
+          "startSeconds": 0.805,
+          "endSeconds": 1.208
+        },
+        {
+          "text": "one",
+          "startSeconds": 1.208,
+          "endSeconds": 1.61
+        },
+        {
+          "text": "simple",
+          "startSeconds": 1.61,
+          "endSeconds": 2.012
+        },
+        {
+          "text": "idea.",
+          "startSeconds": 2.012,
+          "endSeconds": 2.415
+        }
+      ]
+    },
+    {
+      "id": "02",
+      "title": "STRUCTURE",
+      "text": "Turn your idea into a clear storyboard.",
+      "image": "background-02.png",
+      "audio": "voice-02.wav",
+      "audioDurationSeconds": 2.77,
+      "durationFrames": 97,
+      "startFrame": 86,
+      "wordSlots": [
+        {
+          "text": "Turn",
+          "startSeconds": 0.0,
+          "endSeconds": 0.396
+        },
+        {
+          "text": "your",
+          "startSeconds": 0.396,
+          "endSeconds": 0.791
+        },
+        {
+          "text": "idea",
+          "startSeconds": 0.791,
+          "endSeconds": 1.187
+        },
+        {
+          "text": "into",
+          "startSeconds": 1.187,
+          "endSeconds": 1.583
+        },
+        {
+          "text": "a",
+          "startSeconds": 1.583,
+          "endSeconds": 1.979
+        },
+        {
+          "text": "clear",
+          "startSeconds": 1.979,
+          "endSeconds": 2.374
+        },
+        {
+          "text": "storyboard.",
+          "startSeconds": 2.374,
+          "endSeconds": 2.77
+        }
+      ]
+    },
+    {
+      "id": "03",
+      "title": "VOICE",
+      "text": "Add speech and measure its real duration.",
+      "image": "background-03.png",
+      "audio": "voice-03.wav",
+      "audioDurationSeconds": 2.56,
+      "durationFrames": 91,
+      "startFrame": 183,
+      "wordSlots": [
+        {
+          "text": "Add",
+          "startSeconds": 0.0,
+          "endSeconds": 0.366
+        },
+        {
+          "text": "speech",
+          "startSeconds": 0.366,
+          "endSeconds": 0.731
+        },
+        {
+          "text": "and",
+          "startSeconds": 0.731,
+          "endSeconds": 1.097
+        },
+        {
+          "text": "measure",
+          "startSeconds": 1.097,
+          "endSeconds": 1.463
+        },
+        {
+          "text": "its",
+          "startSeconds": 1.463,
+          "endSeconds": 1.829
+        },
+        {
+          "text": "real",
+          "startSeconds": 1.829,
+          "endSeconds": 2.194
+        },
+        {
+          "text": "duration.",
+          "startSeconds": 2.194,
+          "endSeconds": 2.56
+        }
+      ]
+    },
+    {
+      "id": "04",
+      "title": "MOTION",
+      "text": "Animate visuals with predictable timing.",
+      "image": "background-04.png",
+      "audio": "voice-04.wav",
+      "audioDurationSeconds": 2.47,
+      "durationFrames": 88,
+      "startFrame": 274,
+      "wordSlots": [
+        {
+          "text": "Animate",
+          "startSeconds": 0.0,
+          "endSeconds": 0.494
+        },
+        {
+          "text": "visuals",
+          "startSeconds": 0.494,
+          "endSeconds": 0.988
+        },
+        {
+          "text": "with",
+          "startSeconds": 0.988,
+          "endSeconds": 1.482
+        },
+        {
+          "text": "predictable",
+          "startSeconds": 1.482,
+          "endSeconds": 1.976
+        },
+        {
+          "text": "timing.",
+          "startSeconds": 1.976,
+          "endSeconds": 2.47
+        }
+      ]
+    },
+    {
+      "id": "05",
+      "title": "EXPORT",
+      "text": "Export a ready to share video file.",
+      "image": "background-05.png",
+      "audio": "voice-05.wav",
+      "audioDurationSeconds": 2.76,
+      "durationFrames": 97,
+      "startFrame": 362,
+      "wordSlots": [
+        {
+          "text": "Export",
+          "startSeconds": 0.0,
+          "endSeconds": 0.394
+        },
+        {
+          "text": "a",
+          "startSeconds": 0.394,
+          "endSeconds": 0.789
+        },
+        {
+          "text": "ready",
+          "startSeconds": 0.789,
+          "endSeconds": 1.183
+        },
+        {
+          "text": "to",
+          "startSeconds": 1.183,
+          "endSeconds": 1.577
+        },
+        {
+          "text": "share",
+          "startSeconds": 1.577,
+          "endSeconds": 1.971
+        },
+        {
+          "text": "video",
+          "startSeconds": 1.971,
+          "endSeconds": 2.366
+        },
+        {
+          "text": "file.",
+          "startSeconds": 2.366,
+          "endSeconds": 2.76
+        }
+      ]
+    }
+  ],
+  "totalFrames": 459,
+  "durationSeconds": 15.3
+}

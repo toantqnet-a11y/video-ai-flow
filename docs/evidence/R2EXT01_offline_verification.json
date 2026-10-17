@@ -1,0 +1,21 @@
+{
+  "task": "R2-EXT-01",
+  "verifiedAt": "2026-10-15",
+  "status": "CODE_COMPLETE_TESTED_OFFLINE",
+  "releaseStatus": "NOT_READY",
+  "tests": {
+    "focused": {"command": "npm run test:ext01", "passed": 12, "failed": 0},
+    "regression": {"command": "npm run test:all", "passed": 700, "failed": 0},
+    "apiCatalog": "PASS",
+    "sdkTypes": "PASS",
+    "negativeControl": "PASS",
+    "standaloneSchemaDrift": "PASS"
+  },
+  "blocked": {
+    "browserBuild": "Vite not installed: vite: not found",
+    "liveHTTP": "ERR_MODULE_NOT_FOUND; runtime Fastify dependencies absent",
+    "windowsGpuRealTtsLongForm": "NOT_TESTED",
+    "engineBenchmarkAndMp4": "PLANNED_FOR_EXT_03_04_06"
+  },
+  "coverage": "Portable v1 composition, stable SHA-256, output profiles, immutable v28 pinning, scene/caption frame math, preview/publish and stale/corrupt safety. No media generation/export."
+}

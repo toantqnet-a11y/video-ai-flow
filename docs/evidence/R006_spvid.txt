@@ -1,0 +1,142 @@
+
+> contentstudio-spvid01-local-video-spike@0.1.0 test
+> node --test --test-concurrency=1 test/*.test.mjs
+
+TAP version 13
+# Subtest: local endpoint strictly refuses arbitrary SSRF destinations, URL credentials and paths
+ok 1 - local endpoint strictly refuses arbitrary SSRF destinations, URL credentials and paths
+  ---
+  duration_ms: 83.797364
+  type: 'test'
+  ...
+# Subtest: hard cost + remote data-transfer gates block nonlocal providers
+ok 2 - hard cost + remote data-transfer gates block nonlocal providers
+  ---
+  duration_ms: 0.456108
+  type: 'test'
+  ...
+# Subtest: T2V and I2V input validation enforce image, prompt, duration and limits
+ok 3 - T2V and I2V input validation enforce image, prompt, duration and limits
+  ---
+  duration_ms: 0.416669
+  type: 'test'
+  ...
+# Subtest: T2V uses explicit API-format workflow bindings, polls history and fetches actual video bytes
+ok 4 - T2V uses explicit API-format workflow bindings, polls history and fetches actual video bytes
+  ---
+  duration_ms: 36.523231
+  type: 'test'
+  ...
+# Subtest: I2V uploads image reference locally before posting configured image-node binding
+ok 5 - I2V uploads image reference locally before posting configured image-node binding
+  ---
+  duration_ms: 15.756919
+  type: 'test'
+  ...
+# Subtest: workflow rejects UI JSON and invalid mappings (never guesses Wan node IDs)
+ok 6 - workflow rejects UI JSON and invalid mappings (never guesses Wan node IDs)
+  ---
+  duration_ms: 1.043713
+  type: 'test'
+  ...
+# Subtest: provider history rejects failures and missing mp4 output
+ok 7 - provider history rejects failures and missing mp4 output
+  ---
+  duration_ms: 0.352892
+  type: 'test'
+  ...
+# Subtest: ComfyUI connection check does not prove GPU generation occurred
+ok 8 - ComfyUI connection check does not prove GPU generation occurred
+  ---
+  duration_ms: 3.273676
+  type: 'test'
+  ...
+# Subtest: poll waits for history then completes
+ok 9 - poll waits for history then completes
+  ---
+  duration_ms: 21.579559
+  type: 'test'
+  ...
+# Subtest: abort while queued cancels local waiting without claiming provider work interrupted
+ok 10 - abort while queued cancels local waiting without claiming provider work interrupted
+  ---
+  duration_ms: 47.55106
+  type: 'test'
+  ...
+# Subtest: timeouts have retryable classification; empty history never yields fake output
+ok 11 - timeouts have retryable classification; empty history never yields fake output
+  ---
+  duration_ms: 85.008617
+  type: 'test'
+  ...
+# Subtest: malicious redirect to external file is blocked (no provider-controlled fetch target)
+ok 12 - malicious redirect to external file is blocked (no provider-controlled fetch target)
+  ---
+  duration_ms: 4.511052
+  type: 'test'
+  ...
+# Subtest: response body enforces streaming size even without Content-Length
+ok 13 - response body enforces streaming size even without Content-Length
+  ---
+  duration_ms: 0.760357
+  type: 'test'
+  ...
+# Subtest: same video request hashes to same fingerprint; changed reference invalidates it
+ok 14 - same video request hashes to same fingerprint; changed reference invalidates it
+  ---
+  duration_ms: 0.167733
+  type: 'test'
+  ...
+# (node:16970) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: ffprobe rejects random media and validates actual file duration/codec
+ok 15 - ffprobe rejects random media and validates actual file duration/codec
+  ---
+  duration_ms: 190.28337
+  type: 'test'
+  ...
+# Subtest: manual clip import produces immutable validated revision + metadata + checksum
+ok 16 - manual clip import produces immutable validated revision + metadata + checksum
+  ---
+  duration_ms: 133.408331
+  type: 'test'
+  ...
+# Subtest: manual import rejects unsafe projectId / sceneId traversal
+ok 17 - manual import rejects unsafe projectId / sceneId traversal
+  ---
+  duration_ms: 1.680043
+  type: 'test'
+  ...
+# Subtest: unplayable provider result is removed; no finished asset or metadata left
+ok 18 - unplayable provider result is removed; no finished asset or metadata left
+  ---
+  duration_ms: 63.974745
+  type: 'test'
+  ...
+# Subtest: AI video service refuses paid/remote, even with arbitrary request payload
+ok 19 - AI video service refuses paid/remote, even with arbitrary request payload
+  ---
+  duration_ms: 0.614957
+  type: 'test'
+  ...
+# Subtest: save emits immutable AI revision, preserving media provenance and original bytes
+ok 20 - save emits immutable AI revision, preserving media provenance and original bytes
+  ---
+  duration_ms: 63.528162
+  type: 'test'
+  ...
+# Subtest: SP-04 integration: 1 real MP4 saved as asset; duplicate enqueue uses existing job
+ok 21 - SP-04 integration: 1 real MP4 saved as asset; duplicate enqueue uses existing job
+  ---
+  duration_ms: 74.651184
+  type: 'test'
+  ...
+1..21
+# tests 21
+# suites 0
+# pass 21
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 967.379099

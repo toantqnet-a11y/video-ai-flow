@@ -1,0 +1,6 @@
+node_modules/
+prepared/
+outputs/r2ext03/
+benchmark-results.json
+BENCHMARK_SUMMARY.md
+hyperframes/assets/gsap.min.js

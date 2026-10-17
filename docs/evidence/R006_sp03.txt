@@ -1,0 +1,224 @@
+
+> contentstudio-sprint0-sp03-images@0.1.0 test
+> node --test test/*.test.js
+
+TAP version 13
+# Subtest: nvidia-smi parsing returns MiB but does not certify model execution
+ok 1 - nvidia-smi parsing returns MiB but does not certify model execution
+  ---
+  duration_ms: 0.883131
+  type: 'test'
+  ...
+# Subtest: without NVIDIA on Linux GPU status stays unknown
+ok 2 - without NVIDIA on Linux GPU status stays unknown
+  ---
+  duration_ms: 0.249266
+  type: 'test'
+  ...
+# Subtest: Windows fallback lists display devices but does not invent VRAM
+ok 3 - Windows fallback lists display devices but does not invent VRAM
+  ---
+  duration_ms: 0.221995
+  type: 'test'
+  ...
+# Subtest: offline selection preserves manual import when no local provider or remote approval
+ok 4 - offline selection preserves manual import when no local provider or remote approval
+  ---
+  duration_ms: 0.162846
+  type: 'test'
+  ...
+# Subtest: local ComfyUI reachable does not pretend model generation is verified
+ok 5 - local ComfyUI reachable does not pretend model generation is verified
+  ---
+  duration_ms: 0.167212
+  type: 'test'
+  ...
+# Subtest: remote selection requires both data consent and cost approval
+ok 6 - remote selection requires both data consent and cost approval
+  ---
+  duration_ms: 0.101232
+  type: 'test'
+  ...
+# Subtest: generated PNG is genuine and ffprobe verifies dimensions
+ok 7 - generated PNG is genuine and ffprobe verifies dimensions
+  ---
+  duration_ms: 146.135256
+  type: 'test'
+  ...
+# Subtest: non-image provider JSON and empty content are rejected
+ok 8 - non-image provider JSON and empty content are rejected
+  ---
+  duration_ms: 0.713555
+  type: 'test'
+  ...
+# Subtest: PNG huge/zero dimensions rejected
+ok 9 - PNG huge/zero dimensions rejected
+  ---
+  duration_ms: 1.238157
+  type: 'test'
+  ...
+# Subtest: reject oversize image buffer
+ok 10 - reject oversize image buffer
+  ---
+  duration_ms: 0.194373
+  type: 'test'
+  ...
+# Subtest: reject scene path traversal
+ok 11 - reject scene path traversal
+  ---
+  duration_ms: 0.529708
+  type: 'test'
+  ...
+# Subtest: empty prompt and unreasonable dimensions rejected
+ok 12 - empty prompt and unreasonable dimensions rejected
+  ---
+  duration_ms: 0.309056
+  type: 'test'
+  ...
+# Subtest: loopback endpoint blocks credentialed, remote and alternate path URLs
+ok 13 - loopback endpoint blocks credentialed, remote and alternate path URLs
+  ---
+  duration_ms: 0.632734
+  type: 'test'
+  ...
+# Subtest: corrupted PNG pixel payload is rejected by full decoder
+ok 14 - corrupted PNG pixel payload is rejected by full decoder
+  ---
+  duration_ms: 645.288439
+  type: 'test'
+  ...
+# Subtest: ComfyUI integration: POST API workflow, poll history, download genuine image
+ok 15 - ComfyUI integration: POST API workflow, poll history, download genuine image
+  ---
+  duration_ms: 39.733883
+  type: 'test'
+  ...
+# Subtest: ComfyUI rejects broken workflow input bindings
+ok 16 - ComfyUI rejects broken workflow input bindings
+  ---
+  duration_ms: 1.018045
+  type: 'test'
+  ...
+# Subtest: ComfyUI rejects unsafe image filename returned by provider
+ok 17 - ComfyUI rejects unsafe image filename returned by provider
+  ---
+  duration_ms: 9.540446
+  type: 'test'
+  ...
+# Subtest: ComfyUI reports execution failure without attempting download
+ok 18 - ComfyUI reports execution failure without attempting download
+  ---
+  duration_ms: 7.817959
+  type: 'test'
+  ...
+# Subtest: ComfyUI timeout is bounded if history is never ready
+ok 19 - ComfyUI timeout is bounded if history is never ready
+  ---
+  duration_ms: 50.410432
+  type: 'test'
+  ...
+# Subtest: ComfyUI cancelled during polling stops without presenting a result
+ok 20 - ComfyUI cancelled during polling stops without presenting a result
+  ---
+  duration_ms: 21.394295
+  type: 'test'
+  ...
+# Subtest: readLimited rejects streaming body exceeding max size
+ok 21 - readLimited rejects streaming body exceeding max size
+  ---
+  duration_ms: 1.083895
+  type: 'test'
+  ...
+# Subtest: Cloudflare adapter parses official JSON base64 image result with stub transport
+ok 22 - Cloudflare adapter parses official JSON base64 image result with stub transport
+  ---
+  duration_ms: 1.020719
+  type: 'test'
+  ...
+# Subtest: Cloudflare malformed image response is rejected
+ok 23 - Cloudflare malformed image response is rejected
+  ---
+  duration_ms: 0.427665
+  type: 'test'
+  ...
+# Subtest: Cloudflare does not call HTTP without credentials
+ok 24 - Cloudflare does not call HTTP without credentials
+  ---
+  duration_ms: 1.818032
+  type: 'test'
+  ...
+# Subtest: real manual image import persists verified PNG and privacy-safe provenance
+ok 25 - real manual image import persists verified PNG and privacy-safe provenance
+  ---
+  duration_ms: 185.157662
+  type: 'test'
+  ...
+# Subtest: generated asset creates immutable versions, does not leak prompt into metadata/log
+ok 26 - generated asset creates immutable versions, does not leak prompt into metadata/log
+  ---
+  duration_ms: 259.75253
+  type: 'test'
+  ...
+# Subtest: retryable local failure falls back only to explicitly selected second provider
+ok 27 - retryable local failure falls back only to explicitly selected second provider
+  ---
+  duration_ms: 134.135808
+  type: 'test'
+  ...
+# Subtest: malformed image is terminal: does not fallback invisibly
+ok 28 - malformed image is terminal: does not fallback invisibly
+  ---
+  duration_ms: 1.298138
+  type: 'test'
+  ...
+# Subtest: remote providers are never chosen implicitly
+ok 29 - remote providers are never chosen implicitly
+  ---
+  duration_ms: 0.772755
+  type: 'test'
+  ...
+# Subtest: remote consent and paid approval both required
+ok 30 - remote consent and paid approval both required
+  ---
+  duration_ms: 0.324359
+  type: 'test'
+  ...
+# Subtest: remote cannot be reached when consent denied even if provider explicitly selected
+ok 31 - remote cannot be reached when consent denied even if provider explicitly selected
+  ---
+  duration_ms: 1.359339
+  type: 'test'
+  ...
+# Subtest: cancelled prior to generation creates no asset
+ok 32 - cancelled prior to generation creates no asset
+  ---
+  duration_ms: 0.769009
+  type: 'test'
+  ...
+# Subtest: decoder failure rolls back partial and final files
+ok 33 - decoder failure rolls back partial and final files
+  ---
+  duration_ms: 6.50579
+  type: 'test'
+  ...
+# Subtest: reject image output escape through symlinked scene directory
+ok 34 - reject image output escape through symlinked scene directory
+  ---
+  duration_ms: 2.788535
+  type: 'test'
+  ...
+# Subtest: allow explicitly authorized remote provider using cost budget
+ok 35 - allow explicitly authorized remote provider using cost budget
+  ---
+  duration_ms: 124.633249
+  type: 'test'
+  ...
+1..35
+# tests 35
+# suites 0
+# pass 35
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 852.084352

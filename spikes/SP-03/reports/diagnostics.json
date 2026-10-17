@@ -1,0 +1,22 @@
+{
+  "gpu": {
+    "platform": "linux",
+    "detection": "gpu-not-confirmed",
+    "gpus": [],
+    "modelCompatibility": "NOT_TESTED"
+  },
+  "comfy": {
+    "providerId": "comfyui",
+    "reachable": false,
+    "reason": "SERVICE_UNREACHABLE"
+  },
+  "recommendation": {
+    "path": "manual_import",
+    "readiness": "AVAILABLE_WITH_LOCAL_IMAGE",
+    "needs": [
+      "user_selected_image"
+    ],
+    "reason": "Local image model unavailable or unverified; remote path not explicitly authorized"
+  },
+  "note": "No GPU/model inference is verified by these probes alone"
+}

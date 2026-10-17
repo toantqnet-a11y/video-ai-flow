@@ -1,0 +1,53 @@
+{
+  "task": "FI-04-01/FI-04-02/FI-04-03 / AI Video backlog merge",
+  "date": "2026-10-17",
+  "workspace": "ContentStudio FI-03 snapshot + FI-04 changes",
+  "releaseStatus": "NOT_READY",
+  "platform": "linux",
+  "node": "22.16.0",
+  "testObservations": {
+    "baselineFI03FreshOriginal": {
+      "tests": 865,
+      "passed": 865,
+      "failed": 0
+    },
+    "fi04Focused": {
+      "tests": 10,
+      "passed": 10,
+      "failed": 0
+    },
+    "fullSuiteAfterFi04": {
+      "files": 150,
+      "tests": 875,
+      "passed": 875,
+      "failed": 0,
+      "durationMs": 52572
+    },
+    "isolatedBatchesAfterFi04": {
+      "files": 150,
+      "batches": 19,
+      "tests": 875,
+      "failed": 0
+    },
+    "check": "PASS",
+    "typecheckSDK": "PASS",
+    "negativeControl": "PASS",
+    "npmRegistry": "BLOCKED_EAI_AGAIN",
+    "viteBuild": "BLOCKED_VITE_NOT_FOUND",
+    "liveHttp": "BLOCKED_MODULE_NOT_FOUND"
+  },
+  "backlog": {
+    "existingHistoricalTasks": 42,
+    "videoTasks": 14,
+    "fi04Tasks": 3,
+    "uniqueTasks": 59
+  },
+  "remaining": [
+    "reviewed committed npm lock and npm ci on trusted host",
+    "real Vite build and live Fastify HTTP",
+    "HyperFrames CLI, Windows browser and 35-minute production video",
+    "repeated Windows suite soak for historical intermittent hangs",
+    "provider/security/recovery acceptance"
+  ],
+  "factualBoundary": "No npm package-lock invented, no paid AI calls, no real renderer/Windows or production-ready claims."
+}
