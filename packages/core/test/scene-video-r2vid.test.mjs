@@ -127,3 +127,30 @@ test('R2VID policy change fences queued inference before it can replace human me
   assert.equal((await promotePendingQueueAssets(manifest)).promoted.length,0);
  }finally{if(runner)await runner.stop({abort:true}).catch(()=>{});ctx?.close();await rm(root,{recursive:true,force:true})}
 });
+
+test('R2VID healthy still-image fallback is an explicit atomic choice and preserves voice',async()=>{
+ const root=await fsRoot();let ctx;
+ try{
+  ctx=make(root,Buffer.alloc(256));
+  const {svc,scenes,repo,manifest,db}=ctx,id=scenes[0].id;
+  const saved=svc.saveScopePolicy('scene',id,{expectedRevision:0,
+   policy:normalizeClipPolicy({mediaType:'ai_video',fallback:'manual_image'})});
+  // This fixture is a real minimal PNG, not a GPU-generated image.
+  const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9YhXJ6wAAAAASUVORK5CYII=','base64');
+  const image=await manifest.importBytes({sceneId:id,kind:'image',source:'manual_import',bytes:png,
+   extension:'.png',metadata:{origin:'offline_fixture'}});
+  const before=repo.getScene(id);
+  assert.equal(await manifest.verifyRevision(image.id),'healthy');
+  const applied=await svc.fallbackToImage(id,{imageAssetId:image.id,
+   expectedRowVersion:before.rowVersion,expectedPolicyRevision:saved.revision});
+  assert.equal(applied.status,'FALLBACK_IMAGE_SELECTED');
+  const scene=repo.getScene(id);
+  assert.equal(scene.mediaType,'image_motion');
+  assert.equal(scene.visualAssetId,image.id);
+  assert.equal(scene.voiceAssetId,before.voiceAssetId);
+  assert.equal(svc.getScopePolicy('scene',id).revision,2);
+  assert.equal(db.prepare('SELECT job_id FROM scene_video_intents WHERE scene_id=?').get(id),undefined);
+  await assert.rejects(()=>svc.fallbackToImage(id,{imageAssetId:image.id,
+   expectedRowVersion:before.rowVersion,expectedPolicyRevision:1}),/SCENE_ROW_VERSION_CONFLICT/);
+ }finally{ctx?.close();await rm(root,{recursive:true,force:true})}
+});
