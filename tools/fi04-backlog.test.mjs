@@ -23,6 +23,12 @@ test('FI-04 backlog preserves every old task and refuses duplicate IDs or missin
  assert.equal(merged.tasks.find(x=>x.id==='FI-04-05').status,'HOSTED_WINDOWS_TIMELINE_REGRESSIONS_PASS__AUTHENTICATED_UX_PENDING');
  assert.equal(merged.tasks.find(x=>x.id==='FI-04-10').status,'HOSTED_WINDOWS_FAIL_CLOSED_RELEASE_MATRIX_PASS__NOT_READY');
  assert.ok(merged.statusEvidence.fi0405to10WindowsHosted.includes('39024552073'));
+ for(const id of ['R2-VID-01','R2-VID-02','R2-VID-03','R2-VID-04','R2-VID-05']){
+  const task=merged.tasks.find(x=>x.id===id);
+  assert.ok(task?.status?.includes('PENDING')||task?.status?.includes('GPU'),'hardware blockers must not be closed');
+  assert.ok(task.remainingGate.length>=1);
+ }
+ assert.equal(merged.releaseStatus,'NOT_READY');
  assert.equal(merged.tasks.at(-1).id,'WI-03');
  assert.throws(()=>mergeBacklog({...base,tasks:[...base.tasks,video[0]]},video),/DUPLICATE/);
  assert.throws(()=>parseVideoRoadmap(''),/INCOMPLETE/);
