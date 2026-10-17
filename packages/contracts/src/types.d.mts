@@ -2050,6 +2050,11 @@ export interface OperationMap {
   assetId: string;
   expectedRowVersion: number;
 } }; result: Record<string, unknown>; };
+  fallbackSceneClipToImage: { args: { id: string; body: {
+  imageAssetId: string;
+  expectedRowVersion: number;
+  expectedPolicyRevision: number;
+} }; result: Record<string, unknown>; };
   getSceneClipFile: { args: { id: string }; result: string; };
   getSceneImageFile: { args: { id: string }; result: string; };
   listSceneAssets: { args: { id: string }; result: {

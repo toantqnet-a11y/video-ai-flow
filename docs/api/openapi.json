@@ -22722,6 +22722,126 @@
         "description": "Requires Bearer authorization and x-contentstudio-csrf (CSRF) header; no auth query parameters."
       }
     },
+    "/api/scenes/{id}/video/fallback": {
+      "post": {
+        "operationId": "fallbackSceneClipToImage",
+        "summary": "Operator-selected healthy image fallback, no GPU calls",
+        "tags": [
+          "scenes"
+        ],
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Pairing or bearer required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "CSRF, remote consent, or policy denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version/idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Sanitized internal failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "imageAssetId": {
+                    "type": "string",
+                    "maxLength": 80
+                  },
+                  "expectedRowVersion": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "expectedPolicyRevision": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "imageAssetId",
+                  "expectedRowVersion",
+                  "expectedPolicyRevision"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "description": "Requires Bearer authorization and x-contentstudio-csrf (CSRF) header; no auth query parameters."
+      }
+    },
     "/api/scenes/{id}/video/file": {
       "get": {
         "operationId": "getSceneClipFile",
