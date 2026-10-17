@@ -224,6 +224,7 @@ export function registerStudioRoutes(app,{controllers,store,diagnostics}) {
   // this single route has a bounded ~12MiB decoded JSON body (not global).
   app.post('/api/scenes/:id/video/import',{bodyLimit:12*1024*1024},use((req,reply)=>reply.code(201).send(controllers.importVideoClip(req.params.id,req.body))));
   app.post('/api/scenes/:id/video/select',use(req=>controllers.selectVideoClip(req.params.id,req.body)));
+  app.post('/api/scenes/:id/video/fallback',use(req=>controllers.fallbackVideoToImage(req.params.id,req.body)));
   app.post('/api/scenes/:id/image/jobs',use((req,reply)=>reply.code(202).send(controllers.queueSceneImage(req.params.id,req.body))));
   app.get('/api/scenes/:id/image/status',use(req=>controllers.sceneImageStatus(req.params.id)));
   app.post('/api/scenes/:id/image/select',use(req=>controllers.selectSceneImage(req.params.id,req.body)));
