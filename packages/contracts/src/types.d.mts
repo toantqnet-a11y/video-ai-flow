@@ -2026,6 +2026,31 @@ export interface OperationMap {
   getSceneImageStatus: { args: { id: string }; result: SceneImageStatus; };
   selectSceneImage: { args: { id: string; body: SceneImageSelect }; result: Record<string, unknown>; };
   importSceneImage: { args: { id: string; body: SceneImageImport }; result: Record<string, unknown>; };
+  getVideoMediaPolicy: { args: { scope: string; id: string }; result: Record<string, unknown>; };
+  saveVideoMediaPolicy: { args: { scope: string; id: string; body: {
+  expectedRevision: number;
+  policy: Record<string, unknown>;
+} }; result: Record<string, unknown>; };
+  getVideoMediaPolicyHistory: { args: { scope: string; id: string }; result: Record<string, unknown>; };
+  getSceneClipStatus: { args: { id: string }; result: Record<string, unknown>; };
+  getSceneClipPreflight: { args: { id: string }; result: Record<string, unknown>; };
+  queueSceneClip: { args: { id: string; body: {
+  requestKey: string;
+  expectedPolicyDigest: string;
+} }; result: Record<string, unknown>; };
+  queueClipBatch: { args: { id: string; body: {
+  sceneIds: Array<string>;
+  requestKey: string;
+} }; result: Record<string, unknown>; };
+  importSceneClip: { args: { id: string; body: {
+  base64: string;
+  expectedRowVersion: number;
+} }; result: Record<string, unknown>; };
+  selectSceneClip: { args: { id: string; body: {
+  assetId: string;
+  expectedRowVersion: number;
+} }; result: Record<string, unknown>; };
+  getSceneClipFile: { args: { id: string }; result: string; };
   getSceneImageFile: { args: { id: string }; result: string; };
   listSceneAssets: { args: { id: string }; result: {
   items: Array<Asset>;
