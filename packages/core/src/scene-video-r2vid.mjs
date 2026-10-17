@@ -312,6 +312,18 @@ export class SceneClipService {
    hasImageFallback:!!this.manifest.listScene(sceneId).find(a=>a.kind==='image'&&a.state==='committed'),
    gpuInferenceVerified:false};
  }
+ /** R2-VID-05: preview an immutable prior revision without activating it.
+  * The scoped scene ownership and SHA health checks run before returning bytes.
+  * No bearer credentials are ever embedded in browser video URLs. */
+ async revisionBytes(sceneId,assetId){
+  const scene=this.repo.getScene(sceneId);if(!scene)fail('SCENE_NOT_FOUND',404);
+  const asset=this.manifest.get(assetId);
+  if(!asset||asset.sceneId!==scene.id||asset.videoId!==scene.videoId||asset.kind!=='video')
+   fail('VIDEO_ASSET_NOT_FOUND',404);
+  if(asset.bytes>100*1024*1024)fail('VIDEO_ASSET_TOO_LARGE',413);
+  if(await this.manifest.verifyRevision(asset.id)!=='healthy')fail('VIDEO_ASSET_UNHEALTHY',409);
+  return {bytes:await readFile(join(this.manifest.dataRoot,asset.relativePath)),mime:'video/mp4'};
+ }
  async activeBytes(sceneId){
   const s=this.repo.getScene(sceneId);if(!s)fail('SCENE_NOT_FOUND',404);
   const a=s.visualAssetId&&this.manifest.get(s.visualAssetId);
