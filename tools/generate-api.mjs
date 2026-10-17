@@ -11,6 +11,7 @@ const generated=[
  ['packages/sdk/src/client.d.mts',`/** GENERATED client declarations; tools/generate-api.mjs */\nimport type { OperationId,OperationArgs,OperationResult,JobEvent } from '../../contracts/src/types.d.mts';\nexport class StudioApiError extends Error { readonly code:string; readonly status:number; constructor(code:string,status?:number); }\nexport function readJobEventStream(stream:ReadableStream<Uint8Array>,onEvent:(event:JobEvent)=>void,opts?:{signal?:AbortSignal,lastEventId?:number,maxFrameBytes?:number}):Promise<{lastEventId:number}>;\nexport interface StudioClient {\n authenticated():boolean; clear():void; pair(code:string):Promise<true>;\n request<K extends Exclude<OperationId,'streamJobEvents'>>(id:K,args:OperationArgs<K>,options?:{signal?:AbortSignal}):Promise<OperationResult<K>>;\n getChannelAvatar(channelId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
  getSceneVoiceAudio(sceneId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
  getSceneImageFile(sceneId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
+ getSceneClipFile(sceneId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
  downloadLocalVideoThumbnail(videoId:string,jobId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
  downloadLocalVideoRender(videoId:string,jobId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
  downloadLocalVideoSubtitle(videoId:string,jobId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
