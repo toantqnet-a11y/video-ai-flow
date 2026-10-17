@@ -55,6 +55,18 @@ jobs:
             packages/core/test/assets.test.mjs \
             packages/core/test/channel-avatar-r0gate.test.mjs \
             packages/core/test/channel-r001.test.mjs
+      - name: Print raw TAP for full-suite batch 13 focused regression
+        if: always()
+        run: |
+          node --test --test-concurrency=1 \
+            packages/core/test/render-safety-r313.test.mjs \
+            packages/core/test/scene-builder-r201.test.mjs \
+            packages/core/test/scene-image-r205.test.mjs \
+            packages/core/test/scene-inspector-r301.test.mjs \
+            packages/core/test/scene-video-r2vid.test.mjs \
+            packages/core/test/scene-voice-r203.test.mjs \
+            packages/core/test/script-skills-r1ext01.test.mjs \
+            packages/core/test/selective-regeneration-r211.test.mjs
       - name: Verify generated API contracts and SDK types
         if: always()
         run: node tools/generate-api.mjs --check
