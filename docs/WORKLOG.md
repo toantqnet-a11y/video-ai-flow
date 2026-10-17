@@ -881,3 +881,12 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
 - Added `ci-github-lock.mjs` fail-closed verification and `docs/GITHUB_CI_HANDOFF.md`.
 - No remote GitHub repository modified: the connected account currently has no ContentStudio repository, and available connector actions cannot create a repository.
 - Gates needing committed lock, Windows/HyperFrames/GPU/35min stay NOT_READY.
+
+## 2026-10-17 — GitHub lockfile, real Ubuntu runtime CI and dependency security
+- Initialized private repository `toantqnet-a11y/video-ai-flow`; imported WI-02 source/tests/docs. Enabled GitHub Actions with strict fail-closed CI.
+- Fixed Ubuntu CI OS prerequisites (FFmpeg + eSpeak). Observed `20/20` offline batches, `928/928` Node tests PASS on hosted Ubuntu (run 39011924436).
+- User triggered `Prepare npm lockfile (manual)` run 39012701743: PASS and uploaded artifact. Reviewed npm v3 lockfile: 7 workspaces, HyperFrames 0.8.159 exact, 269 registry packages with SHA integrity, npm registry hosts only; committed `package-lock.json` on main (commit f3eca82).
+- Hosted Ubuntu CI verified `npm ci --ignore-scripts`, TypeScript SDK, production Vite bundle, and **real Fastify live HTTP smoke PASS**. `npm audit` then identified 1 HIGH severity `@fastify/static` path traversal / route guard advisory in 8.x.
+- Created security remediation PR #1, updated `@fastify/static` to pinned `10.1.6`, generated and reviewed candidate lockfile (HyperFrames 0.8.159 unchanged), and verified full PR CI + audit PASS on Ubuntu. Squash merged to main commit `311c5e40`.
+- Main CI run `39013509252` **SUCCESS**: Ubuntu offline regression + dependency install + SDK/Vite + Fastify live HTTP + npm audit. Windows opt-in jobs were skipped, not PASSED.
+- **Still NOT_READY for production**: real Windows Chrome/Edge interaction, installed HyperFrames CLI with genuine MP4, >=35-minute Full HD render, crash-restart recovery, local GPU/TTS/LLM inference, and on-device security acceptance remain unverified. No paid AI APIs or user project data were accessed. Next: Windows opt-in hosted CI and genuine HyperFrames/long-render tests on user hardware.
