@@ -7,6 +7,7 @@ import React,{useEffect,useState} from 'react';
 import {api} from './api.js';
 import {useStudio} from './store.js';
 import {moveDraft,splitDraft,mergeDraft,applyVisualPrompts} from './scene-editor.mjs';
+import {BatchVideoClipsR2VID} from './BatchVideoClipsR2VID.jsx';
 
 export function SceneBuilderWorkspace({video}){
   const [options,setOptions]=useState({targetSeconds:18,minSeconds:4,maxSeconds:45,wpm:145,mediaType:'image_motion'});
@@ -103,6 +104,7 @@ export function SceneBuilderWorkspace({video}){
       <b>Scene #{item.index+1}</b> <small>· Đề xuất {item.mediaType==='ai_video'?'AI Video (chưa xác minh)':'Image Motion'}</small>
       <p>{item.prompt}</p><small>{item.reason}</small>
     </div>)}</div>}
+    <BatchVideoClipsR2VID videoId={video.id} enabled={approved&&!changed&&!!state?.sceneRevision}/>
     <div className="scene-builder-summary"><span><b>{draft.length}</b> scene</span><span><b>{(estimate/60000).toFixed(1)}</b> phút dự kiến</span><span>Script duyệt #{state?.approvedMasterRevision}</span><span>Bản scene #{state?.sceneRevision??0}</span></div>
     <p className="muted">Thời lượng scene chỉ là ước tính theo từ/phút; thời lượng chính xác lấy từ file voice thực tế. Kéo để đổi thứ tự. Tách/gộp giữ nguyên ký tự gốc.</p>
     {notice&&<div className="info">{notice}</div>}{error&&<div className="error" role="alert">{error}</div>}
