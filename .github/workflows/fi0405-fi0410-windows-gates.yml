@@ -52,6 +52,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Real OS-kill plus synthetic lease recovery (NOT long render)
         run: |
+          # Expected NOT_READY exit must be inspected, not swallowed or promoted.
+          $PSNativeCommandUseErrorActionPreference = $false
           node tools/fi0407-recovery.mjs --simulate --report=docs/evidence/FI0410_recovery_sim.json
           $exit=$LASTEXITCODE
           $report=Get-Content docs/evidence/FI0410_recovery_sim.json -Raw | ConvertFrom-Json
@@ -62,6 +64,7 @@ jobs:
         run: node tools/fi0408-provider-e2e.mjs --inspect --report=docs/evidence/FI0410_provider_inspect.json
       - name: Security focused tests and Windows dependency audit inventory
         run: |
+          $PSNativeCommandUseErrorActionPreference = $false
           node tools/fi0409-security-performance.mjs --verify --report=docs/evidence/FI0410_security.json
           $exit=$LASTEXITCODE
           $report=Get-Content docs/evidence/FI0410_security.json -Raw | ConvertFrom-Json
