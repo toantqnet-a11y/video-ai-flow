@@ -9,6 +9,9 @@ export {PaidPolicyRepository,createPaidInvocationPolicy} from './paid-policy.mjs
 
 export {VideoCapabilityRepository,validateVideoCapabilities} from './video-capabilities.mjs';
 export {SceneClipService,normalizeClipPolicy} from './scene-video-r2vid.mjs';
+export {withLocalGpuLock} from './video-gpu-lock-r2vid04.mjs';
+export {importSceneVideoStream,MAX_STREAM_CLIP_BYTES} from './scene-video-stream-r2vid03.mjs';
+export {assessHybridVideoGate,MIN_HYBRID_SECONDS,MAX_HYBRID_SECONDS} from './hybrid-acceptance-r3vid03.mjs';
 export {fitSceneClip,resolveClipFit} from './mixed-clip-fit-r3vid01.mjs';
 export {inspectClipProbe,probeClipSource,clipNormalizationPlan,normalizePinnedClip} from './clip-normalize-r3vid02.mjs';
 export {estimateClipResources,aggregateClipResources,readClipResourceLimits,normalizeClipResourceLimits} from './clip-resource-r2vid06.mjs';

@@ -511,6 +511,7 @@ export const operations=[
     obj({requestKey:str(100),expectedPolicyDigest:str(64)},['requestKey','expectedPolicyDigest']),{accepted:true}),
   post('queueClipBatch','/api/videos/:id/video/jobs','Bounded ordered SP-04 local clip batch',freeObject,
     obj({sceneIds:arr(str(100)),requestKey:str(100)},['sceneIds','requestKey']),{accepted:true}),
+  post('streamImportSceneClip','/api/scenes/:id/video/import-stream','Authenticated private 96MiB bounded binary MP4/MOV import; no paid provider',freeObject,undefined,{created:true}),
   post('importSceneClip','/api/scenes/:id/video/import','Import local MP4 up to 8MiB, ffprobe required',freeObject,
     obj({base64:str(12000000),expectedRowVersion:int(1),container:enumOf('mp4','mov')},['base64','expectedRowVersion']),{created:true}),
   post('selectSceneClip','/api/scenes/:id/video/select','Activate a healthy versioned scene clip',freeObject,

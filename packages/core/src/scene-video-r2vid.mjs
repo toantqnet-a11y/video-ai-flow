@@ -9,6 +9,7 @@ import {DomainError} from './domain.mjs';
 import {transact} from './db.mjs';
 import {VideoAssetService} from '../../../spikes/SP-VID-01/src/service.mjs';
 import {probeVideo} from '../../../spikes/SP-VID-01/src/media.mjs';
+import {withLocalGpuLock} from './video-gpu-lock-r2vid04.mjs';
 import {runBinary} from './render-ffmpeg-r2ext04.mjs';
 import {probeClipSource} from './clip-normalize-r3vid02.mjs';
 import {estimateClipResources,normalizeClipResourceLimits} from './clip-resource-r2vid06.mjs';
@@ -213,10 +214,12 @@ export class SceneClipService {
       throw Object.assign(Error('image missing'),{code:'VIDEO_REFERENCE_UNHEALTHY',retryable:false});
      imageBytes=await readFile(join(this.manifest.dataRoot,asset.relativePath));
     }
-    const output=await service.generateScene({projectId:payload.videoId,sceneId:payload.sceneId,
+    // Cross-process filesystem mutex covers the actual GPU call; crash keeps
+    // a lock until a human confirms no inference survived the parent process.
+    const output=await withLocalGpuLock(this.manifest.dataRoot,()=>service.generateScene({projectId:payload.videoId,sceneId:payload.sceneId,
      request:{mode:p.mode,prompt:snap.scene.visualPrompt,negativePrompt:'',
       seed:p.seed,width:p.width,height:p.height,fps:p.fps,durationSeconds:p.durationSec,
-      ...(imageBytes?{imageBytes}:{})},policy:{type:'local'}},{signal});
+      ...(imageBytes?{imageBytes}:{})},policy:{type:'local'}},{signal}),{signal});
     if(signal?.aborted||!this.intentMatches(payload,jobId))
      throw Object.assign(Error('stale output'),{code:'VIDEO_INTENT_STALE',retryable:false});
     return {result:{kind:'video',sceneId:payload.sceneId,providerId:'comfyui-video',

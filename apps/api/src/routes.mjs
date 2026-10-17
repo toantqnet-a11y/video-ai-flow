@@ -3,6 +3,9 @@ import {validCursor,jobEventFrame} from './job-center.mjs';
 import {DomainError} from '../../../packages/core/src/index.mjs';
 
 export function registerStudioRoutes(app,{controllers,store,diagnostics}) {
+  // Stream binary body directly to a bounded private scratch file. No global
+  // JSON bodyLimit increase, cookies, untrusted URL or paid provider call.
+  app.addContentTypeParser('application/octet-stream',(req,stream,done)=>done(null,stream));
   // Consistent error shape and no stack traces / prompts / secrets in responses.
   const use = (fn) => async (request,reply) => {
     try {return await fn(request,reply);}
@@ -223,6 +226,10 @@ export function registerStudioRoutes(app,{controllers,store,diagnostics}) {
   // Explicit 8MiB MP4 via base64; Fastify default 1MiB is too small, but
   // this single route has a bounded ~12MiB decoded JSON body (not global).
   app.post('/api/scenes/:id/video/import',{bodyLimit:12*1024*1024},use((req,reply)=>reply.code(201).send(controllers.importVideoClip(req.params.id,req.body))));
+  app.post('/api/scenes/:id/video/import-stream',use(async(req,reply)=>reply.code(201).send(
+   await controllers.importVideoClipStream(req.params.id,req.body,{
+    expectedRowVersion:Number(req.headers['x-contentstudio-row-version']),
+    container:req.headers['x-contentstudio-container']}))));
   app.post('/api/scenes/:id/video/select',use(req=>controllers.selectVideoClip(req.params.id,req.body)));
   app.post('/api/scenes/:id/video/fallback',use(req=>controllers.fallbackVideoToImage(req.params.id,req.body)));
   app.post('/api/scenes/:id/image/jobs',use((req,reply)=>reply.code(202).send(controllers.queueSceneImage(req.params.id,req.body))));

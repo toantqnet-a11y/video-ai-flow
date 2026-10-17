@@ -947,3 +947,9 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
 - Native MP4/MOV/WebM FFprobe gate, FFmpeg normalizes only after segment-cache miss to exact CFR H264 frames, strips source soundtrack, keeps external voice AAC, increments cache digest. Small 1s MOV and real 3s normalized H264+Aac fixtures PASS locally; not entire Windows 11 E2E.
 - MOV <=8MiB import accepted via existing authenticated route, normalized locally to browser-compatible MP4 with source SHA/provenance; original MOV not persisted. No new public provider endpoints.
 - Apply this change to a local checkout AFTER the R2-VID-06 uncommitted patch; no Git commands or automatic commit. GPU, Windows 11, and 35min acceptance remain blocked. Release NOT_READY.
+
+## 2026-10-17 — R3VID03 / R2VID03-04 follow-up (feature branch; release NOT_READY)
+- R2VID03 added authenticated octet-stream <=96 MiB ingest directly into private disk staging, strict ffprobe MP4/MOV/codec/resource validation, MOV/HEVC normalization, immutable SHA provenance and optimistic scene versioning. JSON/base64 <=8 MiB path retained for backward compatibility. No remote/paid API.
+- R2VID04 added fail-closed atomic mkdir cross-process GPU lock around genuine local provider dispatch. A killed GPU process leaves the lock until an operator verifies no descendant inference is running before manually clearing; never auto-steal uncertain ownership. SP-04 one-attempt invariant stays unchanged.
+- R3VID03 added hybrid 35–40 minute evidence classifier that requires actual H.264/AAC/frame-count QA, image+AI+import scenes, pinned media, local GPU witness/license review, Windows 11 human A/V, crash recovery and zero unauthorized paid calls. Tiny FFmpeg fixtures must NOT be marked a real 35min acceptance.
+- Code tests added for new guards. Full Linux CI, Windows 11 native GPU/35min tests and operator acceptance must be rechecked before release.

@@ -433,6 +433,24 @@ export function createStudioClient({fetchImpl=globalThis.fetch,baseUrl='/api'}={
  };
  // Backwards-compatible adapter: only routes known to the published contract
  // may be called from pre-R0-05 frontend pages.
+ /** Binary file upload uses the same memory-only bearer and CSRF as JSON API.
+  * Files are streamed by fetch; no base64/URL token and no browser storage.
+  */
+ const uploadSceneClipStream=async(sceneId,file,{expectedRowVersion,signal}={})=>{
+   if(!credentials)throw new StudioApiError('PAIRING_REQUIRED');
+   if(!validId(sceneId)||!file||!Number.isSafeInteger(file.size)||file.size<100||
+      file.size>96*1024*1024||!Number.isSafeInteger(expectedRowVersion)||expectedRowVersion<1)
+     throw new StudioApiError('VIDEO_STREAM_IMPORT_INVALID');
+   const container=/\.mov$/i.test(file.name)?'mov':/\.mp4$/i.test(file.name)?'mp4':null;
+   if(!container)throw new StudioApiError('VIDEO_STREAM_IMPORT_INVALID');
+   const response=await fetchImpl(`${base}/scenes/${sceneId}/video/import-stream`,{
+     method:'POST',headers:{accept:'application/json','content-type':'application/octet-stream',
+       authorization:`Bearer ${credentials.bearer}`,'x-contentstudio-csrf':credentials.csrf,
+       'x-contentstudio-row-version':String(expectedRowVersion),
+       'x-contentstudio-container':container},body:file,signal});
+   try{return await parseResponse(response)}catch(error){
+     if(error instanceof StudioApiError&&error.status===401)clear();throw error;}
+ };
  const requestPath=async(path,{method='GET',body,signal}={})=>{
    if(typeof path!=='string'||!path.startsWith('/'))throw new StudioApiError('UNKNOWN_OPERATION');
    const [pathname,search='']=path.split('?');
@@ -485,5 +503,5 @@ export function createStudioClient({fetchImpl=globalThis.fetch,baseUrl='/api'}={
    }
    return {lastEventId:cursor};
  };
- return {authenticated,clear,pair,request,requestPath,previewVoice,getSceneVoiceAudio,getSceneImageFile,getSceneClipFile,getSceneClipRevisionFile,getChannelAvatar,downloadLocalVideoThumbnail,downloadLocalVideoRender,downloadLocalVideoSubtitle,saveLocalVideoRender,downloadProjectZip,saveProjectZip,streamJobs};
+ return {authenticated,clear,pair,request,requestPath,uploadSceneClipStream,previewVoice,getSceneVoiceAudio,getSceneImageFile,getSceneClipFile,getSceneClipRevisionFile,getChannelAvatar,downloadLocalVideoThumbnail,downloadLocalVideoRender,downloadLocalVideoSubtitle,saveLocalVideoRender,downloadProjectZip,saveProjectZip,streamJobs};
 }
