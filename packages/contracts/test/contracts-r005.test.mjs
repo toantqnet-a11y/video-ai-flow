@@ -8,6 +8,7 @@ import {registerStudioRoutes} from '../../../apps/api/src/routes.mjs';
 import {registerVoicePreviewRoute} from '../../../apps/api/src/voice-preview.mjs';
 import {registerSceneVoiceAudioRoute} from '../../../apps/api/src/scene-voice-audio.mjs';
 import {registerSceneImageFileRoute} from '../../../apps/api/src/scene-image-file.mjs';
+import {registerSceneClipFileRoute} from '../../../apps/api/src/scene-video-file.mjs';
 import {registerChannelAvatarRoutes} from '../../../apps/api/src/channel-avatar.mjs';
 import {registerVaultRoutes} from '../../../apps/api/src/vault-routes.mjs';
 import {installSecurity} from '../../../apps/api/src/security.mjs';
@@ -32,6 +33,7 @@ test('every registered route has exactly one operation and vice versa',()=>{
  registerVoicePreviewRoute(app,{preview(){}});
  registerSceneVoiceAudioRoute(app,{audio(){}});
  registerSceneImageFileRoute(app,{sceneImageBytes(){}});
+ registerSceneClipFileRoute(app,{videoClipFile(){}});
  registerChannelAvatarRoutes(app,{});
  // /health is deliberately registered by the server, not route modules.
  // Verify the actual source has not drifted from our contract.
@@ -55,7 +57,7 @@ test('OpenAPI 3.1 operations, security and SSE media match the catalog',()=>{
      if(op.stream){assert(spec.responses[200].content['text/event-stream']);assert(spec.parameters.some(p=>p.name==='Last-Event-ID'));}
      else if(op.binaryImage){assert(spec.responses[200].content['image/png']);assert(spec.responses[200].content['image/jpeg']);}
      else if(op.binarySceneImage){assert(spec.responses[200].content['image/png']);assert(spec.responses[200].content['image/jpeg']);assert(spec.responses[200].content['image/webp']);}
-     else if(op.binaryVideo){assert(spec.responses[200].content['video/mp4']);}
+     else if(op.binarySceneVideo||op.binaryVideo){assert(spec.responses[200].content['video/mp4']);}
      else if(op.binaryArchive){assert(spec.responses[200].content['application/zip']);}
      else if(op.binaryAudio){assert(spec.responses[200].content['audio/mpeg']);assert(spec.responses[200].content['audio/wav']);}
      else assert(spec.responses[op.created?201:op.accepted?202:200].content['application/json']);
