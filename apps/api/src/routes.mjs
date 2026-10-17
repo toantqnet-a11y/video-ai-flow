@@ -212,6 +212,16 @@ export function registerStudioRoutes(app,{controllers,store,diagnostics}) {
   app.post('/api/scenes/:id/voice/select',use(req=>controllers.selectSceneVoice(req.params.id,req.body)));
   // R2-05: strictly local ComfyUI; queue uses committed scene visual prompt.
   app.get('/api/images/local-provider',use(req=>controllers.imageProvider(req.query?.probe==='true')));
+  // R2-VID-01..05: actual policy provenance + queued LOCAL video generation.
+  app.get('/api/video-media/policy/:scope/:id',use(req=>controllers.videoMediaPolicy(req.params.scope,req.params.id)));
+  app.put('/api/video-media/policy/:scope/:id',use(req=>controllers.saveVideoMediaPolicy(req.params.scope,req.params.id,req.body)));
+  app.get('/api/video-media/policy/:scope/:id/history',use(req=>controllers.videoMediaPolicyHistory(req.params.scope,req.params.id)));
+  app.get('/api/scenes/:id/video/status',use(req=>controllers.videoClipStatus(req.params.id)));
+  app.get('/api/scenes/:id/video/preflight',use(req=>controllers.videoClipPreflight(req.params.id)));
+  app.post('/api/scenes/:id/video/jobs',use((req,reply)=>reply.code(202).send(controllers.queueVideoClip(req.params.id,req.body))));
+  app.post('/api/videos/:id/video/jobs',use((req,reply)=>reply.code(202).send(controllers.queueVideoClipBatch(req.params.id,req.body))));
+  app.post('/api/scenes/:id/video/import',use((req,reply)=>reply.code(201).send(controllers.importVideoClip(req.params.id,req.body))));
+  app.post('/api/scenes/:id/video/select',use(req=>controllers.selectVideoClip(req.params.id,req.body)));
   app.post('/api/scenes/:id/image/jobs',use((req,reply)=>reply.code(202).send(controllers.queueSceneImage(req.params.id,req.body))));
   app.get('/api/scenes/:id/image/status',use(req=>controllers.sceneImageStatus(req.params.id)));
   app.post('/api/scenes/:id/image/select',use(req=>controllers.selectSceneImage(req.params.id,req.body)));
