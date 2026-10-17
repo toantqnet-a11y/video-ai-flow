@@ -30,7 +30,7 @@ import {registerSceneVoiceAudioRoute} from './scene-voice-audio.mjs';
 import {registerSceneImageFileRoute} from './scene-image-file.mjs';
 import {registerSceneClipFileRoute} from './scene-video-file.mjs';
 import {RenderExportService} from './render-export-r2ext0406.mjs';
-import {CompositionRepository,SceneClipService} from '../../../packages/core/src/index.mjs';
+import {CompositionRepository,SceneClipService,readClipResourceLimits} from '../../../packages/core/src/index.mjs';
 import {cleanupOrphanRenderStages} from '../../../packages/core/src/render-safety-r313.mjs';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'../../..');
@@ -61,9 +61,13 @@ export async function startApi({listen=true}={}) {
     reply.header('x-frame-options','DENY');
     if(request.url.startsWith('/api/')) reply.header('cache-control','no-store');
     if(!request.url.startsWith('/api/')) reply.header('content-security-policy',
-      "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'");
+      "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'");
     return payload;
   });
+  // Install raw binary ingestion only on the real Fastify instance. Fake
+  // route registries used by contract tests intentionally do not support
+  // content-type parser extensions.
+  app.addContentTypeParser('application/octet-stream',(req,stream,done)=>done(null,stream));
   const db=openProjectDb(dbFile),repo=new StudioRepository(db);
   // Any call still reserved after a crash has unknown billing/token outcome.
   // Keep its quota hold; an app restart is never proof of a free retry.
@@ -118,7 +122,10 @@ export async function startApi({listen=true}={}) {
   }
   const remoteDispatcher=createLlmDispatcher({db,store,credentialAccess,paidPolicy,
     allowRemote,confirmedFreeModelIds,verifiedCostCapsMicroUsd,quotaReservationUnitsByModel});
-  const clips=new SceneClipService({repo,manifest,store,videoAdapter:registry.videoAdapter??null});
+  // Operator-owned, fail-closed limits: no model/provider calls during parse.
+  const videoResourceLimits=readClipResourceLimits(process.env);
+  const clips=new SceneClipService({repo,manifest,store,
+    videoAdapter:registry.videoAdapter??null,resourceLimits:videoResourceLimits});
   const handlers=createJobHandlers({repo,registry,dataRoot});
   handlers['scene:ai-video']=clips.handler();
   // Exactly one durable SP-04 queue. Remote LLM only via guarded dispatcher.

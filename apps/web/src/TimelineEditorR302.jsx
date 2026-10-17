@@ -3,7 +3,8 @@
  * No provider/AI dispatch, silent media impersonation, or automatic render.
  */
 import React,{useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
-import {api,getSceneImageFile,getSceneVoiceAudio} from './api.js';
+import {api,getSceneImageFile,getSceneVoiceAudio,getSceneClipFile} from './api.js';
+import {fitSceneClip,resolveClipFit} from '../../../packages/core/src/mixed-clip-fit-r3vid01.mjs';
 import {formatTimelineTime,visibleTimelineScenes,sceneAtTime,moveSceneByOffset,moveSceneOrder,orderManifest} from './timeline-model-r302.mjs';
 import {TimelinePlaybackR303} from './playback-controller-r303.mjs';
 import {snapVisualWindow} from '../../../packages/core/src/timeline-visual-r305.mjs';
@@ -14,12 +15,13 @@ export function TimelineEditorR302({videoId,selectedSceneId,onSelect=()=>{},onSa
  const [canonical,setCanonical]=useState(null),[draftOrder,setDraftOrder]=useState([]),[selected,setSelected]=useState(null);
  const [zoom,setZoom]=useState(42),[scroll,setScroll]=useState(0),[viewport,setViewport]=useState(950);
  const [position,setPosition]=useState(0),[playing,setPlaying]=useState(false),[imageUrl,setImageUrl]=useState(null);
+ const [clipUrl,setClipUrl]=useState(null),[clipDurationMs,setClipDurationMs]=useState(null),[clipIssue,setClipIssue]=useState('');
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
  const [visualDraft,setVisualDraft]=useState(null),[waveforms,setWaveforms]=useState({});
  const [history,setHistory]=useState(null);
  const waveCache=useRef(new Map());
  const trimDirtyRef=useRef(false);
- const trackRef=useRef(null),audioRef=useRef(null),playerRef=useRef(null),changeRef=useRef(onSelect),lastNotified=useRef(null),zoomAnchorRef=useRef(null);
+ const trackRef=useRef(null),audioRef=useRef(null),clipRef=useRef(null),playerRef=useRef(null),changeRef=useRef(onSelect),lastNotified=useRef(null),zoomAnchorRef=useRef(null);
  changeRef.current=onSelect;
  const orderDirty=!!canonical&&draftOrder.join('|')!==canonical.scenes.map(s=>s.id).join('|');
  const canonicalVisual=canonical?.scenes.find(s=>s.id===selected);
@@ -75,6 +77,43 @@ export function TimelineEditorR302({videoId,selectedSceneId,onSelect=()=>{},onSa
   }).catch(()=>{if(live)setImageUrl(null)});
   return()=>{live=false;controller.abort();if(url)URL.revokeObjectURL(url)};
  },[active?.id,active?.visualAssetId]);
+ // R3-VID-01: only active clip fetched via the authenticated memory-bearer
+ // SDK. Keep the Blob URL private; revoke on every scene/asset switch. Do
+ // NOT embed bearer/token into the HTML video URL or fetch all 500 scenes.
+ useEffect(()=>{
+  setClipUrl(null);setClipDurationMs(null);setClipIssue('');
+  clipRef.current?.pause();
+  if(!active?.id||active.mediaType==='image_motion'||!active.visualAssetId)return;
+  const controller=new AbortController();let live=true,url=null;
+  getSceneClipFile(active.id,{signal:controller.signal}).then(blob=>{
+   if(!live)return;url=URL.createObjectURL(blob);setClipUrl(url);
+  }).catch(err=>{if(live)setClipIssue(err?.code??'CLIP_PREVIEW_UNAVAILABLE')});
+  return()=>{live=false;controller.abort();clipRef.current?.pause();
+   if(url)URL.revokeObjectURL(url);};
+ },[active?.id,active?.visualAssetId,active?.mediaType]);
+ // The ONE narration audio clock is authoritative. Clip soundtrack remains
+ // muted and clip seek/play/hold follows its current position. Async metadata
+ // determines actual source duration; never invent duration from scene time.
+ useEffect(()=>{
+  const el=clipRef.current;
+  if(!el||!active||!clipUrl||!clipDurationMs)return;
+  let fit;
+  try{
+   const style=resolveClipFit(active);
+   fit=fitSceneClip({positionMs:position,startMs:active.startMs,
+    durationMs:active.durationMs,sourceDurationMs:clipDurationMs,...style});
+  }catch{el.pause();setClipIssue('CLIP_FIT_INVALID');return;}
+  el.muted=true;el.volume=0;
+  // Seek only when drift is material: micro-seeks every React tick can freeze
+  // otherwise smooth playback, especially hardware-accelerated H.264/HEVC.
+  if(Math.abs(el.currentTime-fit.sourceTimeSeconds)>0.20){
+   try{el.currentTime=fit.sourceTimeSeconds}catch{}
+  }
+  if(playing&&fit.shouldPlay&&!locked&&!dirty){
+   void el.play().catch(()=>{ /* browser autoplay blocked; audio clock still seeks frames */ });
+  }else el.pause();
+ },[active?.id,active?.startMs,active?.durationMs,active?.visualInMs,
+   active?.visualOutMs,position,playing,clipUrl,clipDurationMs,locked,dirty]);
  // Visible scene count is O(viewport width), independent of 500+ total scenes.
  const visible=useMemo(()=>visibleTimelineScenes(scenes,{scrollLeft:scroll,viewportWidth:viewport,pixelsPerSecond:zoom}),[scenes,scroll,viewport,zoom]);
  // R3-06: load only visible voice clips, cap concurrency to avoid 500 audio
@@ -183,7 +222,18 @@ export function TimelineEditorR302({videoId,selectedSceneId,onSelect=()=>{},onSa
    <div className="timeline-r302-info"><span>{scenes.length} scenes · {formatTimelineTime(manifest.totalDurationMs)}</span>
     <span>Timeline revision #{manifest.rowVersion} {dirty?' · ● chưa lưu':''}</span><span>Nhạc nền cấu hình tại Render Drawer; chưa có preview nhạc trong timeline.</span></div>
    <div className="timeline-r302-stage"><div className="timeline-r302-view" aria-label="Xem trước scene">
-     {imageUrl&&active?.mediaType==='image_motion'?<img src={imageUrl} alt="Hình minh họa của scene đang phát"/>:<div className="timeline-r302-placeholder">{active?.mediaType==='image_motion'?'Chưa có ảnh khả dụng':'Chưa hỗ trợ preview clip trong trình duyệt'}</div>}
+     {active?.mediaType!=='image_motion'&&clipUrl?
+       <video ref={clipRef} key={`${active.id}:${active.visualAssetId}`} src={clipUrl}
+        playsInline muted preload="metadata" aria-label="Preview clip AI hoặc clip nhập (không âm thanh nguồn)"
+        style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain'}}
+        onLoadedMetadata={event=>{
+         const seconds=event.currentTarget.duration;
+         if(Number.isFinite(seconds)&&seconds>0)setClipDurationMs(seconds*1000);
+         else setClipIssue('CLIP_INVALID_DURATION');
+        }} onError={()=>setClipIssue('CLIP_PREVIEW_DECODE_FAILED')}/>:
+      imageUrl&&active?.mediaType==='image_motion'?<img src={imageUrl} alt="Hình minh họa của scene đang phát"/>:
+      <div className="timeline-r302-placeholder">{clipIssue||
+       (active?.mediaType==='image_motion'?'Chưa có ảnh khả dụng':'Clip chưa được chọn hoặc không thể giải mã')}</div>}
      {active&&position>=active.startMs+(active.captionStartMs??0)&&position<active.startMs+(active.captionEndMs??active.durationMs)&&<div className="timeline-r302-subtitle">{active.captionText}</div>}
     </div><div className="timeline-r302-side"><h4>Scene {active?active.index+1:'—'}</h4>
      <p>{active?.text??'Chưa có scene'}</p><p className="muted">{active?.timingSource==='scene_estimate'?'Thời lượng đang ước tính từ scene. Không phải word-alignment.':'Thời lượng đã khóa thủ công.'}</p>

@@ -2,7 +2,8 @@
  * no automatic paid API, no AI call on mount, no browser-stored bearer tokens.
  */
 import React,{useEffect,useState} from 'react';
-import {api,getSceneClipRevisionFile} from './api.js';
+import {api,getSceneClipRevisionFile,uploadSceneClipStream} from './api.js';
+import {ClipResourceSummary} from './ClipResourceSummaryR2VID06.jsx';
 const blank={mediaType:'image_motion',mode:'text_to_video',fallback:'manual_image',
  durationSec:4,width:768,height:432,fps:24,seed:1};
 const human={image_motion:'Ảnh + chuyển động',ai_video:'Clip AI cục bộ',import_video:'Clip có sẵn'};
@@ -56,12 +57,18 @@ export function SceneVideoPanel({sceneId,onUpdated=()=>{},disabled=false}){
  });
  const importClip=file=>mutate(async()=>{
   if(!file)return;
-  if(file.size<100||file.size>8*1024*1024)throw Error('Chỉ nhận MP4 tối đa 8 MiB ở màn hình này.');
+  if(file.size<100||file.size>96*1024*1024)throw Error('Chỉ nhận MP4/MOV tối đa 96 MiB.');
+  const container=/\.mov$/i.test(file.name)?'mov':/\.mp4$/i.test(file.name)?'mp4':null;
+  if(!container)throw Error('Chỉ nhận .mp4 hoặc .mov; định dạng thật được FFprobe kiểm tra.');
   if(draft.mediaType!=='import_video'||scope.policy?.mediaType!=='import_video')
    throw Error('Hãy lưu policy Import Video trước.');
-  const base64=await readBase64(file);
-  await api(`/scenes/${sceneId}/video/import`,{method:'POST',body:{
-   base64,expectedRowVersion:status.sceneRowVersion}});
+  if(file.size>8*1024*1024){
+   await uploadSceneClipStream(sceneId,file,{expectedRowVersion:status.sceneRowVersion});
+  }else{
+   const base64=await readBase64(file);
+   await api(`/scenes/${sceneId}/video/import`,{method:'POST',body:{
+    base64,container,expectedRowVersion:status.sceneRowVersion}});
+  }
   return 'Clip đã được FFprobe xác thực, lưu thành revision riêng và kích hoạt.'});
  const fallback=id=>mutate(async()=>{
   await api(`/scenes/${sceneId}/video/fallback`,{method:'POST',body:{
@@ -98,9 +105,10 @@ export function SceneVideoPanel({sceneId,onUpdated=()=>{},disabled=false}){
    </div>
    {dirty&&<p className="warn">Hãy lưu cấu hình trước khi nhập hoặc tạo clip.</p>}
    {preflight&&<p className={preflight.canQueue?'info':'warn'}>
-    {preflight.canQueue?'Sẵn sàng xếp hàng đợi local (GPU chưa kiểm chứng)':'Chưa sẵn sàng: '+preflight.blockers.join(', ')}</p>}
-   {draft.mediaType==='import_video'&&<label>Nhập MP4 từ máy (≤8 MiB, FFprobe bắt buộc)
-    <input aria-label="Chọn MP4" type="file" accept=".mp4,video/mp4" disabled={busy||disabled||dirty}
+    {preflight.canQueue?'Đạt giới hạn cấu hình cục bộ (GPU chưa kiểm chứng)':'Chưa sẵn sàng: '+preflight.blockers.join(', ')}</p>}
+   {preflight?.resourceEstimate&&<ClipResourceSummary estimate={preflight.resourceEstimate}/>}
+   {draft.mediaType==='import_video'&&<label>Nhập MP4/MOV từ máy (≤96 MiB, >8 MiB dùng upload streaming; FFprobe bắt buộc)
+    <input aria-label="Chọn MP4" type="file" accept=".mp4,.mov,video/mp4,video/quicktime" disabled={busy||disabled||dirty}
      onChange={e=>{const file=e.target.files?.[0];e.target.value='';if(file)importClip(file)}}/></label>}
    <p className="muted">Policy revision #{scope?.revision??0} · Job {status.job?.status??'chưa có'} ·
     ComfyUI {status.localConfigured?'đã cấu hình (chưa xác minh GPU)':'chưa cấu hình'}.</p>

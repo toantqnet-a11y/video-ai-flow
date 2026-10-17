@@ -5,6 +5,7 @@ import {SubtitleDraftsR405,previewSubtitleEdits,inspectVisualConsistency} from '
  */
 import {CONTENT_RUBRIC_V1,DomainError,ProviderAccountRepository,VideoCapabilityRepository,ContentBriefRepository,ContentOutlineRepository,ChapterGenerationRepository,ContentEvaluationRepository,ContentRetryRepository,MasterScriptRepository,SceneBuilderRepository,VisualPromptRepository,SceneVoiceRepository,SceneImageRepository,voiceSnapshot,transact,AssetDagRepository,QuotaLedgerRepository,AssetLibraryR209,SelectiveRegenerationR211,ProviderMonitorR212,CompositionRepository,TimedCompositionRepository,MotionBrandRepository,routeVisuals,MOTION_TEMPLATES,scriptSkillCatalog,buildScriptSkillPlan,exportApprovedScript,SceneInspectorR301,TimelineEditorR304,TimelineHistoryR307} from '../../../packages/core/src/index.mjs';
 import {createJobCenter,publicJob} from './job-center.mjs';
+import {importSceneVideoStream} from '../../../packages/core/src/scene-video-stream-r2vid03.mjs';
 import {ProjectZipServiceR311} from './project-zip-r311.mjs';
 import {WaveformR306} from './voice-waveform-r306.mjs';
 import {localTtsCatalog} from './local-tts-catalog.mjs';
@@ -364,6 +365,7 @@ export function createControllers({repo,store,registry,manifest,vault,paidPolicy
     queueVideoClip:(id,body)=>clips.queue(id,body),
     queueVideoClipBatch:(id,body)=>clips.enqueueBatch(id,body),
     importVideoClip:(id,body)=>clips.importBase64(id,body),
+    importVideoClipStream:(id,stream,headers)=>importSceneVideoStream({clips,sceneId:id,stream,...headers}),
     selectVideoClip:(id,body)=>clips.select(id,body),
     fallbackVideoToImage:(id,body)=>clips.fallbackToImage(id,body),
     videoClipFile:id=>clips.activeBytes(id),

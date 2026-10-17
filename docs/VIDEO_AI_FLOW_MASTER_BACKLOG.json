@@ -1019,7 +1019,7 @@
         "R2-VID-01"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "AUTHENTICATED_GENUINE_MP4_IMPORT_FFPROBE_CODE_PASS__LARGE_FILE_PENDING",
+      "status": "STREAMING_96M_MP4_MOV_INGEST_CODE__WINDOWS_LARGE_FILE_PENDING",
       "evidence": [
         "packages/core/src/scene-video-r2vid.mjs",
         "apps/api/src/routes.mjs",
@@ -1044,7 +1044,7 @@
         "R2-VID-03"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "SP04_ATOMIC_LOCAL_VIDEO_BATCH_CODE_PASS__GPU_STRESS_PENDING",
+      "status": "SP04_BATCH_AND_CROSS_PROCESS_GPU_FILE_LOCK_CODE__REAL_GPU_STRESS_PENDING",
       "evidence": [
         "packages/core/src/scene-video-r2vid.mjs",
         "apps/web/src/BatchVideoClipsR2VID.jsx",
@@ -1094,15 +1094,18 @@
         "R2-VID-01"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "PARTIAL_GENERIC_GUARDS_ONLY",
+      "status": "LOCAL_RESOURCE_ESTIMATOR_PREFLIGHT_AND_WORKER_GUARDS_CODE__GPU_BENCHMARK_PENDING",
       "evidence": [
-        "packages/core/src/video-capabilities.mjs",
-        "packages/core/src/paid-policy.mjs"
+        "packages/core/src/clip-resource-r2vid06.mjs",
+        "packages/core/test/clip-resource-r2vid06.test.mjs",
+        "packages/core/src/scene-video-r2vid.mjs",
+        "apps/web/src/ClipResourceSummaryR2VID06.jsx"
       ],
       "remainingGate": [
-        "video-specific VRAM/time cost estimator, preflight consent + execution blocking"
+        "Actual available GPU VRAM and model-specific minimum measured from local ComfyUI/Wan hardware",
+        "Real generation-time calibration, electricity/hardware cost benchmark and native Windows 11 acceptance"
       ],
-      "acceptance": "Generic paid guard and capability preflight do not verify clip costs",
+      "acceptance": "Deterministic pixel-frame workload cap, optional operator-declared VRAM guard, optional measured calibration input, batch preview, fail-closed worker recheck; no claim of real GPU performance or all-in costs",
       "verifiedTests": [
         "prior focused/offline reference only; NOT new FI04 live acceptance"
       ]
@@ -1117,15 +1120,17 @@
         "R2-VID-05"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "PARTIAL_TIMELINE_NO_REAL_CLIP_PREVIEW",
+      "status": "TIMELINE_CLIP_PREVIEW_CLOCK_FIT_CODE__WINDOWS_BROWSER_PENDING",
       "evidence": [
+        "packages/core/src/mixed-clip-fit-r3vid01.mjs",
         "apps/web/src/TimelineEditorR302.jsx",
-        "packages/core/src/render-ffmpeg-r2ext04.mjs"
+        "packages/core/test/mixed-clip-fit-r3vid01.test.mjs"
       ],
       "remainingGate": [
-        "actual clip filmstrip seeking and mute/hold/loop fitting voice in browser"
+        "Actual Windows 11 authenticated browser preview, visual decode/seek/500 scenes, audio/video drift measurements",
+        "Real Wan GPU clip filmstrip quality and long narration voice sync"
       ],
-      "acceptance": "Four-track timeline exists; real AI/imported clip preview not proven",
+      "acceptance": "Single audio-clock private muted MP4 preview with loop/hold and real duration-derived seek; deterministic six-second clip to eighteen-second narration tests PASS; browser acceptance pending",
       "verifiedTests": [
         "prior focused/offline reference only; NOT new FI04 live acceptance"
       ]
@@ -1140,14 +1145,17 @@
         "R3-VID-01"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "PARTIAL_RENDER_SUPPORT__HYBRID_E2E_UNVERIFIED",
+      "status": "FFMPEG_MIXED_MP4_MOV_NORMALIZE_FIXTURE_PASS__HYBRID_35MIN_PENDING",
       "evidence": [
-        "packages/core/src/render-ffmpeg-r2ext04.mjs"
+        "packages/core/src/clip-normalize-r3vid02.mjs",
+        "packages/core/src/render-ffmpeg-r2ext04.mjs",
+        "packages/core/test/clip-normalize-r3vid02.test.mjs"
       ],
       "remainingGate": [
-        "normalization of real imported/AI MP4/MOV, scene segment cache and mixed-video FFprobe QA"
+        "Complete real published Composition v2 FFmpeg hybrid QA with image+AI MP4+MOV import and subtitle/music on target Windows 11",
+        "Actual GPU-generated Wan source and 35-min H264/AAC/SRT rendering, crash/recovery and peak resource measurement"
       ],
-      "acceptance": "Partial video-frame support is not complete hybrid normalize/render",
+      "acceptance": "FFprobe allowlist, real MOV/MP4 normalization into CFR H264 with embedded audio stripped, loop/hold source fit, checked frame counts, SHA-pinned render input and cache version; isolated real media fixture tests PASS",
       "verifiedTests": [
         "prior focused/offline reference only; NOT new FI04 live acceptance"
       ]
@@ -1162,7 +1170,7 @@
         "R3-14"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "BLOCKED_REAL_AI_VIDEO_AND_WINDOWS",
+      "status": "FAIL_CLOSED_HYBRID_35MIN_EVIDENCE_GATE_CODE__REAL_HARDWARE_PENDING",
       "evidence": [],
       "remainingGate": [
         "real 35 min mixed timeline, at least one authentic AI clip, crash/restart and no unauthorized paid request"
