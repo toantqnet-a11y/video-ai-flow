@@ -84,7 +84,8 @@ export async function prepareFi04QueuedFixture({db,store,root}){
   }
   const timed=new TimedCompositionRepository({compositions,manifest});
   const preview=await timed.preview(video.id);
-  assert.equal(preview.readiness.ready,true,'FI04_FIXTURE_NOT_READY');
+  // Report codes only: diagnose cross-platform fixture failures without exposing text or paths.
+  assert.equal(preview.readiness.ready,true,`FI04_FIXTURE_NOT_READY_${preview.readiness.blockers.map(b=>b.code).join('_')}`);
   const published=await timed.publish(video.id,{expectedDigest:preview.digest,expectedVideoRowVersion:preview.source.videoRowVersion});
   const doc=published.composition;
   assert.equal(doc.scenes.length,5);
@@ -122,10 +123,11 @@ export async function runFi04HyperframesProof({saveReview=false}={}){
  const began=performance.now();
  try{
   db=openProjectDb(join(root,'project.sqlite'));
-  store=new JobStore({path:join(root,'project.sqlite')});
+  // Render jobs need a lease longer than the worker heartbeat (SP-04 defaults to 1s).
+  store=new JobStore({path:join(root,'project.sqlite'),leaseMs:60000});
   const {repo,video,renderer,queued,doc,overrides,saved}=await prepareFi04QueuedFixture({db,store,root});
   runner=new JobRunner(store,{'render:hyperframes':renderer.handler('hyperframes')},
-   {concurrency:1,pollMs:75,heartbeatMs:1000});
+   {concurrency:1,pollMs:75,heartbeatMs:5000});
   runner.start();
   await runner.waitForIdle({timeoutMs:420000});
   const job=renderer.job(video.id,queued.job.id);
@@ -175,7 +177,16 @@ async function main(){
  if(argv.includes('--save-review')&&!run)throw new Error('FI04_REVIEW_MEDIA_REQUIRES_EXPLICIT_REAL_RUN');
  let report;
  try{report=run?await runFi04HyperframesProof({saveReview:argv.includes('--save-review')}):await inspectFi04Hyperframes()}
- catch(e){report={status:'FAIL',code:errorCode(e),releaseGateSatisfied:false};}
+ catch(e){
+  // Local fixture errors need actionable, scrubbed diagnostics on hosted CI.
+  // Never serialize raw stacks, paths, input payloads or environment variables.
+  const msg=String(e?.message??'')
+   .replace(/([A-Za-z]:[\\/]|\/)\S+/g,'<path>')
+   .replace(/[^A-Za-z0-9 .:_()\-]/g,'_').slice(0,140);
+  const frame=String(e?.stack??'').match(/([A-Za-z0-9_.-]+\.mjs):(\d+):(\d+)/);
+  report={status:'FAIL',code:errorCode(e),errorClass:String(e?.name??'Error').slice(0,40),
+   errorHint:msg,originFrame:frame?frame.slice(1).join(':'):null,releaseGateSatisfied:false};
+ }
  if(!run)report={...report,releaseGateSatisfied:false,notice:'Read-only prerequisites, never render proof'};
  const reportArg=argv.find(x=>x.startsWith('--report='))?.slice(9);
  if(reportArg){const target=safeGateReportPath(PROJECT_ROOT,reportArg);

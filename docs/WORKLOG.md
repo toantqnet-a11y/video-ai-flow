@@ -898,3 +898,22 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
 - Media preflight on hosted Windows: **10 PASS / 2 BLOCKED**; FFmpeg/FFprobe not installed. Chocolatey installation returned HTTP 504 (run 39014421247) and was intentionally decoupled from web/API runtime gating; not a fake media PASS.
 - Updated deterministic `fi04-backlog` generator, master 69-task JSON, milestone and docs WI03_{STATUS,TEST_REPORT,HANDOFF}. Single SP-04 queue, exact HyperFrames 0.8.159 and NOT_READY release state preserved.
 - **Outstanding:** trusted FFmpeg install, genuine HyperFrames 5-scene MP4 and 35+ minute video, Windows 11 authenticated Timeline drag/trim/500 scene UX, crash/restart, GPU/ComfyUI/TTS inference, production security signoff.
+
+## 2026-10-17 — FI-04-04 genuine hosted Windows HyperFrames MP4
+- Created opt-in `fi04/real-hyperframes-windows` pipeline and SHA-256-pinned
+  third-party Gyan FFmpeg/FFprobe 8.1.2 installer. No floating Chocolatey,
+  paid/cloud model or production asset access; GPLv3 binary used in CI only.
+- Diagnosed/fixed case-sensitive Windows canonical-path checks in manifests,
+  music imports, and FFmpeg asset pins while retaining symlink/traversal
+  rejection; corrected SP-04 lease=60s, heartbeat=5s in acceptance fixture.
+- Hosted Windows Server 2022 run **39022682686 SUCCESS**: local HyperFrames
+  0.8.159 real queued MP4 (5 scenes, 10 subtitle cues, music), H264/AAC,
+  429 exact frames, 14.3s, output SHA256
+  `110e290b3898fe9bf1d0fc05c064dcc431eea181f3a3e0b38c85026681c3ebb7`.
+  8/8 strict invariants PASS, 0 paid/provider calls. Saved MP4/SRT/JSON in a
+  7-day artifact (expires 2026-10-24).
+- Opened **draft PR #3**, requiring Linux CI and review before merge.
+- FI-04-04 **automated proof PASS**, but manual A/V glyph/music review,
+  Windows 11 authenticated Timeline, Full HD 35+min / crash recovery,
+  local AI GPU/provider and production security remain **NOT_READY**.
+  See `docs/FI0404_HOSTED_WINDOWS_TEST_REPORT.md`.

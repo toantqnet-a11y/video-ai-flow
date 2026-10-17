@@ -17,6 +17,9 @@ test('FI-04 backlog preserves every old task and refuses duplicate IDs or missin
  assert.equal(merged.taskCount,base.tasks.length+27);assert.equal(new Set(merged.tasks.map(x=>x.id)).size,merged.taskCount);
  assert.deepEqual(merged.tasks.slice(0,base.tasks.length),base.tasks);
  assert.equal(merged.groups.windowsAcceptance,3);
+ assert.equal(merged.releaseStatus,'NOT_READY');
+ assert.equal(merged.tasks.find(x=>x.id==='FI-04-04').status,'HOSTED_WINDOWS_REAL_HYPERFRAMES_MP4_AUTOMATION_PASS__MANUAL_AV_REVIEW_PENDING');
+ assert.ok(merged.statusEvidence.fi0404WindowsHosted.includes('39022682686'));
  assert.equal(merged.tasks.at(-1).id,'WI-03');
  assert.throws(()=>mergeBacklog({...base,tasks:[...base.tasks,video[0]]},video),/DUPLICATE/);
  assert.throws(()=>parseVideoRoadmap(''),/INCOMPLETE/);

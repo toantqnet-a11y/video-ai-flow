@@ -1,6 +1,6 @@
 {
-  "version": "2026-10-17-wi03-windows-integration-hosted",
-  "status": "WI03_HOSTED_WINDOWS_RUNTIME_VERIFIED__MEDIA_AND_DESKTOP_PENDING__RELEASE_NOT_READY",
+  "version": "2026-10-17-fi0404-windows-real-mp4-ci",
+  "status": "FI0404_HOSTED_REAL_HYPERFRAMES_MP4_VERIFIED__WINDOWS11_AND_RELEASE_PENDING__NOT_READY",
   "releaseStatus": "NOT_READY",
   "origin": {
     "existing": "docs/VIDEO_AI_FLOW_EXTENSION_BACKLOG.json",
@@ -1221,39 +1221,38 @@
       "id": "FI-04-02",
       "title": "Reproducible dependencies and verified pinned lock",
       "priority": "P0",
-      "status": "CODE_GATES_COMPLETE__NETWORK_LOCK_BLOCKED",
+      "status": "HOSTED_WINDOWS_NPM_LOCK_AND_HYPERFRAMES_PIN_VERIFIED__WIN11_PENDING",
       "dependsOn": [
         "FI-03"
       ],
       "remainingGate": [
-        "trusted npm registry, reviewed+committed package-lock, npm ci and local HyperFrames install"
+        "Repeat exact locked installation on user Windows 11; audited dependency and release approval separate"
       ]
     },
     {
       "id": "FI-04-03",
       "title": "Actual Vite production build and live Fastify HTTP",
       "priority": "P0",
-      "status": "CODE_GATES_COMPLETE__LIVE_RUNTIME_BLOCKED",
+      "status": "HOSTED_WINDOWS_VITE_BUILD_FASTIFY_HTTP_PASS__WIN11_PENDING",
       "dependsOn": [
         "FI-04-02"
       ],
       "remainingGate": [
-        "installed packages, npm run build:web, live Fastify HTTP and Windows browser validation"
+        "Authenticated interactive browser and target Windows 11 operator acceptance remain separate"
       ]
     },
     {
       "id": "FI-04-04",
       "title": "Real pinned HyperFrames five-scene queued render with multi-cue Vietnamese subtitles and background music",
       "priority": "P0",
-      "status": "CODE_ACCEPTANCE_HARNESS_COMPLETE__REAL_RENDER_BLOCKED",
+      "status": "HOSTED_WINDOWS_REAL_HYPERFRAMES_MP4_AUTOMATION_PASS__MANUAL_AV_REVIEW_PENDING",
       "dependsOn": [
         "FI-04-02",
         "FI-04-03"
       ],
       "remainingGate": [
-        "reviewed lockfile and npm ci on Windows",
-        "real pinned local HyperFrames renders 5 scenes + 10 subtitle cues + BGM with H264/AAC/FFprobe",
-        "manual caption visual and music audible review; real 35min is FI-04-06"
+        "Manually inspect saved 5-scene review MP4 for Vietnamese subtitle glyph legibility and audible music",
+        "Repeat on target Windows 11; real 35+ minute video is separately FI-04-06"
       ]
     },
     {
@@ -1464,7 +1463,8 @@
     "fi03Focused": "6/6 PASS",
     "fi03PostEditSuite": "INCOMPLETE historical",
     "fi02ReleaseGateBaseline": "8 PASS / 12 BLOCKED / 0 FAIL",
-    "wi03WindowsHosted": "GitHub Actions run 39014629188: Windows Vite + Fastify real HTTP + Edge/Chrome React DOM PASS; FFmpeg/FFprobe BLOCKED",
+    "wi03WindowsHosted": "GitHub Actions run 39014629188: Windows Vite + Fastify real HTTP + Edge/Chrome React DOM PASS; FFmpeg/FFprobe BLOCKED in that historical run",
+    "fi0404WindowsHosted": "GitHub Actions run 39022682686: SHA256-pinned FFmpeg/FFprobe, real HyperFrames 0.8.159 SP-04 5-scene MP4 10 cues + music; ffprobe H264/AAC 429 frames PASS; manual AV/Windows11/35min pending",
     "referenceOnly": true
   },
   "note": "Do not claim code complete from mock protocols; retained FI02 task statuses are historical and must be freshly revalidated."

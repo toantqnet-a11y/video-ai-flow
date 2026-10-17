@@ -6,7 +6,7 @@
 import { randomUUID,createHash } from 'node:crypto';
 import { mkdir,open,readFile,realpath,rename,rm,lstat,readdir } from 'node:fs/promises';
 import {createReadStream} from 'node:fs';
-import { resolve,join,relative,sep,extname } from 'node:path';
+import { resolve,join,relative,sep,extname,isAbsolute } from 'node:path';
 import { transact } from './db.mjs';
 import { DomainError } from './domain.mjs';
 import {voiceIntentMatches} from './scene-voice.mjs';
@@ -120,14 +120,22 @@ export class AssetManifest {
   async verifyRevision(assetId){
     const asset=this.get(assetId);
     if(!asset)return 'unknown';
+    // path.relative is case-insensitive on Windows; string startsWith is not.
+    // Compare canonical root to canonical asset to handle Windows temp junctions
+    // without allowing path traversal or symlinks to escape the asset root.
+    const nested=(base,candidate)=>{
+      const rel=relative(base,candidate);
+      return rel!==''&&rel!=='..'&&!rel.startsWith('..'+sep)&&!isAbsolute(rel);
+    };
     const file=resolve(this.dataRoot,asset.relativePath);
-    if(!file.startsWith(this.dataRoot+sep))return 'unsafe';
+    if(!nested(this.dataRoot,file))return 'unsafe';
     const stat=await lstat(file).catch(e=>e.code==='ENOENT'?null:Promise.reject(e));
     if(!stat)return 'missing';
     if(!stat.isFile()||stat.isSymbolicLink())return 'unsafe';
     const actual=await realpath(file).catch(e=>e.code==='ENOENT'?null:Promise.reject(e));
     if(!actual)return 'missing';
-    if(!actual.startsWith(this.dataRoot+sep))return 'unsafe';
+    const root=await realpath(this.dataRoot);
+    if(!nested(root,actual))return 'unsafe';
     if(stat.size!==asset.bytes)return 'corrupt';
     return await digestFile(file)===asset.checksum?'healthy':'corrupt';
   }

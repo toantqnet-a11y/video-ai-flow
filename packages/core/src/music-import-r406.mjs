@@ -4,7 +4,7 @@
  */
 import {createHash} from 'node:crypto';
 import {mkdir,writeFile,rename,rm,stat,realpath} from 'node:fs/promises';
-import {join,resolve} from 'node:path';
+import {join,resolve,relative} from 'node:path';
 import {DomainError} from './domain.mjs';
 import {runBinary,safePinnedPath} from './render-ffmpeg-r2ext04.mjs';
 const fail=(code,status=400)=>{throw new DomainError(code,status)};
@@ -19,7 +19,10 @@ export async function importMusicTrack({videoId,body,dataRoot,ffprobe='ffprobe'}
  const relativePath=`music/${videoId}/${sha256}.${body.extension}`;
  const directory=join(dataRoot,'music',videoId);
  await mkdir(directory,{recursive:true,mode:0o700});
- if((await realpath(directory))!==resolve(dataRoot,'music',videoId))fail('R4_MUSIC_IMPORT_UNSAFE');
+ // Compare canonical roots, not case-sensitive Windows path strings.
+ // Exact relative identity still rejects junction/symlink redirects.
+ const realRoot=await realpath(dataRoot);
+ if(relative(resolve(realRoot,'music',videoId),await realpath(directory))!=='')fail('R4_MUSIC_IMPORT_UNSAFE');
  const target=join(dataRoot,relativePath),temporary=join(directory,`.music-${sha256}.part`);
  try{
   await writeFile(temporary,bytes,{flag:'wx',mode:0o600});
@@ -43,7 +46,10 @@ export async function listMusicTracks({videoId,dataRoot,ffprobe='ffprobe'}={}){
  const {readdir,realpath}=await import('node:fs/promises');
  const directory=join(dataRoot,'music',videoId);
  let names;try{names=await readdir(directory);}catch(e){if(e.code==='ENOENT')return {items:[]};throw e;}
- if((await realpath(directory))!==resolve(dataRoot,'music',videoId))fail('R4_MUSIC_IMPORT_UNSAFE');
+ // Compare canonical roots, not case-sensitive Windows path strings.
+ // Exact relative identity still rejects junction/symlink redirects.
+ const realRoot=await realpath(dataRoot);
+ if(relative(resolve(realRoot,'music',videoId),await realpath(directory))!=='')fail('R4_MUSIC_IMPORT_UNSAFE');
  const items=[];
  for(const filename of names.sort().slice(0,200)){
   if(!/^[a-f0-9]{64}\.(?:mp3|wav|m4a)$/.test(filename))continue;
