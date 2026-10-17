@@ -8,6 +8,7 @@ export interface StudioClient {
  getChannelAvatar(channelId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
  getSceneVoiceAudio(sceneId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
  getSceneImageFile(sceneId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
+ getSceneClipFile(sceneId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
  downloadLocalVideoThumbnail(videoId:string,jobId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
  downloadLocalVideoRender(videoId:string,jobId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
  downloadLocalVideoSubtitle(videoId:string,jobId:string,options?:{signal?:AbortSignal}):Promise<Blob>;

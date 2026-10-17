@@ -22736,9 +22736,9 @@
         ],
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "Private MP4 export",
             "content": {
-              "application/json": {
+              "video/mp4": {
                 "schema": {
                   "type": "string",
                   "format": "binary"
