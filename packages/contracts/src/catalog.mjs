@@ -515,6 +515,8 @@ export const operations=[
     obj({base64:str(12000000),expectedRowVersion:int(1)},['base64','expectedRowVersion']),{created:true}),
   post('selectSceneClip','/api/scenes/:id/video/select','Activate a healthy versioned scene clip',freeObject,
     obj({assetId:str(80),expectedRowVersion:int(1)},['assetId','expectedRowVersion'])),
+  post('fallbackSceneClipToImage','/api/scenes/:id/video/fallback','Operator-selected healthy image fallback, no GPU calls',freeObject,
+    obj({imageAssetId:str(80),expectedRowVersion:int(1),expectedPolicyRevision:int(0)},['imageAssetId','expectedRowVersion','expectedPolicyRevision'])),
   get('getSceneClipFile','/api/scenes/:id/video/file','Authenticated selected MP4 preview',
     {type:'string',format:'binary'},{binarySceneVideo:true}),
   get('getSceneImageFile','/api/scenes/:id/image/file','Authenticated active PNG/JPEG/WebP bytes',
