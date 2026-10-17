@@ -36,3 +36,8 @@ Keep HyperFrames **0.8.159**, single SP-04 queue, FFmpeg only the explicitly sel
 
 ## Next agent decision
 After hosted CI PASS: retain partial Windows Server verification and advance only with a real authenticated Windows 11 Timeline test and a genuine 35–40 minute Composition v2 render/recovery. If local GPU or operator hardware is absent, mark task BLOCKED, retain completed automated test evidence, and continue non-hardware code/UX work rather than inventing PASS.
+
+## Observed hosted verification (2026-10-17)
+- Run **39024552073** Windows Server 2022 hosted acceptance SUCCESS; npm audit 0 vulnerabilities, tests, real Fastify/React pairing, synthetic OS-kill lease fencing PASS.
+- All production operator gates remain BLOCKED. Read `docs/FI0405_FI0410_TEST_REPORT.md` for exact separation and 7-day artifact expiry.
+- Optional local voice file inspector: `node tools/fi0408-provider-e2e.mjs --inspect-voice --data-root=<local-data> --voice-relative=<existing-audio-file> --report=docs/evidence/FI0408_voice.json` (expected nonzero until genuine inference and human QA).

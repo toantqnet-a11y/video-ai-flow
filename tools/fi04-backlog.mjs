@@ -37,7 +37,7 @@ export function parseVideoRoadmap(markdown){
  if(entries.size!==ids.length||ids.some(x=>!entries.has(x)))throw new Error('FI04_VIDEO_ROADMAP_INCOMPLETE');
  return ids.map(x=>entries.get(x));
 }
-export function mergeBacklog(base,videoTasks,{fi04Status='FI0404_HOSTED_REAL_HYPERFRAMES_MP4_VERIFIED__WINDOWS11_AND_RELEASE_PENDING__NOT_READY'}={}){
+export function mergeBacklog(base,videoTasks,{fi04Status='FI0410_HOSTED_WINDOWS_PARTIAL_ACCEPTANCE__PRODUCTION_NOT_READY'}={}){
  if(!Array.isArray(base.tasks)||videoTasks.length!==ids.length)throw new Error('FI04_BAD_INPUT');
  const seen=new Set();
  for(const task of [...base.tasks,...videoTasks]){
@@ -57,6 +57,36 @@ export function mergeBacklog(base,videoTasks,{fi04Status='FI0404_HOSTED_REAL_HYP
   {id:'FI-04-09',title:'Production security, dependencies and performance acceptance',priority:'P0',status:'SECURITY_REGRESSION_AUDIT_HARNESS_COMPLETE__PRODUCTION_REVIEW_BLOCKED',dependsOn:['FI-04-02','FI-04-06','FI-04-07'],remainingGate:['network-enabled npm audit with reviewed lock','Windows credentials and renderer child process audit','actual render CPU/RAM/GPU/VRAM/disk measurements and threat review']},
   {id:'FI-04-10',title:'Final reproducible release gate matrix and operator signoff',priority:'P0',status:'FAIL_CLOSED_RELEASE_INVENTORY_CODE_COMPLETE__NOT_READY',dependsOn:['FI-04-06','FI-04-07','FI-04-08','FI-04-09'],remainingGate:['all release gates fresh PASS with real Windows evidence','full completed green suite after changes','operator visual/audio signoff and explicit release decision']}
  ];
+ // Updated only after genuine hosted Windows run 39024552073 passed. Code is
+ // testable, but target Windows 11 user gestures/GPU/35min are NOT evidenced.
+ const hostedEvidence='GitHub Actions Windows Server 2022 run 39024552073';
+ const acceptedHosted={
+  'FI-04-05':{
+   status:'HOSTED_WINDOWS_TIMELINE_REGRESSIONS_PASS__AUTHENTICATED_UX_PENDING',
+   remainingGate:['Paired authenticated Timeline on target Windows 11 Chrome/Edge, witnessed mouse drag/reorder, trim save/cancel, undo/redo, waveform and zoom','Real 120/500-scene browser performance and human A/V review'],
+   verifiedTests:['npm run test:fi0405 (hosted Windows)',hostedEvidence+' live pairing React DOM only (not authenticated editor)']},
+  'FI-04-06':{
+   status:'LONG_RENDER_CODE_AND_CANONICAL_MEDIA_QA_HARDENED__REAL_35MIN_PENDING',
+   remainingGate:['Real published 2100–2400-second 1080p Composition v2 on Windows 11 using pinned local HyperFrames','Witness H264/AAC/SRT/music/voice 35+ minute encode and GPU/CPU/RAM/disk resource measurements'],
+   verifiedTests:['npm run test:fi0406-fi0410 (hosted Windows)','canonical media-path negative controls; NO 35min MP4 executed']},
+  'FI-04-07':{
+   status:'HOSTED_WINDOWS_SYNTHETIC_OS_KILL_SQLITE_FENCING_PASS__REAL_RECOVERY_PENDING',
+   remainingGate:['Witness OS termination during genuine 35min HyperFrames encoding, restart and durable lease recovery','Verify no published partial output and full resulting MP4 checksum/codecs and audio'],
+   verifiedTests:[hostedEvidence+' real child OS kill with synthetic handler, two attempts; not media recovery','post-recovery genuine MP4 assessor code and negatives']},
+  'FI-04-08':{
+   status:'READ_ONLY_LOCAL_PROVIDER_MEDIA_GATES_TESTED__LIVE_INFERENCE_PENDING',
+   remainingGate:['Explicitly approved authentic local Vietnamese TTS, LLM, ComfyUI/Wan GPU inference and measured media QA','Test native quotas, HTTP429, cost guards; zero unauthorized paid/remote requests'],
+   verifiedTests:['hosted read-only provider inventory (no local inference)','canonical local voice file SHA/path/audio probe unit controls']},
+  'FI-04-09':{
+   status:'HOSTED_WINDOWS_NPM_AUDIT_0_VULNS_SECURITY_REGRESSION_PASS__MANUAL_REVIEW_PENDING',
+   remainingGate:['Windows production credential/process isolation and security threat assessment','Measured real long render child/GPU/VRAM peak RAM/CPU/disk and performance signoff'],
+   verifiedTests:[hostedEvidence+' npm audit --audit-level=high, 0 vulnerabilities','hosted Windows focused security regression PASS']},
+  'FI-04-10':{
+   status:'HOSTED_WINDOWS_FAIL_CLOSED_RELEASE_MATRIX_PASS__NOT_READY',
+   remainingGate:['FI-04-05 manual Windows 11 UX and FI-04-04 subtitle/music visual-audible signoff','FI-04-06/07 real Full HD 35min render and recovery','FI-04-08 native local inference and FI-04-09 human security/performance review','Full fresh green suite on release commit, explicit operator go/no-go approval'],
+   verifiedTests:[hostedEvidence+' hosted partial matrix; releaseReady=false','npm run test:fi0406-fi0410 + tools/fi0405-fi0410-hosted.test.mjs']},
+ };
+ for(const t of newTasks)if(acceptedHosted[t.id])Object.assign(t,acceptedHosted[t.id]);
  for(const t of newTasks)if(seen.has(t.id))throw new Error(`FI04_DUPLICATE_TASK: ${t.id}`);
  const wiTasks=[{id:'WI-01',title:'Windows prerequisites triage with fail-closed actionable machine report',priority:'P0',status:'HOSTED_WINDOWS_PREFLIGHT_10_PASS_2_BLOCKED__MEDIA_PENDING',dependsOn:['FI-04-02','FI-04-03','FI-04-04'],remainingGate:['Run preflight on supported Windows 11 x64/arm64 host with reviewed lock, npm ci, Chrome/Edge, FFmpeg and exact local HyperFrames','Complete actual Vite/Fastify, HyperFrames MP4, browser, 35-min restart and provider/security gates separately'],verifiedTests:['npm run test:wi01'],acceptance:'Preflight report never approves browser/media/security/release. No dependencies installed or providers invoked.'}];
  wiTasks.push({id:'WI-02',title:'Reproducible Windows bootstrap, real loopback Fastify and Vite runtime verification',priority:'P0',status:'HOSTED_WINDOWS_FASTIFY_VITE_VERIFIED__USER_DESKTOP_PENDING',dependsOn:['WI-01','FI-04-02','FI-04-03'],remainingGate:['Use operator-reviewed package-lock then npm ci on supported Windows host', 'Actual npm run build:web and real 127.0.0.1 Fastify HTTP lifecycle smoke with auth/static/security checks', 'Production HyperFrames MP4, Chrome/Edge UI, 35-minute video and manual security gates remain separate'],verifiedTests:['npm run test:wi02'],acceptance:'Live verification uses real socket + disposable SQLite worker and graceful IPC shutdown. No auto install, cloud call, browser interaction or release assertion.'});
@@ -64,9 +94,9 @@ export function mergeBacklog(base,videoTasks,{fi04Status='FI0404_HOSTED_REAL_HYP
  for(const t of wiTasks)if(seen.has(t.id))throw new Error(`FI04_DUPLICATE_TASK: ${t.id}`);
  const tasks=[...base.tasks,...videoTasks,...newTasks,...wiTasks];
  const groups={existingFI02:base.tasks.length,aiVideo:videoTasks.length,fi04:newTasks.length,windowsAcceptance:wiTasks.length};
- return {version:'2026-10-17-fi0404-windows-real-mp4-ci',status:fi04Status,releaseStatus:'NOT_READY',origin:{existing:'docs/VIDEO_AI_FLOW_EXTENSION_BACKLOG.json',video:'docs/reference/VIDEO_AI_FLOW_EXECUTION_PLAN_V3.md',baseline:'FI-03 workspace'},constraints:[...base.constraints],taskCount:tasks.length,groups,tasks,
+ return {version:'2026-10-17-fi0410-hosted-windows-acceptance-partial',status:fi04Status,releaseStatus:'NOT_READY',origin:{existing:'docs/VIDEO_AI_FLOW_EXTENSION_BACKLOG.json',video:'docs/reference/VIDEO_AI_FLOW_EXECUTION_PLAN_V3.md',baseline:'FI-03 workspace'},constraints:[...base.constraints],taskCount:tasks.length,groups,tasks,
   milestones:[{name:'MVP_no_paid',required:['WI-01','WI-02','WI-03','FI-04-01','FI-04-02','FI-04-03','FI-04-04','FI-04-05','FI-04-06','FI-04-07','FI-04-08','FI-04-09','FI-04-10','FI-02','R3-14'],note:'Requires HyperFrames actual render/35min, Windows UI, real provider and security gates'},
    {name:'AI_video_local',required:['SP-VID-01','R0-VID-01','R2-VID-01','R2-VID-02','R2-VID-03','R2-VID-04','R2-VID-05','R2-VID-06','R3-VID-01','R3-VID-02','R3-VID-03'],note:'Requires authentic local AI generated video; Spike-only mock is insufficient'}],
-  statusEvidence:{fi03BaselineBeforeEdits:'859/859 PASS',fi03Focused:'6/6 PASS',fi03PostEditSuite:'INCOMPLETE historical',fi02ReleaseGateBaseline:'8 PASS / 12 BLOCKED / 0 FAIL',wi03WindowsHosted:'GitHub Actions run 39014629188: Windows Vite + Fastify real HTTP + Edge/Chrome React DOM PASS; FFmpeg/FFprobe BLOCKED in that historical run',fi0404WindowsHosted:'GitHub Actions run 39022682686: SHA256-pinned FFmpeg/FFprobe, real HyperFrames 0.8.159 SP-04 5-scene MP4 10 cues + music; ffprobe H264/AAC 429 frames PASS; manual AV/Windows11/35min pending',referenceOnly:true},
+  statusEvidence:{fi03BaselineBeforeEdits:'859/859 PASS',fi03Focused:'6/6 PASS',fi03PostEditSuite:'INCOMPLETE historical',fi02ReleaseGateBaseline:'8 PASS / 12 BLOCKED / 0 FAIL',wi03WindowsHosted:'GitHub Actions run 39014629188: Windows Vite + Fastify real HTTP + Edge/Chrome React DOM PASS; FFmpeg/FFprobe BLOCKED in that historical run',fi0404WindowsHosted:'GitHub Actions run 39022682686: SHA256-pinned FFmpeg/FFprobe, real HyperFrames 0.8.159 SP-04 5-scene MP4 10 cues + music; ffprobe H264/AAC 429 frames PASS; manual AV/Windows11/35min pending',fi0405to10WindowsHosted:'GitHub Actions 39024552073 PASS: hosted Vite/Fastify/Edge pairing DOM, FI0405-10 tests, synthetic OS kill/SQLite fencing, npm audit 0 vulnerabilities, fail-closed release matrix; all actual Windows11/35min/native GPU and human gates BLOCKED',referenceOnly:true},
   note:'Do not claim code complete from mock protocols; retained FI02 task statuses are historical and must be freshly revalidated.'};
 }

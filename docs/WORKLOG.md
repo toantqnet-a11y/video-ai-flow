@@ -917,3 +917,9 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
   Windows 11 authenticated Timeline, Full HD 35+min / crash recovery,
   local AI GPU/provider and production security remain **NOT_READY**.
   See `docs/FI0404_HOSTED_WINDOWS_TEST_REPORT.md`.
+
+## 2026-10-17 — FI-04-05 through FI-04-10 hosted Windows continuation
+- Added opt-in `.github/workflows/fi0405-fi0410-windows-gates.yml`. Hosted Windows Server 2022 run **39024552073 SUCCESS**: reviewed dependency lock, pinned FFmpeg, Vite/SDK, production Fastify TCP/React pairing DOM, FI0405-10 regressions, file containment/QA and real child OS kill + synthetic SQLite lease recovery. Network `npm audit --audit-level=high` found **0 vulnerabilities**.
+- Hardened Windows full-length composition MP4/SRT canonical safe paths, added post-recovery genuine media read-only inspector for H264/AAC >=35min/sha/bytes, added operator-controlled existing local voice-file probe; tests prove mock outputs cannot trigger release approval.
+- Added `tools/fi0410-hosted-matrix.mjs`: intentionally `hostedTechnicalStatus=PARTIAL`, `releaseStatus=NOT_READY`, `releaseReady=false`. Artifact expires 2026-10-24.
+- Updated generator and single 69-task backlog to show hosted evidence without pretending to have witnessed Windows 11 authenticated UI, real 35min/OS-kill, local GPU/TTS, human audio/visual QA or production security signoff. See `docs/FI0405_FI0410_TEST_REPORT.md` and `docs/FI0405_FI0410_HANDOFF.md`.
