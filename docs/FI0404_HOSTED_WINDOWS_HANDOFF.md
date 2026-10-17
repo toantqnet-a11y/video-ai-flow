@@ -42,3 +42,11 @@ Read `docs/WI03_HANDOFF.md`, `tools/fi04-hyperframes-acceptance.mjs`, the
 new workflow and installer, then the latest `docs/WORKLOG.md`. Preserve the
 single SP-04 queue and exact local HyperFrames version. Avoid any synthetic
 stand-in if the real render fails; classify the observed failure and fix it.
+
+## Observed update — 2026-10-17
+- Real hosted Windows proof PASS in run **39022682686** at commit `200cf9514`.
+- Read `docs/FI0404_HOSTED_WINDOWS_TEST_REPORT.md` for checks, output SHA256,
+  artifact expiry, failure diagnoses and unresolved operator review.
+- Merged status is automated media PASS only; `releaseStatus=NOT_READY`.
+- Next agent should prioritize FI-04-05 real authenticated Timeline acceptance,
+  but first inspect the saved FI0404 MP4/SRT for human A/V signoff.
