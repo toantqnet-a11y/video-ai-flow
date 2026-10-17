@@ -39,3 +39,26 @@ test('FI0410: hosted Windows CI PASS does not bypass manual or local provider ga
  assert.equal(x.hostedTechnicalStatus,'PASS');
  assert.equal(classifyHostedMatrix({hostedWindows:false,frontendAndApi:true}).hostedTechnicalStatus,'PARTIAL');
 });
+
+test('FI0408: local WAV metadata is evidence of bytes only, never provider inference',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'fi04-voice-probe-'));
+ try{
+  await writeFile(join(root,'demo.wav'),Buffer.alloc(512));
+  const result=await inspectExistingLocalVoice({dataRoot:root,relativeVoicePath:'demo.wav',
+    probe:async()=>({audioCodec:'pcm_s16le',durationSeconds:1.2})});
+  assert.equal(result.status,'LOCAL_AUDIO_FILE_VERIFIED');
+  assert.equal(result.actualInferenceVerified,false);
+  assert.equal(result.requiresHumanVietnameseAudioApproval,true);
+ }finally{await rm(root,{recursive:true,force:true})}
+});
+test('FI0407: pure media QA needs 35m, codec and real bytes even after succeeded queue',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'fi04-recovery-probe-'));
+ try{
+  const bytes=Buffer.alloc(512);await writeFile(join(root,'final.mp4'),bytes);
+  const job={kind:'render:hyperframes',status:'succeeded',result:{engine:'hyperframes',relativePath:'final.mp4',bytes:bytes.length}};
+  const good=await inspectRecoveredMedia({root,job,probe:async()=>({durationSeconds:2100,frameCount:63000,videoCodec:'h264',audioCodec:'aac'})});
+  assert.equal(good.status,'MEDIA_INTEGRITY_PASS'); // Pure injected probe, NEVER operator/release evidence.
+  const bad=await inspectRecoveredMedia({root,job,probe:async()=>({durationSeconds:12,frameCount:360,videoCodec:'h264',audioCodec:'aac'})});
+  assert.equal(bad.status,'BLOCKED');
+ }finally{await rm(root,{recursive:true,force:true})}
+});
