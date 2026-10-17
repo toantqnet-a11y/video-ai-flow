@@ -176,7 +176,16 @@ async function main(){
  if(argv.includes('--save-review')&&!run)throw new Error('FI04_REVIEW_MEDIA_REQUIRES_EXPLICIT_REAL_RUN');
  let report;
  try{report=run?await runFi04HyperframesProof({saveReview:argv.includes('--save-review')}):await inspectFi04Hyperframes()}
- catch(e){report={status:'FAIL',code:errorCode(e),releaseGateSatisfied:false};}
+ catch(e){
+  // Local fixture errors need actionable, scrubbed diagnostics on hosted CI.
+  // Never serialize raw stacks, paths, input payloads or environment variables.
+  const msg=String(e?.message??'')
+   .replace(/([A-Za-z]:[\\/]|\/)\S+/g,'<path>')
+   .replace(/[^A-Za-z0-9 .:_()\-]/g,'_').slice(0,140);
+  const frame=String(e?.stack??'').match(/([A-Za-z0-9_.-]+\.mjs):(\d+):(\d+)/);
+  report={status:'FAIL',code:errorCode(e),errorClass:String(e?.name??'Error').slice(0,40),
+   errorHint:msg,originFrame:frame?frame.slice(1).join(':'):null,releaseGateSatisfied:false};
+ }
  if(!run)report={...report,releaseGateSatisfied:false,notice:'Read-only prerequisites, never render proof'};
  const reportArg=argv.find(x=>x.startsWith('--report='))?.slice(9);
  if(reportArg){const target=safeGateReportPath(PROJECT_ROOT,reportArg);
