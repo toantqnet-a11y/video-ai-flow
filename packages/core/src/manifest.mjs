@@ -73,7 +73,11 @@ export class AssetManifest {
     await mkdir(dirname,{recursive:true});
     // Verify real destination directory is still nested in the real data root.
     const realRoot=await realpath(this.dataRoot),realDir=await realpath(dirname);
-    if (!(realDir.startsWith(realRoot+sep))) throw new DomainError('UNSAFE_ASSET_DIRECTORY',403);
+    // Windows realpath may canonicalize a drive's casing; compare by path
+    // components rather than byte-sensitive prefixes while rejecting junction escapes.
+    const inside=relative(realRoot,realDir);
+    if(!inside||inside==='..'||inside.startsWith('..'+sep)||isAbsolute(inside))
+      throw new DomainError('UNSAFE_ASSET_DIRECTORY',403);
     const relativePath=`assets/${scene.videoId}/${sceneId}/${kind}/${id}${extension}`;
     const finalPath=join(this.dataRoot,relativePath);
     const tempPath=`${finalPath}.${randomUUID()}.partial`;
