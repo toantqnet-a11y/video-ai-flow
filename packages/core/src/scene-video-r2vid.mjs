@@ -230,6 +230,9 @@ export class SceneClipService {
    const asset=await this.manifest.importBytes({sceneId,kind:'video',source:'manual_import',
     bytes,extension:'.mp4',metadata:meta,expectedRowVersion,
     onCommitted:assetId=>{
+     // An inherited import_video policy must update render's canonical scene
+     // kind in the same transaction as its visual pointer and provenance.
+     this.db.prepare("UPDATE scenes SET media_type='import_video' WHERE id=?").run(sceneId);
      this.db.prepare('DELETE FROM scene_video_intents WHERE scene_id=?').run(sceneId);
      this.db.prepare(`INSERT INTO scene_video_selections(scene_id,asset_id,selected_at)
       VALUES(?,?,?) ON CONFLICT(scene_id) DO UPDATE SET asset_id=excluded.asset_id,
