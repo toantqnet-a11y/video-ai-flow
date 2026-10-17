@@ -78,13 +78,8 @@ export async function renderCachedHyperframesComposition({composition,motionStyl
   const finalPath=join(targetDir,`${outputKey}.mp4`);
   for(const [i,scene] of composition.scenes.entries()){
    if(signal?.aborted)fail('RENDER_ABORTED');
-   for(const asset of [scene.voice.asset,scene.visual.asset]){
-    const path=await safePinnedPath(root,asset);pinned.push({asset,path});
-    const clone=join(childRoot,asset.relativePath);
-    await mkdir(dirname(clone),{recursive:true,mode:0o700});
-    await copyFile(path,clone);
-    assert(await safePinnedPath(childRoot,asset)===clone,'HF_CACHE_STAGING_ASSET_CHANGED');
-   }
+   // Check SHA pins even for hits, but stage bytes only when encoding a miss.
+   for(const asset of [scene.voice.asset,scene.visual.asset])pinned.push({asset,path:await safePinnedPath(root,asset)});
    const style=isolatedStyle(motionStyle,scene.id),sub=isolatedSubtitles(subtitlePlan,scene);
    const key=hyperframesSceneCacheKey({scene,profile:composition.profile,style,subtitlePlan,rendererVersion});
    const segment=join(work,`scene-${String(i).padStart(4,'0')}.mp4`);
@@ -95,6 +90,12 @@ export async function renderCachedHyperframesComposition({composition,motionStyl
     assert(await healthy(path,record,scene,composition,ffprobe,signal),'HF_CACHE_CORRUPT');
     await copyFile(path,segment);reused++;
    }else{
+    for(const asset of [scene.voice.asset,scene.visual.asset]){
+     const path=await safePinnedPath(root,asset),clone=join(childRoot,asset.relativePath);
+     await mkdir(dirname(clone),{recursive:true,mode:0o700});
+     await copyFile(path,clone);
+     assert(await safePinnedPath(childRoot,asset)===clone,'HF_CACHE_STAGING_ASSET_CHANGED');
+    }
     const rendered=await renderHyperframesComposition({composition:singleScene(composition,scene),motionStyle:style,
       subtitlePlan:sub,dataRoot:childRoot,hyperframes,ffmpeg,ffprobe,signal,renderCommand,timeoutMs});
     const src=join(childRoot,rendered.relativePath);
