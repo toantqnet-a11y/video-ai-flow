@@ -7,6 +7,7 @@ import React,{useEffect,useMemo,useState} from 'react';
 import {useStudio} from './store.js';
 import {defaultPreset} from './presets.js';
 import {api} from './api.js';
+import {VideoMediaScopePolicy} from './VideoMediaScopePolicyR2VID.jsx';
 import {VoicePreview} from './VoicePreview.jsx';
 import {ChannelAvatarImage,ChannelAvatarUpload} from './ChannelAvatar.jsx';
 import {comparePresetRevisions} from './preset-history.mjs';
@@ -161,7 +162,7 @@ export function ChannelSettings(){
           <Field label="Tỷ lệ khung hình" value={m.aspectRatio} onChange={x=>setDraft(old=>({...old,preset:{...old.preset,media:{...old.preset.media,aspectRatio:x},render:{...old.preset.render,...(x==='9:16'?{width:1080,height:1920}:x==='1:1'?{width:1080,height:1080}:{width:1920,height:1080})}}}))} options={[["16:9","Ngang 16:9"],["9:16","Dọc 9:16"],["1:1","Vuông 1:1"]]}/>
           <Field label="Thời lượng scene mặc định (giây)" value={m.sceneSeconds} type="number" min="2" max="120" onChange={x=>change('media','sceneSeconds',x)}/>
           <Field label="Hiệu ứng" value={m.motionEffect||'ken_burns'} onChange={x=>change('media','motionEffect',x)} options={[["ken_burns","Ken Burns"],["zoom","Zoom"],["pan","Pan"],["none","Không"]]}/>
-        </div></>}
+        </div><VideoMediaScopePolicy scope="channel" id={channel.id}/></>}
         {section==='models'&&<><h3>AI Model & Chi phí</h3><div className="cost-safety"><strong>🔒 Mặc định Free / Local</strong><p>Paid API: TẮT · Remote API: TẮT. Để bật provider từ xa/trả phí phải dùng luồng phê duyệt riêng ở EP02. Tab này không tự kích hoạt quota hoặc thanh toán.</p></div></>}
         {section==='render'&&<><h3>Xuất video</h3><div className="field-grid"><Field label="Độ phân giải" value={`${r.width}x${r.height}`} onChange={x=>{const [w,h]=x.split('x').map(Number);setDraft(old=>({...old,preset:{...old.preset,render:{...old.preset.render,width:w,height:h}}}));setNotice('Có thay đổi chưa lưu')}} options={m.aspectRatio==='16:9'?[["1280x720","HD · 1280×720"],["1920x1080","Full HD · 1920×1080"],["3840x2160","4K · 3840×2160"]]:m.aspectRatio==='9:16'?[["720x1280","720×1280 · Dọc"],["1080x1920","1080×1920 · Dọc"]]:[["1080x1080","1080×1080 · Vuông"]]}/><Field label="FPS" value={String(r.fps)} onChange={x=>change('render','fps',Number(x))} options={[["24","24"],["25","25"],["30","30"],["60","60"]]}/><Field label="Phụ đề khi render" value={r.subtitles===false?'off':'on'} onChange={x=>change('render','subtitles',x==='on')} options={[["on","Bật phụ đề"],["off","Không"]]}/></div><div className="cost-safety">MP4 · H.264 / AAC · Subtitles: SRT. Các tùy chọn codec nâng cao triển khai ở R3.</div></>}
         {section==='history'&&<PresetHistory channel={channel}/> }
