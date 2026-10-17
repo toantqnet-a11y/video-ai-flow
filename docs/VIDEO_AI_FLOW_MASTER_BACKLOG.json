@@ -265,19 +265,19 @@
         "R2-05",
         "R2-06"
       ],
-      "status": "CODE_COMPLETE_TESTED_OFFLINE_PREVIEW_ONLY",
+      "status": "EXPLICIT_LOCAL_ONLY_IMAGE_ROUTE_INTEGRATED__GPU_PENDING",
       "acceptanceSummary": "Three deterministic cache-first modes, trusted-pin health, local ComfyUI configured-only suggestion, paid clip option displayed blocked; no paid/AI calls, no invented billing. Preview only, provider execution selection stays manual.",
       "verifiedTests": [
         "npm run test:ext0708",
         "npm run test:all",
         "npm run check",
         "npm run typecheck:sdk",
-        "npm run test:negative-control"
+        "npm run test:negative-control",
+        "PR #7 focused + full CI pending"
       ],
       "remainingGate": [
-        "Actual provider budget reconciliation",
-        "Windows/browser E2E",
-        "End-to-end orchestrator dispatch gate (not automatic in this release)"
+        "Native local ComfyUI selective routing smoke",
+        "Per-scene submit may partially finish; paid OFF"
       ]
     },
     {
@@ -288,7 +288,7 @@
         "R2-EXT-04",
         "R2-EXT-05"
       ],
-      "status": "CODE_COMPLETE_TESTED_LOCAL_FFMPEG_UI_UNBUILT",
+      "status": "VERSIONED_MOTION_UI_PREVIEW_INTEGRATED__REAL_RENDER_QA_PENDING",
       "acceptanceSummary": "Four allowlisted version-1 scene motion templates; scoped immutable brand/style versions (SQLite v29); fade-through-black, lower-third, branded Vietnamese subtitles and authenticated real JPG from FFmpeg. Brand/style digest isolates MP4 and thumbnail cache.",
       "verifiedTests": [
         "npm run test:ext0708",
@@ -296,12 +296,12 @@
         "npm run check",
         "npm run typecheck:sdk",
         "npm run test:negative-control",
-        "node tools/ext0708-demo.mjs"
+        "node tools/ext0708-demo.mjs",
+        "PR #7 focused + full CI pending"
       ],
       "remainingGate": [
-        "Install Vite/browser and test UX",
-        "Windows/long-form and font appearance",
-        "Advanced xfade/transitions, customizable logo asset and script-style presets remain future scope"
+        "Windows browser preset UX",
+        "Real HyperFrames transitions/fonts quality"
       ]
     },
     {
@@ -645,18 +645,19 @@
       "id": "R3-08",
       "title": "Enqueue-pinned immutable render snapshots & FFmpeg segment cache",
       "priority": "P0",
-      "status": "FFMPEG_IMPLEMENTED_TESTED__HYPERFRAMES_SEGMENT_CACHE_PENDING",
+      "status": "HYPERFRAMES_SCENE_CACHE_CODE_INTEGRATED__FULL_AV_QA_PENDING",
       "acceptanceSummary": "SQLite v31 immutable job snapshots; actual FFmpeg segment cache keyed by pinned source assets, local trim, style and geometry. SHA and ffprobe verification; real two-scene incremental test reuses one segment. HyperFrames consumes pinned job snapshot but not per-scene cache.",
       "verifiedTests": [
         "npm run test:r307-r310",
         "npm run test:ext040506",
         "npm run check",
         "npm run typecheck:sdk",
-        "npm run test:negative-control"
+        "npm run test:negative-control",
+        "PR #7 focused + full CI pending"
       ],
       "remainingGate": [
-        "HyperFrames segment caching requires actual CLI integration/benchmark.",
-        "Web/Vite and Windows full E2E blocked"
+        "Native local HyperFrames multi-scene cache hit/miss A/V QA on Windows 11",
+        "35min genuine mixed AI video, transition and disk/performance soak"
       ]
     },
     {
@@ -807,26 +808,30 @@
       "id": "R4-03",
       "title": "Storage analyzer and conservative quarantine",
       "priority": "P1",
-      "status": "IMPLEMENTED_DRY_RUN_QUARANTINE__UX_PENDING",
+      "status": "STORAGE_INVENTORY_REVERSIBLE_QUARANTINE_CODE_INTEGRATED__LARGE_WORKSPACE_PENDING",
       "acceptanceSummary": "Inventory and digest-fenced quarantine only >24h staging; no user assets hard-deleted",
       "remainingGate": [
-        "No interactive cleanup UI or verified large workspace"
+        "Windows browser and large workspace smoke",
+        "No immutable media deletion; quarantine restore/manual review"
       ],
       "verifiedTests": [
-        "npm run test:r402-r408 (10/10)"
+        "npm run test:r402-r408 (10/10)",
+        "PR #7 focused + full CI pending"
       ]
     },
     {
       "id": "R4-04",
       "title": "Advanced Job Center",
       "priority": "P1",
-      "status": "PARTIAL_UI_GROUP_FILTER__BULK_PENDING",
+      "status": "PAGED_JOBS_AND_GUARDED_BULK_CODE_INTEGRATED__UX_PENDING",
       "acceptanceSummary": "Public DTO group counts, search and stale-pending observations plus prior safe single job control",
       "remainingGate": [
-        "Batch actions and history UI pending; Vite/browser untested"
+        "Windows Job Center browser and 10k-job stress",
+        "GPU/provider bulk retry must remain forbidden"
       ],
       "verifiedTests": [
-        "npm run test:r402-r408 (10/10)"
+        "npm run test:r402-r408 (10/10)",
+        "PR #7 focused + full CI pending"
       ]
     },
     {
@@ -847,28 +852,31 @@
       "id": "R4-06",
       "title": "Background Music mixing",
       "priority": "P1",
-      "status": "QUEUE_INTEGRATED_LOCAL_POSTMIX_E2E_PASS__HYPERFRAMES_REAL_PENDING",
+      "status": "LOCAL_SIDECHAIN_DUCKING_CODE_INTEGRATED__AUDIO_REVIEW_PENDING",
       "acceptanceSummary": "Local audio import/list, checksum pin, explicit selection, queued FFmpeg music postmix passed H264/AAC FFprobe; primary HyperFrames run unverified.",
       "remainingGate": [
-        "real HyperFrames music export",
-        "music upload >640 KiB",
-        "ducking and music license metadata"
+        "Native voice/music ducking audibility on Windows",
+        "Music upload above 640 KiB still pending",
+        "Music rights metadata remains manual"
       ],
       "verifiedTests": [
-        "npm run test:r402-r408 (10/10)"
+        "npm run test:r402-r408 (10/10)",
+        "PR #7 focused + full CI pending"
       ]
     },
     {
       "id": "R4-07",
       "title": "Character and Style consistency",
       "priority": "P1",
-      "status": "HEURISTIC_READ_ONLY__REAL_IDENTITY_PENDING",
+      "status": "MANIFEST_SHA_HEALTH_LINTER_INTEGRATED__IDENTITY_MODEL_PENDING",
       "acceptanceSummary": "Deterministic prompt token lint, warning UI and read-only API",
       "remainingGate": [
-        "No image embeddings/reference model, cannot prove consistency"
+        "Real character-reference identity requires future vision comparison",
+        "Windows browser review"
       ],
       "verifiedTests": [
-        "npm run test:r402-r408 (10/10)"
+        "npm run test:r402-r408 (10/10)",
+        "PR #7 focused + full CI pending"
       ]
     },
     {
