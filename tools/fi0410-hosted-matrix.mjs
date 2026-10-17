@@ -33,9 +33,9 @@ async function load(name){
 async function main(){
  const a=options(process.argv.slice(2),['ci'],['report']);
  if(!a.ci||!a.report)throw Error('FI0410_HOSTED_MODE_REQUIRED');
- const [wi03,recovery,providers,security,release]=await Promise.all([
+ const [wi03,recovery,providers,security,release,audit]=await Promise.all([
   load('FI0410_wi03.json'),load('FI0410_recovery_sim.json'),
-  load('FI0410_provider_inspect.json'),load('FI0410_security.json'),load('FI0410_release.json')]);
+  load('FI0410_provider_inspect.json'),load('FI0410_security.json'),load('FI0410_release.json'),load('FI0410_audit.json')]);
  // Each value originates in this disposable workflow, never from a supplied
  // historical report or a generic 'PASS' release flag.
  const report={task:'FI-04-05..10',timestamp:timestamp(),runner:'HOSTED_WINDOWS_SERVER_NOT_USER_WINDOWS11',
@@ -46,7 +46,7 @@ async function main(){
    focusedTests:true, // The preceding test step must fail the job on error.
    syntheticRecovery:recovery.task==='FI-04-07'&&recovery.syntheticRecovery==='PASS',
    securityRegression:security.task==='FI-04-09'&&security.evidence?.focusedSecurityTests==='PASS',
-   npmAudit:false // Network audit and manual security review are independent.
+   npmAudit:audit.task==='FI-04-09'&&audit.status==='PASS'&&audit.scope==='npm-audit-high' // Hosted audit only; human security review remains separate.
   }),
   sourceRun:process.env.GITHUB_RUN_ID??null,
   note:'FI0404 genuine short MP4 is a separate earlier Actions run; this hosted matrix cannot approve release.'};
