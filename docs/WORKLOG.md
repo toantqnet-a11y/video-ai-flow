@@ -964,3 +964,8 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
 - Tests: New focused regressions + complete CI gates required; real Windows 11 browser, native Wan/ComfyUI, 35min hybrid render, full HyperFrames cache quality, music listening tests remain NOT_READY.
 
 - R4-06 follow-up: new 50MiB authenticated streaming local MP3/WAV/M4A upload (actual format validated by ffprobe), immutable SHA pins. React now uses streamed File/Blob; existing 640KiB JSON import kept for backward compatibility. No new paid inference or network egress beyond loopback upload.
+
+## 2026-10-18 — Restore quarantined stages and scene cache key correctness
+- R4-03: private, sanitized quarantine inventory now includes a digest; explicit RESTORE_STAGING with 20-item limit, stale-state fencing, symlink/ownership/collision checks and running job block, via paired UI and authenticated API. No permanent delete and no immutable media modifications.
+- R3-08: cache fragment key includes narration/timing fields and visual kind, avoiding false cache hits when audio window changes but voice SHA and scene frame length stay the same.
+- Pending: Windows native HyperFrames + 35min mixed-video/audio, UI/large workspace tests and manual review. Release NOT_READY.

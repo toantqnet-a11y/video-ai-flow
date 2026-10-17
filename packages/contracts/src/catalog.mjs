@@ -510,6 +510,7 @@ export const operations=[
   post('bulkLocalJobs','/api/jobs/bulk','Guarded bulk local render retry / pre-dispatch cancel',freeObject,freeObject),
   get('storagePreviewR403','/api/system/storage/preview','Authenticated read-only storage report',freeObject),
   post('storageQuarantineR403','/api/system/storage/quarantine','Reversible orphaned staging-only quarantine',freeObject,freeObject),
+  post('storageRestoreR403','/api/system/storage/restore','Confirmed restore of previously quarantined disposable staging only',freeObject,freeObject),
   get('getSceneClipStatus','/api/scenes/:id/video/status','Scene clip versions and current selection',freeObject),
   get('getSceneClipPreflight','/api/scenes/:id/video/preflight','Dry-run local AI clip readiness only',freeObject),
   post('queueSceneClip','/api/scenes/:id/video/jobs','Explicit SP-04 local ComfyUI clip job',freeObject,

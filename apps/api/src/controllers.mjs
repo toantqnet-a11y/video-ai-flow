@@ -256,6 +256,7 @@ export function createControllers({repo,store,registry,manifest,vault,paidPolicy
     },
     storagePreview:()=>storage?.preview()??missing('STORAGE_UNAVAILABLE'),
     storageQuarantine:body=>storage?.quarantine(body)??missing('STORAGE_UNAVAILABLE'),
+    storageRestore:body=>storage?.restore(body)??missing('STORAGE_UNAVAILABLE'),
     jobs:(query)=>jobCenter.list(query),
     jobBulk:(body)=>jobCenter.bulk(body),
     job:(id)=>jobCenter.get(id),

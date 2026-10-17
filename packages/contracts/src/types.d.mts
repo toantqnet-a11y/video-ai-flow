@@ -2040,6 +2040,7 @@ export interface OperationMap {
   bulkLocalJobs: { args: { body: Record<string, unknown> }; result: Record<string, unknown>; };
   storagePreviewR403: { args: Record<string, never>; result: Record<string, unknown>; };
   storageQuarantineR403: { args: { body: Record<string, unknown> }; result: Record<string, unknown>; };
+  storageRestoreR403: { args: { body: Record<string, unknown> }; result: Record<string, unknown>; };
   getSceneClipStatus: { args: { id: string }; result: Record<string, unknown>; };
   getSceneClipPreflight: { args: { id: string }; result: Record<string, unknown>; };
   queueSceneClip: { args: { id: string; body: {
