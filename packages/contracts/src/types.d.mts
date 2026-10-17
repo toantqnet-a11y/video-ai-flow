@@ -2042,9 +2042,11 @@ export interface OperationMap {
   sceneIds: Array<string>;
   requestKey: string;
 } }; result: Record<string, unknown>; };
+  streamImportSceneClip: { args: { id: string }; result: Record<string, unknown>; };
   importSceneClip: { args: { id: string; body: {
   base64: string;
   expectedRowVersion: number;
+  container?: "mp4" | "mov";
 } }; result: Record<string, unknown>; };
   selectSceneClip: { args: { id: string; body: {
   assetId: string;
