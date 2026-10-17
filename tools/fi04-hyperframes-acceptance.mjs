@@ -123,10 +123,11 @@ export async function runFi04HyperframesProof({saveReview=false}={}){
  const began=performance.now();
  try{
   db=openProjectDb(join(root,'project.sqlite'));
-  store=new JobStore({path:join(root,'project.sqlite')});
+  // Render jobs need a lease longer than the worker heartbeat (SP-04 defaults to 1s).
+  store=new JobStore({path:join(root,'project.sqlite'),leaseMs:60000});
   const {repo,video,renderer,queued,doc,overrides,saved}=await prepareFi04QueuedFixture({db,store,root});
   runner=new JobRunner(store,{'render:hyperframes':renderer.handler('hyperframes')},
-   {concurrency:1,pollMs:75,heartbeatMs:1000});
+   {concurrency:1,pollMs:75,heartbeatMs:5000});
   runner.start();
   await runner.waitForIdle({timeoutMs:420000});
   const job=renderer.job(video.id,queued.job.id);
