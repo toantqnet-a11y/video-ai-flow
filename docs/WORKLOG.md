@@ -953,3 +953,12 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
 - R2VID04 added fail-closed atomic mkdir cross-process GPU lock around genuine local provider dispatch. A killed GPU process leaves the lock until an operator verifies no descendant inference is running before manually clearing; never auto-steal uncertain ownership. SP-04 one-attempt invariant stays unchanged.
 - R3VID03 added hybrid 35–40 minute evidence classifier that requires actual H.264/AAC/frame-count QA, image+AI+import scenes, pinned media, local GPU witness/license review, Windows 11 human A/V, crash recovery and zero unauthorized paid calls. Tiny FFmpeg fixtures must NOT be marked a real 35min acceptance.
 - Code tests added for new guards. Full Linux CI, Windows 11 native GPU/35min tests and operator acceptance must be rechecked before release.
+
+
+## 2026-10-17 — R3-08, R4-04, R4-03, R4-06, EXT-08, EXT-07, R4-07 follow-on batch
+- R3-08: optional HyperFrames scene-granularity real per-scene render and immutable SHA/FFprobe segment cache via SP-04 SQLite cache. Unchanged scenes reuse cached encoded fragments. Final local FFmpeg concat + frame/audio normalization + QA. WARNING: per-scene HTML rendering may differ from continuous HyperFrames styling/transition behavior; manual A/V quality and Windows soak required. No fake cache hits.
+- R4-04: bounded filter/pagination by job status/kind/video/scene, guarded bulk render-only retries and pre-dispatch cancellations. GPU/provider jobs cannot bulk retry, job metadata sanitized; no paid requests.
+- R4-03: authenticated storage inventory (immutable asset revisions, segment cache) and digest-fenced, reversible quarantine of old UUID staging directories ONLY. Zero permanent deletion. Running jobs block quarantine. No assets/published outputs are eligible.
+- R4-06: optional fixed-parameter local sidechain ducking of music; existing explicit music rights confirmation preserved. Upload of music >640 KiB remains future work.
+- EXT-08: safe UI motion preview, explicitly labeled not a rendered proof; versioned presets remain immutable. EXT-07: explicit operator-approved local-only ComfyUI image queue from digest-rechecked route plan, with partial result reporting. R4-07: checksum-health evidence for selected visuals; model-based visual identity not verified.
+- Tests: New focused regressions + complete CI gates required; real Windows 11 browser, native Wan/ComfyUI, 35min hybrid render, full HyperFrames cache quality, music listening tests remain NOT_READY.

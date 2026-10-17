@@ -246,7 +246,7 @@ export class RenderExportService{
   if(signal?.aborted)fail('RENDER_ABORTED');
   this.store.emit(jobId,'render_progress',{stage:'preparing'});
   const result=await render({composition:outputComposition,motionStyle:style,dataRoot:this.manifest.dataRoot,signal,
-    cacheDb:engine==='ffmpeg-fastpath'?this.repo.db:null,subtitlePlan,
+    cacheDb:this.repo.db,subtitlePlan,
     // Production renderer must never be replaceable by an environment-variable
     // path. Tests inject their command only via renderHyperframesComposition().
     hyperframes:'hyperframes',

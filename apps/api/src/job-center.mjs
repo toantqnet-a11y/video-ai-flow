@@ -51,13 +51,56 @@ export function validCursor(cursor){
 export function createJobCenter(store){
   return {
     list(query={}){
-      const allowed=new Set(['status','limit']);
-      if(Object.keys(query).some(k=>!allowed.has(k)))throw new DomainError('INVALID_JOB_FILTER',400);
+      const allowed=new Set(['status','limit','cursor','kind','videoId','sceneId']);
+      if(!query||typeof query!=='object'||Array.isArray(query)||Object.keys(query).some(k=>!allowed.has(k)))throw new DomainError('INVALID_JOB_FILTER',400);
       const status=query.status;
       if(status!==undefined&&!statuses.has(status))throw new DomainError('INVALID_JOB_FILTER',400);
-      const limit=query.limit===undefined?100:Number(query.limit);
-      if(!Number.isSafeInteger(limit)||limit<1||limit>200)throw new DomainError('INVALID_JOB_LIMIT',400);
-      return {items:store.list({status,limit}).map(publicJob),counts:store.countByStatus()};
+      const limit=query.limit===undefined?50:Number(query.limit);
+      if(!Number.isSafeInteger(limit)||limit<1||limit>100)throw new DomainError('INVALID_JOB_LIMIT',400);
+      const cursor=query.cursor??'0';
+      if(typeof cursor!=='string'||!/^(0|[1-9]\d{0,5})$/.test(cursor)||Number(cursor)>1000000)throw new DomainError('INVALID_JOB_CURSOR',400);
+      const offset=Number(cursor);
+      for(const k of ['videoId','sceneId'])if(query[k]!==undefined&&!safeId(query[k]))throw new DomainError('INVALID_JOB_FILTER',400);
+      if(query.kind!==undefined&&(!/^[A-Za-z0-9:_-]{1,80}$/.test(query.kind)))throw new DomainError('INVALID_JOB_FILTER',400);
+      // Existing SP-04 list API is intentionally retained for minimal fake
+      // store fixtures; production uses bounded indexed SQL and JSON fields.
+      if(!store.db?.prepare){
+       if(query.kind||query.videoId||query.sceneId||offset)throw new DomainError('JOB_ADVANCED_FILTER_UNAVAILABLE',503);
+       return {items:store.list({status,limit}).map(publicJob),counts:store.countByStatus(),nextCursor:null};
+      }
+      const clauses=[],args=[];
+      if(status){clauses.push('status=?');args.push(status);}
+      if(query.kind){clauses.push('kind=?');args.push(query.kind);}
+      if(query.videoId){clauses.push("coalesce(json_extract(payload_json,'$.projectId'),json_extract(payload_json,'$.videoId'))=?");args.push(query.videoId);}
+      if(query.sceneId){clauses.push("json_extract(payload_json,'$.sceneId')=?");args.push(query.sceneId);}
+      const where=clauses.length?' WHERE '+clauses.join(' AND '):'';
+      const rows=store.db.prepare('SELECT * FROM jobs'+where+' ORDER BY created_at DESC,id DESC LIMIT ? OFFSET ?').all(...args,limit+1,offset);
+      const nextCursor=rows.length>limit?String(offset+limit):null;
+      return {items:rows.slice(0,limit).map(r=>publicJob(store.fromRow(r))),counts:store.countByStatus(),nextCursor};
+    },
+    bulk(body){
+      if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(k=>!['ids','action','confirmation'].includes(k))||
+       !Array.isArray(body.ids)||body.ids.length<1||body.ids.length>20||new Set(body.ids).size!==body.ids.length||
+       body.ids.some(id=>!safeId(id))||!['cancel','retry'].includes(body.action)||
+       body.confirmation!=='CONFIRM_BULK_JOBS')throw new DomainError('INVALID_JOB_BULK',400);
+      const jobs=body.ids.map(id=>store.get(id));
+      if(jobs.some(x=>!x))throw new DomainError('JOB_NOT_FOUND',404);
+      // Batch actions NEVER retry video inference or paid/remote providers.
+      // Only local, explicit render outputs are eligible for bulk retry;
+      // cancellations are allowed only before dispatch (pending/paused).
+      for(const job of jobs){
+       if(body.action==='retry'&&(!['render:ffmpeg','render:hyperframes'].includes(job.kind)||job.status!=='failed'))
+        throw new DomainError('JOB_BULK_RETRY_FORBIDDEN',409);
+       if(body.action==='cancel'&&!['pending','paused'].includes(job.status))
+        throw new DomainError('JOB_BULK_CANCEL_FORBIDDEN',409);
+      }
+      const outcomes=[];
+      for(const job of jobs){
+       const changed=store[body.action](job.id);
+       outcomes.push({id:job.id,success:changed===true,status:store.get(job.id)?.status??'unknown'});
+      }
+      return {items:outcomes,changed:outcomes.filter(x=>x.success).length,
+       note:'Each SQLite state transition is independently fenced; do not infer an atomic external AI action.'};
     },
     get(id){
       if(!safeId(id))throw new DomainError('INVALID_JOB_ID',400);

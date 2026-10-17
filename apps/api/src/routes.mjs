@@ -51,6 +51,7 @@ export function registerStudioRoutes(app,{controllers,store,diagnostics}) {
   app.get('/api/videos/:id/composition/revisions',use(req=>controllers.compositionHistory(req.params.id)));
   app.get('/api/videos/:id/composition/revisions/:revision',use(req=>controllers.compositionRevision(req.params.id,req.params.revision)));
   app.post('/api/videos/:id/visual-route/preview',use(req=>controllers.visualRoutePreview(req.params.id,req.body??{})));
+  app.post('/api/videos/:id/visual-route/execute',use(req=>controllers.visualRouteExecute(req.params.id,req.body??{})));
   app.get('/api/motion-style/presets',use(()=>controllers.motionStylePresets()));
   app.get('/api/videos/:id/motion-style',use(req=>controllers.motionStyleCurrent(req.params.id)));
   app.get('/api/videos/:id/motion-style/revisions/:revision',use(req=>controllers.motionStyleRevision(req.params.id,req.params.revision)));
@@ -282,7 +283,10 @@ export function registerStudioRoutes(app,{controllers,store,diagnostics}) {
       return diagnostics.get({force:true});
     }));
   }
+  app.get('/api/system/storage/preview',use(()=>controllers.storagePreview()));
+  app.post('/api/system/storage/quarantine',use(req=>controllers.storageQuarantine(req.body)));
   app.get('/api/jobs',use(req=>controllers.jobs(req.query??{})));
+  app.post('/api/jobs/bulk',use(req=>controllers.jobBulk(req.body)));
   app.get('/api/jobs/:id',use(req=>controllers.job(req.params.id)));
   for(const action of ['pause','resume','cancel','retry']){
     app.post(`/api/jobs/:id/${action}`,use(req=>{

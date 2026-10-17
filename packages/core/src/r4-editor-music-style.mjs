@@ -58,11 +58,11 @@ export class SubtitleDraftsR405{
  }
 }
 export function validateMusicMixSettings(input){
- if(!input||Object.keys(input).some(k=>!['volume','fadeInSeconds','fadeOutSeconds','loop'].includes(k))||
+ if(!input||Object.keys(input).some(k=>!['volume','fadeInSeconds','fadeOutSeconds','loop','ducking'].includes(k))||
  !Number.isFinite(input.volume)||input.volume<0||input.volume>0.6||
  !Number.isFinite(input.fadeInSeconds)||input.fadeInSeconds<0||input.fadeInSeconds>15||
  !Number.isFinite(input.fadeOutSeconds)||input.fadeOutSeconds<0||input.fadeOutSeconds>15||
- input.loop!==true)error('R4_MUSIC_SETTINGS_INVALID');
+ input.loop!==true||(input.ducking!==undefined&&typeof input.ducking!=='boolean'))error('R4_MUSIC_SETTINGS_INVALID');
  return {...input};
 }
 /** R4-06: local optional second pass, source MP4 never overwritten.
@@ -78,7 +78,11 @@ export async function mixMusicIntoMp4({sourceMp4,musicPin,dataRoot,targetMp4,sec
  if(existing)error('R4_MUSIC_TARGET_EXISTS');
  await mkdir(dirname(targetMp4),{recursive:true});
  const fadeStart=Math.max(0,seconds-cfg.fadeOutSeconds);
- const musicGraph=`[1:a]volume=${cfg.volume},atrim=duration=${seconds},asetpts=N/SR/TB,afade=t=in:st=0:d=${cfg.fadeInSeconds},afade=t=out:st=${fadeStart}:d=${cfg.fadeOutSeconds}[music];[0:a][music]amix=inputs=2:duration=first:dropout_transition=0[aout]`;
+ // Fixed sidechain compressor lowers music during voice; no untrusted
+ // user filter strings or extra provider calls. Enabled only by explicit flag.
+ const bed=`[1:a]volume=${cfg.volume},atrim=duration=${seconds},asetpts=N/SR/TB,afade=t=in:st=0:d=${cfg.fadeInSeconds},afade=t=out:st=${fadeStart}:d=${cfg.fadeOutSeconds}[music]`;
+ const musicGraph=cfg.ducking?`[0:a]asplit=2[voice][side];${bed};[music][side]sidechaincompress=threshold=0.07:ratio=6:attack=40:release=450[ducked];[voice][ducked]amix=inputs=2:duration=first:dropout_transition=0[aout]`:
+ `${bed};[0:a][music]amix=inputs=2:duration=first:dropout_transition=0[aout]`;
  try{
   await runBinary(ffmpeg,['-y','-v','error','-i',sourceMp4,'-stream_loop','-1','-i',track,'-filter_complex',musicGraph,'-map','0:v:0','-map','[aout]','-c:v','copy','-c:a','aac','-b:a','192k','-movflags','+faststart','-t',String(seconds),'-f','mp4',staging],{signal,timeoutMs:Math.max(120000,seconds*2000)});
   const [meta,sourceMeta]=await Promise.all([probeMp4(staging,{ffprobe,signal}),probeMp4(sourceMp4,{ffprobe,signal})]);
@@ -92,7 +96,7 @@ export async function mixMusicIntoMp4({sourceMp4,musicPin,dataRoot,targetMp4,sec
 }
 /** R4-07: deterministic consistency linter, never manufacture AI imagery.
  * Empty voice/visual/style evidence must be flagged, not silently filled. */
-export function inspectVisualConsistency({scenes,styleProfile}){
+export function inspectVisualConsistency({scenes,styleProfile,assetEvidence=null}){
  if(!Array.isArray(scenes)||scenes.length>1500||!styleProfile||typeof styleProfile!=='object'||
  typeof styleProfile.styleToken!=='string'||!(/^[a-z0-9][a-z0-9-]{1,62}$/i.test(styleProfile.styleToken))||
  !Array.isArray(styleProfile.characterTokens)||styleProfile.characterTokens.length>20||styleProfile.characterTokens.some(t=>typeof t!=='string'||!(/^[a-z0-9][a-z0-9-]{1,62}$/i.test(t))))error('R4_STYLE_PROFILE_INVALID');
@@ -100,7 +104,11 @@ export function inspectVisualConsistency({scenes,styleProfile}){
   const prompt=String(scene.visualPrompt??'').toLowerCase();if(!prompt.includes(styleProfile.styleToken.toLowerCase()))warnings.push({sceneId:scene.id,code:'STYLE_TOKEN_MISSING'});
   for(const token of styleProfile.characterTokens)if(prompt.includes(token.toLowerCase())&& !scene.visualAssetId)warnings.push({sceneId:scene.id,code:'CHARACTER_IMAGE_UNRENDERED',token});
   if(!scene.visualAssetId)warnings.push({sceneId:scene.id,code:'VISUAL_ASSET_MISSING'});
+  const health=assetEvidence?.find(x=>x.sceneId===scene.id);
+  if(assetEvidence&&scene.visualAssetId&&(!health||health.health!=='healthy'))warnings.push({sceneId:scene.id,code:'VISUAL_ASSET_UNHEALTHY'});
  }
+ const inspected=assetEvidence?.filter(x=>x.health==='healthy').length??null;
  return {profileDigest:hash(styleProfile),sceneCount:scenes.length,warnings,ready:warnings.length===0,
-  note:'Prompt token checks are heuristic; no proof of character identity, pixel-level visual consistency, or provider availability.'};
+  assetEvidence:assetEvidence?{checked:assetEvidence.length,healthy:inspected,missingOrCorrupt:assetEvidence.length-inspected,identityVerified:false}:null,
+  note:'Validates real media checksum health plus prompt tokens; no proof of character identity, image similarity or model consistency.'};
 }

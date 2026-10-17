@@ -11,7 +11,7 @@ export function RenderDrawerR312({videoId,revision,styleRevision,styleDirty,edit
  const [subtitleDraft,setSubtitleDraft]=useState(null),[applySubtitleDraft,setApplySubtitleDraft]=useState(false);
  const [musicTrack,setMusicTrack]=useState(null),[musicLibrary,setMusicLibrary]=useState([]),[musicEnabled,setMusicEnabled]=useState(false),
   [musicRights,setMusicRights]=useState(false),[musicUploading,setMusicUploading]=useState(false),[musicError,setMusicError]=useState(''),
-  [musicSettings,setMusicSettings]=useState({volume:0.15,fadeInSeconds:0.5,fadeOutSeconds:1,loop:true});
+  [musicSettings,setMusicSettings]=useState({volume:0.15,fadeInSeconds:0.5,fadeOutSeconds:1,loop:true,ducking:false});
  const refreshSubtitle=async()=>{setMusicError('');try{setSubtitleDraft(await api(`/videos/${videoId}/subtitles/draft`))}catch(e){setMusicError(e.code??e.message)}};
  useEffect(()=>{setSubtitleDraft(null);setApplySubtitleDraft(false);if(videoId&&revision)void refreshSubtitle()},[videoId,revision]);
  const refreshMusic=async()=>{try{const found=await api(`/videos/${videoId}/music`);setMusicLibrary(found.items??[])}
@@ -89,6 +89,7 @@ export function RenderDrawerR312({videoId,revision,styleRevision,styleDirty,edit
     <label>Âm lượng nhạc (tối đa 0.6) <input type="number" min="0" max="0.6" step="0.05" value={musicSettings.volume} onChange={e=>setMusicSettings(x=>({...x,volume:Number(e.target.value)}))}/></label>
     <label>Fade in (giây) <input type="number" min="0" max="15" step="0.5" value={musicSettings.fadeInSeconds} onChange={e=>setMusicSettings(x=>({...x,fadeInSeconds:Number(e.target.value)}))}/></label>
     <label>Fade out (giây) <input type="number" min="0" max="15" step="0.5" value={musicSettings.fadeOutSeconds} onChange={e=>setMusicSettings(x=>({...x,fadeOutSeconds:Number(e.target.value)}))}/></label>
+    <label><input type="checkbox" checked={musicSettings.ducking===true} onChange={e=>setMusicSettings(x=>({...x,ducking:e.target.checked}))}/> Tự hạ âm lượng nhạc khi có giọng nói (sidechain local)</label>
     {musicEnabled&&<label><input type="checkbox" checked={musicRights} onChange={e=>setMusicRights(e.target.checked)}/> Tôi xác nhận có quyền sử dụng file nhạc này.</label>}</>}
    {musicError&&<p role="alert" className="error">{musicError}</p>}
    {musicEnabled&&!musicRights&&<p className="warn">Cần xác nhận quyền sử dụng nhạc trước khi render.</p>}
