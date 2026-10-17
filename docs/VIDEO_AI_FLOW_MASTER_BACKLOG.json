@@ -808,11 +808,12 @@
       "id": "R4-03",
       "title": "Storage analyzer and conservative quarantine",
       "priority": "P1",
-      "status": "STORAGE_INVENTORY_REVERSIBLE_QUARANTINE_CODE_INTEGRATED__LARGE_WORKSPACE_PENDING",
+      "status": "INVENTORY_QUARANTINE_RESTORE_CODE_INTEGRATED__WINDOWS_LARGE_WORKSPACE_PENDING",
       "acceptanceSummary": "Inventory and digest-fenced quarantine only >24h staging; no user assets hard-deleted",
       "remainingGate": [
         "Windows browser and large workspace smoke",
-        "No immutable media deletion; quarantine restore/manual review"
+        "Quarantine/restore race, junction and long-job manual QA",
+        "Immutable media untouched and no permanent deletion"
       ],
       "verifiedTests": [
         "npm run test:r402-r408 (10/10)",
