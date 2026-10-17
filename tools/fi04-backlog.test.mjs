@@ -14,10 +14,10 @@ test('FI-04 backlog preserves every old task and refuses duplicate IDs or missin
  const base=JSON.parse(await get('docs/VIDEO_AI_FLOW_EXTENSION_BACKLOG.json'));
  const video=parseVideoRoadmap(await get('docs/reference/VIDEO_AI_FLOW_EXECUTION_PLAN_V3.md'));
  const merged=mergeBacklog(base,video);
- assert.equal(merged.taskCount,base.tasks.length+26);assert.equal(new Set(merged.tasks.map(x=>x.id)).size,merged.taskCount);
+ assert.equal(merged.taskCount,base.tasks.length+27);assert.equal(new Set(merged.tasks.map(x=>x.id)).size,merged.taskCount);
  assert.deepEqual(merged.tasks.slice(0,base.tasks.length),base.tasks);
- assert.equal(merged.groups.windowsAcceptance,2);
- assert.equal(merged.tasks.at(-1).id,'WI-02');
+ assert.equal(merged.groups.windowsAcceptance,3);
+ assert.equal(merged.tasks.at(-1).id,'WI-03');
  assert.throws(()=>mergeBacklog({...base,tasks:[...base.tasks,video[0]]},video),/DUPLICATE/);
  assert.throws(()=>parseVideoRoadmap(''),/INCOMPLETE/);
 });
