@@ -1,0 +1,65 @@
+# WI-03: short, real Windows-hosted integration acceptance.
+# Push trigger is confined to the WI-03 validation branch to limit runner cost.
+# A passing hosted Windows Server runner is NOT Windows 11 operator acceptance.
+name: WI-03 Windows Integration Verification
+on:
+  push:
+    branches:
+      - wi03/windows-verification
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wi03-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows-integration:
+    name: Windows Fastify, Vite and browser smoke
+    runs-on: windows-2022
+    timeout-minutes: 35
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify pinned dependency lock
+        run: node tools/ci-github-lock.mjs
+      - name: Install exact dependencies (no lifecycle scripts)
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Static contracts, SDK and frontend build on Windows
+        run: |
+          npm run check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run typecheck:sdk
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run build:web
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Real Fastify API security/route smoke
+        run: npm run test:live-http
+      - name: WI-01/WI-02 focused regression
+        run: node --test tools/wi01-windows-preflight.test.mjs tools/wi02-runtime.test.mjs
+      - name: Collect Windows prerequisites (not a production gate)
+        if: always()
+        continue-on-error: true
+        run: node tools/wi01-windows-preflight.mjs --inspect --report=docs/evidence/WI03_windows_preflight.json
+      - name: WI-03 real Windows socket and browser React acceptance
+        run: node tools/wi03-windows-integration.mjs --report=docs/evidence/WI03_hosted_windows.json
+      - name: Preserve scrubbed Windows evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wi03-windows-integration-evidence
+          path: |
+            docs/evidence/WI03_hosted_windows.json
+            docs/evidence/WI03_windows_preflight.json
+          if-no-files-found: warn
+          retention-days: 7
+
+# This job never makes paid/cloud AI requests and never marks release READY.
+# Full HD 35+ minute HyperFrames render/GPU inference require independent proof.
