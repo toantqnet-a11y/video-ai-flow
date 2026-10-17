@@ -839,12 +839,12 @@
       "id": "R4-06",
       "title": "Background Music mixing",
       "priority": "P1",
-      "status": "LOCAL_SIDECHAIN_DUCKING_CODE_INTEGRATED__AUDIO_REVIEW_PENDING",
+      "status": "LOCAL_SIDECHAIN_DUCKING_STREAM_50MIB_CODE_INTEGRATED__AUDIO_REVIEW_PENDING",
       "acceptanceSummary": "Local audio import/list, checksum pin, explicit selection, queued FFmpeg music postmix passed H264/AAC FFprobe; primary HyperFrames run unverified.",
       "remainingGate": [
-        "Native voice/music ducking audibility on Windows",
-        "Music upload above 640 KiB still pending",
-        "Music rights metadata remains manual"
+        "Native voice/music sidechain listening on Windows",
+        "50MiB streaming MP3/WAV/M4A HTTP/UI stress and timeout/ENOSPC",
+        "Real HyperFrames 35min music finishing and license metadata review"
       ],
       "verifiedTests": [
         "npm run test:r402-r408 (10/10)",
