@@ -249,10 +249,10 @@ export function createStudioClient({fetchImpl=globalThis.fetch,baseUrl='/api'}={
  /** R2-VID-05: authenticated video playback; never expose bearer in src URL.
   * Fetch only allowlisted current scene clip; hard cap bytes and MP4 signature.
   */
- const getSceneClipFile=async(id,{signal}={})=>{
+ const readPrivateSceneClip=async(opId,args,{signal}={})=>{
    if(!credentials)throw new StudioApiError('PAIRING_REQUIRED');
-   const op=operationById.get('getSceneClipFile');
-   const res=await fetchImpl(`${base}${pathFor(op,{id})}`,{method:'GET',headers:{
+   const op=operationById.get(opId);
+   const res=await fetchImpl(`${base}${pathFor(op,args)}`,{method:'GET',headers:{
      authorization:`Bearer ${credentials.bearer}`,accept:'video/mp4'},signal});
    if(!res.ok){if(res.status===401)clear();let body;try{body=await res.json()}catch{}
      throw new StudioApiError(safeCode(body?.error,`HTTP_${res.status}`),res.status);}
@@ -270,6 +270,8 @@ export function createStudioClient({fetchImpl=globalThis.fetch,baseUrl='/api'}={
      throw new StudioApiError('INVALID_VIDEO_PREVIEW');
    return new Blob([data],{type:'video/mp4'});
  };
+ const getSceneClipFile=(id,opts)=>readPrivateSceneClip('getSceneClipFile',{id},opts);
+ const getSceneClipRevisionFile=(id,assetId,opts)=>readPrivateSceneClip('getSceneClipRevisionFile',{id,assetId},opts);
  /** EXT-08: private thumbnail, bounded JPEG and no auth token in DOM URL. */
  const downloadLocalVideoThumbnail=async(videoId,jobId,{signal}={})=>{
    if(!credentials)throw new StudioApiError('PAIRING_REQUIRED');
@@ -483,5 +485,5 @@ export function createStudioClient({fetchImpl=globalThis.fetch,baseUrl='/api'}={
    }
    return {lastEventId:cursor};
  };
- return {authenticated,clear,pair,request,requestPath,previewVoice,getSceneVoiceAudio,getSceneImageFile,getSceneClipFile,getChannelAvatar,downloadLocalVideoThumbnail,downloadLocalVideoRender,downloadLocalVideoSubtitle,saveLocalVideoRender,downloadProjectZip,saveProjectZip,streamJobs};
+ return {authenticated,clear,pair,request,requestPath,previewVoice,getSceneVoiceAudio,getSceneImageFile,getSceneClipFile,getSceneClipRevisionFile,getChannelAvatar,downloadLocalVideoThumbnail,downloadLocalVideoRender,downloadLocalVideoSubtitle,saveLocalVideoRender,downloadProjectZip,saveProjectZip,streamJobs};
 }
