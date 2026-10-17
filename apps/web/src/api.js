@@ -9,6 +9,7 @@ export const authenticated=()=>client.authenticated();
 export const pair=(code)=>client.pair(code);
 export const api=(path,options)=>client.requestPath(path,options);
 export const streamJobs=(handler,options={})=>client.streamJobs(handler,{retries:3,...options});
+export const uploadMusicFile=(videoId,file,options)=>client.uploadMusicFile(videoId,file,options);
 // Typed callers can migrate incrementally without duplicating HTTP logic.
 export const studioClient=client;
 

@@ -5,6 +5,7 @@ import {SubtitleDraftsR405,previewSubtitleEdits,inspectVisualConsistency} from '
  */
 import {CONTENT_RUBRIC_V1,DomainError,ProviderAccountRepository,VideoCapabilityRepository,ContentBriefRepository,ContentOutlineRepository,ChapterGenerationRepository,ContentEvaluationRepository,ContentRetryRepository,MasterScriptRepository,SceneBuilderRepository,VisualPromptRepository,SceneVoiceRepository,SceneImageRepository,voiceSnapshot,transact,AssetDagRepository,QuotaLedgerRepository,AssetLibraryR209,SelectiveRegenerationR211,ProviderMonitorR212,CompositionRepository,TimedCompositionRepository,MotionBrandRepository,routeVisuals,MOTION_TEMPLATES,scriptSkillCatalog,buildScriptSkillPlan,exportApprovedScript,SceneInspectorR301,TimelineEditorR304,TimelineHistoryR307} from '../../../packages/core/src/index.mjs';
 import {createJobCenter,publicJob} from './job-center.mjs';
+import {StorageManagementR403} from '../../../packages/core/src/storage-management-r403.mjs';
 import {importSceneVideoStream} from '../../../packages/core/src/scene-video-stream-r2vid03.mjs';
 import {ProjectZipServiceR311} from './project-zip-r311.mjs';
 import {WaveformR306} from './voice-waveform-r306.mjs';
@@ -39,6 +40,7 @@ export function createControllers({repo,store,registry,manifest,vault,paidPolicy
   const styles=new MotionBrandRepository(repo);
   const projectZip=new ProjectZipServiceR311({repo,compositions,manifest});
   const subtitleDrafts=new SubtitleDraftsR405(repo.db);
+  const storage=manifest?.dataRoot?new StorageManagementR403({dataRoot:manifest.dataRoot,db:repo.db,store}):null;
   const subtitleDocument=(id,revision)=>{
     if(!Number.isSafeInteger(revision)||revision<1)throw new DomainError('R4_SUBTITLE_INVALID',400);
     const latest=compositions.history(id)[0];
@@ -65,7 +67,16 @@ export function createControllers({repo,store,registry,manifest,vault,paidPolicy
     subtitleDraft:id=>{repo.getVideo(id)??missing('VIDEO_NOT_FOUND');return subtitleDrafts.get(id);},
     subtitlePreview:(id,body)=>previewSubtitleEdits(subtitleDocument(id,body?.compositionRevision),body?.overrides),
     subtitleSave:(id,body)=>subtitleDrafts.save(id,{document:subtitleDocument(id,body?.compositionRevision),overrides:body?.overrides,expectedRevision:body?.expectedRevision}),
-    visualConsistency:(id,body)=>{repo.getVideo(id)??missing('VIDEO_NOT_FOUND');return inspectVisualConsistency({scenes:repo.listScenes(id),styleProfile:body});},
+    visualConsistency:async(id,body)=>{
+      repo.getVideo(id)??missing('VIDEO_NOT_FOUND');
+      const scenes=repo.listScenes(id),assetEvidence=[];
+      for(const s of scenes){
+        const asset=s.visualAssetId?manifest?.get(s.visualAssetId):null;
+        assetEvidence.push({sceneId:s.id,health:asset&&asset.sceneId===s.id?
+          await manifest.verifyRevision(asset.id):'missing'});
+      }
+      return inspectVisualConsistency({scenes,styleProfile:body,assetEvidence});
+    },
     archiveChannel:(id,body)=>repo.archiveChannel(id,body),
     restoreChannel:(id,body)=>repo.restoreChannel(id,body),
     deleteChannel:(id,body)=>repo.softDeleteChannel(id,body),
@@ -243,7 +254,10 @@ export function createControllers({repo,store,registry,manifest,vault,paidPolicy
       if(!paidPolicy)throw new DomainError('PAID_POLICY_UNAVAILABLE',503);
       return paidPolicy.revoke(id);
     },
+    storagePreview:()=>storage?.preview()??missing('STORAGE_UNAVAILABLE'),
+    storageQuarantine:body=>storage?.quarantine(body)??missing('STORAGE_UNAVAILABLE'),
     jobs:(query)=>jobCenter.list(query),
+    jobBulk:(body)=>jobCenter.bulk(body),
     job:(id)=>jobCenter.get(id),
     jobAction:(id,action)=>jobCenter.transition(id,action),
     jobEvents:(after,limit)=>jobCenter.events(after,limit),
@@ -325,6 +339,35 @@ export function createControllers({repo,store,registry,manifest,vault,paidPolicy
       return routeVisuals({composition:doc,mode:body.mode??'balanced',
         localComfyConfigured:!!registry.imageAdapter,includePaidCandidates:body.includePaidCandidates===true});
     },
+    visualRouteExecute:async(id,body={})=>{
+      if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(k=>!['mode','compositionDigest','sceneIds','confirmation'].includes(k))||
+        !['balanced','quality'].includes(body.mode)||body.confirmation!=='QUEUE_LOCAL_IMAGES_ONLY'||
+        !/^[a-f0-9]{64}$/.test(body.compositionDigest??'')||!Array.isArray(body.sceneIds)||
+        body.sceneIds.length<1||body.sceneIds.length>20||new Set(body.sceneIds).size!==body.sceneIds.length||
+        body.sceneIds.some(x=>typeof x!=='string'||!/^[A-Za-z0-9-]{1,100}$/.test(x)))
+        throw new DomainError('VISUAL_ROUTE_EXECUTE_INVALID',400);
+      const document=await timedCompositions.preview(id,{});
+      if(document.digest!==body.compositionDigest)throw new DomainError('VISUAL_ROUTE_SOURCE_STALE',409);
+      const plan=routeVisuals({composition:document,mode:body.mode,
+        localComfyConfigured:!!registry.imageAdapter,includePaidCandidates:false});
+      const desired=body.sceneIds.map(sceneId=>{
+        const decision=plan.scenes.find(s=>s.sceneId===sceneId);
+        const scene=repo.getScene(sceneId);
+        if(!decision||decision.action!=='generate_local_image'||scene?.videoId!==id||scene.mediaType!=='image_motion')
+          throw new DomainError('VISUAL_ROUTE_SCENE_NOT_ELIGIBLE',409);
+        return sceneId;
+      });
+      if(!registry.imageAdapter)throw new DomainError('LOCAL_IMAGE_NOT_CONFIGURED',503);
+      const results=[];
+      for(const sceneId of desired){
+        // Never dispatch paid/remote providers. Existing per-scene queue does
+        // local workflow validation, idempotency, stale intent and quota gates.
+        try{const r=await sceneImages.queue(sceneId,{});results.push({sceneId,state:r.state,jobId:r.job?.id??null});}
+        catch(e){results.push({sceneId,state:'blocked',code:e instanceof DomainError?e.code:'LOCAL_IMAGE_QUEUE_FAILED'});break;}
+      }
+      return {results,queued:results.filter(x=>x.state==='queued').length,partial:results.length!==desired.length||results.some(x=>x.state==='blocked'),
+        note:'Explicitly queued local ComfyUI images only; no remote or paid fallback. Individual scene jobs are not one atomic batch.'};
+    },
     motionStylePresets:()=>({items:MOTION_TEMPLATES}),
     motionStyleCurrent:id=>styles.latest(id),
     motionStyleRevision:(id,rev)=>styles.revision(id,Number(rev)),
@@ -333,6 +376,7 @@ export function createControllers({repo,store,registry,manifest,vault,paidPolicy
     renderPreflight:(id,body)=>renderExports?.preflight(id,body)??missing('RENDER_UNAVAILABLE'),
     renderQueue:(id,body)=>renderExports?.enqueue(id,body)??missing('RENDER_UNAVAILABLE'),
     musicImport:(id,body)=>renderExports?.importMusic(id,body)??missing('RENDER_UNAVAILABLE'),
+    musicImportStream:(id,stream,ext)=>renderExports?.importMusicStream(id,stream,ext)??missing('RENDER_UNAVAILABLE'),
     musicList:(id)=>renderExports?.listMusic(id)??missing('RENDER_UNAVAILABLE'),
     renderJob:(id,jobId)=>renderExports?.job(id,jobId)??missing('RENDER_UNAVAILABLE'),
     renderFile:(id,jobId)=>renderExports?.file(id,jobId)??missing('RENDER_UNAVAILABLE'),

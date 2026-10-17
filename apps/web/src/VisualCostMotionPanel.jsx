@@ -13,6 +13,7 @@ export function VisualCostMotionPanel({videoId,sceneId,onStyleChange}){
  const [mode,setMode]=useState('saving'),[plan,setPlan]=useState(null),[presets,setPresets]=useState([]);
  const [style,setStyle]=useState(fallbackStyle),[savedRevision,setSavedRevision]=useState(0),[dirty,setDirty]=useState(true);
  const [loading,setLoading]=useState(false),[message,setMessage]=useState(''),[error,setError]=useState('');
+ const [runSelection,setRunSelection]=useState([]);
  useEffect(()=>{
   let active=true;onStyleChange(null,true);
   Promise.all([api(`/videos/${videoId}/motion-style`),api('/motion-style/presets')]).then(([latest,all])=>{
@@ -26,7 +27,16 @@ export function VisualCostMotionPanel({videoId,sceneId,onStyleChange}){
  const preview=async()=>{
   setLoading(true);setError('');try{
    const result=await api(`/videos/${videoId}/visual-route/preview`,{method:'POST',body:{mode,includePaidCandidates:mode==='quality'}});
-   setPlan(result);
+   setPlan(result);setRunSelection(result.scenes.filter(s=>s.action==='generate_local_image').slice(0,20).map(s=>s.sceneId));
+  }catch(e){setError(e.code??e.message)}finally{setLoading(false)}
+ };
+ const executeLocal=async()=>{
+  if(!plan||!runSelection.length||!window.confirm(`Xếp ${runSelection.length} tác vụ tạo ảnh trên ComfyUI local? Không gọi dịch vụ trả phí.`))return;
+  setLoading(true);setError('');try{
+   const r=await api(`/videos/${videoId}/visual-route/execute`,{method:'POST',body:{
+    mode,compositionDigest:plan.compositionDigest,sceneIds:runSelection,confirmation:'QUEUE_LOCAL_IMAGES_ONLY'}});
+   setMessage(`${r.queued} ảnh đã xếp vào hàng đợi local${r.partial?' · một số scene chưa xử lý':''}.`);
+   setPlan(null);setRunSelection([]);
   }catch(e){setError(e.code??e.message)}finally{setLoading(false)}
  };
  const publish=async()=>{
@@ -48,9 +58,13 @@ export function VisualCostMotionPanel({videoId,sceneId,onStyleChange}){
    <p><strong>{plan.summary.reused} scene dùng lại</strong> · {plan.summary.localImageCandidates} ảnh local đề xuất · {plan.summary.manualImportRequired} cần import · {plan.summary.paidCallsScheduled} lượt AI trả phí đã lên lịch</p>
    <div className="cost-route-scenes">{plan.scenes.slice(0,30).map(s=><span key={s.sceneId} title={s.reason}>#{s.sceneIndex+1} {labels[s.action]}</span>)}</div>
    {plan.scenes.length>30&&<small>Hiển thị 30/{plan.scenes.length} scene đầu.</small>}
+   {['balanced','quality'].includes(mode)&&plan.summary.localImageCandidates>0&&<div><small>Chọn tối đa 20 scene đủ điều kiện để chạy model ảnh ComfyUI local. Không tạo video/paid API.</small>
+    {plan.scenes.filter(s=>s.action==='generate_local_image').slice(0,20).map(s=><label key={s.sceneId} style={{display:'inline-block',margin:5}}><input type="checkbox" checked={runSelection.includes(s.sceneId)} onChange={e=>setRunSelection(old=>e.target.checked?[...old,s.sceneId]:old.filter(id=>id!==s.sceneId))}/> #{s.sceneIndex+1}</label>)}
+    <button className="btn secondary" disabled={loading||!runSelection.length} onClick={executeLocal}>Xác nhận xếp {runSelection.length} ảnh local</button></div>}
    <small>Chi phí API khi xem kế hoạch: 0. Chi phí thực tế của tác vụ tiếp theo và điện/GPU local chưa được đo. Tùy chọn clip trả phí (nếu có) vẫn bị khóa.</small>
   </div>}
   <header><h3>EXT-08 · Motion Templates & Brand Kit</h3><small>Template cố định v1, không cho nhập code, URL hay biểu thức FFmpeg.</small></header>
+  <div aria-label="Xem trước preset chuyển động" style={{margin:'10px 0',padding:'14px',borderRadius:10,background:'#eef3fa',color:'#344054'}}><strong>Preview preset: {presets.find(p=>p.id===(override||style.presetId))?.label??style.presetId}</strong><div style={{marginTop:8,overflow:'hidden',height:90,display:'grid',placeItems:'center',background:'#27364b',color:'white',borderRadius:10}}><div style={{animation:(override||style.presetId)==='clean'?'none':'r3motionPreview 5s ease-in-out infinite alternate',transformOrigin:'center'}}>▧ Hình minh họa · Scene</div></div><small>Minh họa CSS để chọn preset; kết quả FFmpeg/HyperFrames cần xem sau render.</small><style>{`@keyframes r3motionPreview{from{transform:scale(1)}to{transform:scale(1.06) translateX(3%)}}`}</style></div>
   <div className="cost-motion-fields"><label>Preset chung<select value={style.presetId} onChange={e=>edit(s=>({...s,presetId:e.target.value}))}>
    {presets.map(p=><option key={p.id} value={p.id}>{p.label} · v{p.version}</option>)}
   </select></label>

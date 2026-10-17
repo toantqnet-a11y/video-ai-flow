@@ -54,7 +54,7 @@ export function inspectIncomingRequest(raw, {port,gate}={}) {
     let search;
     try { search=new URLSearchParams(rawUrl.slice(question+1)); } catch { return 'INVALID_ROUTE'; }
     const permitted=allowedQueryKeys.get(`${raw.method} ${pathname}`)??
-      (`${raw.method} ${pathname}`===jobsListPath?new Set(['status','limit']):
+      (`${raw.method} ${pathname}`===jobsListPath?new Set(['status','limit','cursor','kind','videoId','sceneId']):
        `${raw.method} ${pathname}`===jobHistoryPath?new Set(['after','limit']):null)??
       (assetLibraryPath.test(`${raw.method} ${pathname}`)?new Set(['kind','limit','cursor']):
        quotaLedgerPath.test(`${raw.method} ${pathname}`)?new Set(['limit']):

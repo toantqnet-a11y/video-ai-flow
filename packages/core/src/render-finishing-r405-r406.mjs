@@ -20,7 +20,7 @@ export function prepareSubtitleRenderPlan(document,draft){
 export function validateRenderMusic(music){
  if(music===undefined||music===null)return null;
  if(!keys(music,['pin','settings'])||!keys(music.pin,['relativePath','sha256','bytes','id','kind'])||
-    !keys(music.settings,['volume','fadeInSeconds','fadeOutSeconds','loop']))fail('R4_MUSIC_REQUEST_INVALID');
+    !keys(music.settings,['volume','fadeInSeconds','fadeOutSeconds','loop','ducking']))fail('R4_MUSIC_REQUEST_INVALID');
  const p=music.pin;
  if(typeof p.relativePath!=='string'||!/^music\/[A-Za-z0-9-]{1,100}\/[a-f0-9]{64}\.(?:mp3|wav|m4a)$/.test(p.relativePath)||
   !/^[a-f0-9]{64}$/.test(p.sha256)||!Number.isSafeInteger(p.bytes)||p.bytes<=0||p.bytes>50*1024*1024||

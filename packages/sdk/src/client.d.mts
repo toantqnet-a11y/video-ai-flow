@@ -9,6 +9,7 @@ export interface StudioClient {
  getSceneVoiceAudio(sceneId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
  getSceneImageFile(sceneId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
  getSceneClipFile(sceneId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
+ uploadMusicFile(videoId:string,file:File,options?:{signal?:AbortSignal}):Promise<unknown>;
  uploadSceneClipStream(sceneId:string,file:File,options:{expectedRowVersion:number,signal?:AbortSignal}):Promise<unknown>;
  getSceneClipRevisionFile(sceneId:string,assetId:string,options?:{signal?:AbortSignal}):Promise<Blob>;
  downloadLocalVideoThumbnail(videoId:string,jobId:string,options?:{signal?:AbortSignal}):Promise<Blob>;

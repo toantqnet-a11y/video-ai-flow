@@ -134,7 +134,12 @@ export function sanitizedRendererEnv(source=process.env){
 
 /** Render is staged; every source SHA is checked before and after encoding.
  * An incomplete/invalid MP4 cannot become a completed queue result. */
-export async function renderHyperframesComposition({composition,motionStyle=null,dataRoot,hyperframes='hyperframes',ffmpeg='ffmpeg',ffprobe='ffprobe',signal,onProgress=()=>{},timeoutMs=3*60*60*1000,renderCommand=runBinary,subtitlePlan=null}={}){
+export async function renderHyperframesComposition({composition,motionStyle=null,dataRoot,hyperframes='hyperframes',ffmpeg='ffmpeg',ffprobe='ffprobe',signal,onProgress=()=>{},timeoutMs=3*60*60*1000,renderCommand=runBinary,subtitlePlan=null,cacheDb=null}={}){
+ if(cacheDb){
+  const {renderCachedHyperframesComposition}=await import('./render-hf-scene-cache-r308.mjs');
+  return renderCachedHyperframesComposition({composition,motionStyle,dataRoot,hyperframes,ffmpeg,ffprobe,
+   signal,onProgress,timeoutMs,renderCommand,subtitlePlan,cacheDb});
+ }
  validateTimedComposition(composition);
  ensure(composition.readiness.ready,'RENDER_COMPOSITION_NOT_READY');
  const root=await realpath(dataRoot),videoId=composition.videoId;

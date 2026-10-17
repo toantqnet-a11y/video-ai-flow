@@ -19,8 +19,8 @@ export function routeVisuals({composition,mode='balanced',localComfyConfigured=f
     const reuse=verified;
     // The manual import recommendation is intentional when the local provider
     // is missing: it does not invent a free cloud image-generation capability.
-    const action=reuse?'reuse_verified':(mode!=='saving'&&localComfyConfigured)?'generate_local_image':'import_media';
-    const reason=reuse?'verified_selection':localComfyConfigured?'local_provider_configured':'local_provider_missing';
+    const action=reuse?'reuse_verified':(scene.mediaType==='image_motion'&&mode!=='saving'&&localComfyConfigured)?'generate_local_image':'import_media';
+    const reason=reuse?'verified_selection':action==='generate_local_image'?'local_provider_configured':scene.mediaType!=='image_motion'?'video_media_requires_import':'local_provider_missing';
     const alternatives=includePaidCandidates&&mode==='quality'?[{action:'paid_ai_video',status:'blocked_requires_explicit_approval_and_adapter',estimatedUsd:null}]:[];
     return {sceneId:scene.id,sceneIndex:scene.index,action,reason,existingAssetId:reuse?scene.visual.asset.id:null,
       // An estimated number of jobs is NOT a billed usage observation.

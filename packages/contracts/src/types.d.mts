@@ -257,6 +257,7 @@ export type VisualConsistencyResultR407 = {
   sceneCount: number;
   warnings: Array<Record<string, unknown>>;
   ready: boolean;
+  assetEvidence?: Record<string, unknown> | null;
   note: string;
 };
 export type PresetDiffField = {
@@ -470,6 +471,7 @@ export type MusicSettingsR406 = {
   fadeInSeconds: number;
   fadeOutSeconds: number;
   loop: boolean;
+  ducking?: boolean;
 };
 export type MusicSelectionR406 = {
   pin: MusicPinR406;
@@ -1467,6 +1469,7 @@ export type Job = {
 export type JobPage = {
   items: Array<Job>;
   counts: Record<string, unknown>;
+  nextCursor?: string | null;
 };
 export type JobEvents = {
   items: Array<JobEvent>;
@@ -1911,6 +1914,7 @@ export interface OperationMap {
 }; };
   getVideoCompositionRevision: { args: { id: string; revision: string }; result: CompositionRevision; };
   previewVisualCostRoute: { args: { id: string; body: VisualRoutePlanInput }; result: VisualRoutePlan; };
+  executeLocalVisualRoute: { args: { id: string; body: Record<string, unknown> }; result: Record<string, unknown>; };
   listMotionStylePresets: { args: Record<string, never>; result: {
   items: Array<MotionPreset>;
 }; };
@@ -1918,6 +1922,7 @@ export interface OperationMap {
   getMotionStyleRevision: { args: { id: string; revision: string }; result: MotionStyleLatest; };
   publishMotionStyle: { args: { id: string; body: MotionStylePublishInput }; result: MotionStyleLatest; };
   listLocalVideoMusicR406: { args: { id: string }; result: MusicListR406; };
+  importLocalMusicStreamR406: { args: { id: string }; result: MusicImportResultR406; };
   importLocalVideoMusicR406: { args: { id: string; body: MusicImportInputR406 }; result: MusicImportResultR406; };
   previewLocalVideoRender: { args: { id: string; body: RenderPreflightInput }; result: RenderPreflightResult; };
   enqueueLocalVideoRender: { args: { id: string; body: RenderExportInput }; result: RenderExportQueueResult; };
@@ -2032,6 +2037,9 @@ export interface OperationMap {
   policy: Record<string, unknown>;
 } }; result: Record<string, unknown>; };
   getVideoMediaPolicyHistory: { args: { scope: string; id: string }; result: Record<string, unknown>; };
+  bulkLocalJobs: { args: { body: Record<string, unknown> }; result: Record<string, unknown>; };
+  storagePreviewR403: { args: Record<string, never>; result: Record<string, unknown>; };
+  storageQuarantineR403: { args: { body: Record<string, unknown> }; result: Record<string, unknown>; };
   getSceneClipStatus: { args: { id: string }; result: Record<string, unknown>; };
   getSceneClipPreflight: { args: { id: string }; result: Record<string, unknown>; };
   queueSceneClip: { args: { id: string; body: {
@@ -2141,6 +2149,10 @@ export interface OperationMap {
   listJobs: { args: { query?: {
   status?: "pending" | "running" | "paused" | "succeeded" | "failed" | "cancelled";
   limit?: number;
+  cursor?: string;
+  kind?: string;
+  videoId?: string;
+  sceneId?: string;
 } }; result: JobPage; };
   getJob: { args: { id: string }; result: Job; };
   pauseJob: { args: { id: string; body: Record<string, unknown> }; result: Job; };
