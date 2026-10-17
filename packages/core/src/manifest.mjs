@@ -299,6 +299,9 @@ export async function promoteQueueAsset({manifest,jobId}) {
     manifest.db.prepare(`UPDATE scenes SET ${pointer}=?,row_version=row_version+1,updated_at=? WHERE id=?`)
       .run(id,Date.now(),sceneId);
     if(kind==='video'&&row.job_kind==='scene:ai-video'){
+      // Video/channel override may target an old image-motion scene; only
+      // successful fenced promotion converts render's media_type to ai_video.
+      manifest.db.prepare("UPDATE scenes SET media_type='ai_video' WHERE id=?").run(sceneId);
       manifest.db.prepare(`INSERT INTO scene_video_selections(scene_id,asset_id,selected_at)
         VALUES(?,?,?) ON CONFLICT(scene_id) DO UPDATE SET asset_id=excluded.asset_id,
         selected_at=excluded.selected_at`).run(sceneId,id,Date.now());
