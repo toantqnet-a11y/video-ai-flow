@@ -11,6 +11,7 @@ import { transact } from './db.mjs';
 import { DomainError } from './domain.mjs';
 import {voiceIntentMatches} from './scene-voice.mjs';
 import {imageIntentMatches,imageSourceHash} from './scene-image.mjs';
+import {SceneClipService} from './scene-video-r2vid.mjs';
 
 const FORMATS={voice:['.mp3','.wav','.ogg'],image:['.png','.jpg','.jpeg','.webp'],video:['.mp4','.webm']};
 const sha256=data=>createHash('sha256').update(data).digest('hex');
@@ -241,6 +242,11 @@ export async function promoteQueueAsset({manifest,jobId}) {
     {sceneId,videoId:scene.videoId,textSha256:jobResult.textSha256,
       configRevision:jobResult.configRevision,inputHash:jobResult.voiceInputHash},jobId)))
     throw new DomainError('STALE_VOICE_JOB',409);
+  // A completed GPU call cannot override a newer user import or policy.
+  if(kind==='video'&&(!jobResult?.inputHash||!new SceneClipService({
+    repo:manifest.repo,manifest,store:null
+  }).intentMatches({sceneId,inputHash:jobResult.inputHash},jobId)))
+    throw new DomainError('STALE_VIDEO_JOB',409);
   if(kind==='image'&&(!jobResult?.imageInputHash||!imageIntentMatches(manifest.repo,
     {sceneId,videoId:scene.videoId,inputHash:jobResult.imageInputHash,
       sourceSha256:jobResult.sourceSha256,configRevision:jobResult.configRevision},jobId)))
@@ -262,12 +268,18 @@ export async function promoteQueueAsset({manifest,jobId}) {
       {sceneId,videoId:scene.videoId,textSha256:jobResult.textSha256,
         configRevision:jobResult.configRevision,inputHash:jobResult.voiceInputHash},jobId))
       throw new DomainError('STALE_VOICE_JOB',409);
+    if(kind==='video'&&!new SceneClipService({repo:manifest.repo,manifest,store:null})
+      .intentMatches({sceneId,inputHash:jobResult.inputHash},jobId))
+      throw new DomainError('STALE_VIDEO_JOB',409);
     if(kind==='image'&&!imageIntentMatches(manifest.repo,
       {sceneId,videoId:scene.videoId,inputHash:jobResult.imageInputHash,
         sourceSha256:jobResult.sourceSha256,configRevision:jobResult.configRevision},jobId))
       throw new DomainError('STALE_IMAGE_JOB',409);
     const id=randomUUID();
-    const metadata=kind==='voice'?{queueJobId:jobId,inputHash:jobResult.voiceInputHash,
+    const metadata=kind==='video'?{queueJobId:jobId,inputHash:jobResult.inputHash,
+      policyDigest:jobResult.policyDigest,configRevision:jobResult.configRevision,
+      durationMs:jobResult.durationMs,width:jobResult.width,height:jobResult.height,
+      fps:jobResult.fps,providerId:jobResult.providerId}:kind==='voice'?{queueJobId:jobId,inputHash:jobResult.voiceInputHash,
       textSha256:jobResult.textSha256,voice:jobResult.voice,rate:jobResult.rate,
       providerId:jobResult.providerId,fallbackUsed:jobResult.fallbackUsed===true,
       durationSec:jobResult.durationSec,durationMs:Math.round(jobResult.durationSec*1000),
@@ -279,8 +291,18 @@ export async function promoteQueueAsset({manifest,jobId}) {
       VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`)
       .run(id,scene.videoId,sceneId,kind,providerId||'unknown',rel,sha,bytes.length,'committed',JSON.stringify(metadata),Date.now(),jobId);
     const pointer=kind==='voice'?'voice_asset_id':'visual_asset_id';
+    // Metadata must describe the actual probed clip; video source stays versioned.
+    if(kind==='video'){
+      const policy=new SceneClipService({repo:manifest.repo,manifest,store:null}).effective(sceneId).policy;
+      if(policy.mediaType!=='ai_video')throw new DomainError('VIDEO_POLICY_STALE',409);
+    }
     manifest.db.prepare(`UPDATE scenes SET ${pointer}=?,row_version=row_version+1,updated_at=? WHERE id=?`)
       .run(id,Date.now(),sceneId);
+    if(kind==='video'){
+      manifest.db.prepare(`INSERT INTO scene_video_selections(scene_id,asset_id,selected_at)
+        VALUES(?,?,?) ON CONFLICT(scene_id) DO UPDATE SET asset_id=excluded.asset_id,
+        selected_at=excluded.selected_at`).run(sceneId,id,Date.now());
+    }
     manifest.repo.event('asset',id,'queue.asset.promoted',{jobId,sceneId});
     return manifest.get(id);
   });
