@@ -8,6 +8,7 @@ export {ProviderAccountRepository,PROVIDER_TEMPLATES,validateProviderEndpoint} f
 export {PaidPolicyRepository,createPaidInvocationPolicy} from './paid-policy.mjs';
 
 export {VideoCapabilityRepository,validateVideoCapabilities} from './video-capabilities.mjs';
+export {SceneClipService,normalizeClipPolicy} from './scene-video-r2vid.mjs';
 
 export {ChannelAvatarService,inspectAvatar} from './channel-avatar.mjs';
 

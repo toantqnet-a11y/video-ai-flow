@@ -5,6 +5,7 @@
  */
 import React,{useEffect,useState} from 'react';
 import {api} from './api.js';
+import {VideoMediaScopePolicy} from './VideoMediaScopePolicyR2VID.jsx';
 import {useStudio} from './store.js';
 import {editableVideoConfig,setVideoOverride,currentOverrideValue,cloneOverrides} from './video-config-form.mjs';
 
@@ -124,5 +125,6 @@ export function VideoConfigWorkspace(){
     </div><aside className="video-config-history"><h3>📜 Lịch sử cấu hình</h3><p>Chỉ đọc · Không tự khôi phục hoặc ghi đè</p>
       {history.map(r=><div key={r.version} className="video-config-revision"><b>v{r.version}</b> · {new Date(r.createdAt).toLocaleString('vi-VN')}<small>{r.impact.changedPaths.join(', ')||'Từ preset kênh'}</small></div>)}
     </aside></div>
+    <VideoMediaScopePolicy scope="video" id={video.id}/>
   </section>;
 }

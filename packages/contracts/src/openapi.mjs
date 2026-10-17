@@ -23,7 +23,7 @@ export function buildOpenApi(){
    if(op.body)entry.requestBody={required:!op.optionalBody,content:json(op.body)};
    if(op.binaryImage){entry.responses['200']={description:'Private channel avatar, authenticated, no-store',content:{'image/png':{schema:{type:'string',format:'binary'}},'image/jpeg':{schema:{type:'string',format:'binary'}}}};}
    else if(op.binarySceneImage){entry.responses['200']={description:'Private scene image, no-store',content:Object.fromEntries(['image/png','image/jpeg','image/webp'].map(t=>[t,{schema:{type:'string',format:'binary'}}]))};}
-   else if(op.binaryVideo){entry.responses['200']={description:'Private MP4 export',content:{'video/mp4':{schema:{type:'string',format:'binary'}}}};}
+   else if(op.binarySceneVideo||op.binaryVideo){entry.responses['200']={description:'Private MP4 export',content:{'video/mp4':{schema:{type:'string',format:'binary'}}}};}
    else if(op.binaryArchive){entry.responses['200']={description:'Private ZIP64 project bundle',content:{'application/zip':{schema:{type:'string',format:'binary'}}}};}
    else if(op.binaryAudio){entry.responses['200']={description:'Ephemeral audio; never cached',content:{'audio/mpeg':{schema:{type:'string',format:'binary'}},'audio/wav':{schema:{type:'string',format:'binary'}}}};}
    else if(op.stream){entry.responses['200']={description:'Replayable job status events',content:{'text/event-stream':{schema:{type:'string'},example:'id: 1\\nevent: job\\ndata: {"seq":1}\\n\\n'}}};}

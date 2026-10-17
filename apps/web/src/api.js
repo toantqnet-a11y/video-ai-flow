@@ -32,3 +32,9 @@ export const downloadLocalVideoSubtitle=(id,jobId,options)=>client.downloadLocal
 // R3-11 private ZIP project export, no tokens in browser anchor links.
 export const downloadProjectZip=(id,revision,options)=>client.downloadProjectZip(id,revision,options);
 export const saveProjectZip=(id,revision,handle,options)=>client.saveProjectZip(id,revision,handle,options);
+
+// R2-VID: authenticated clip Blob URL (bearer stays inside SDK memory).
+export const getSceneClipFile=(id,options)=>client.getSceneClipFile(id,options);
+
+// Read old clip versions privately, without activating them.
+export const getSceneClipRevisionFile=(id,assetId,options)=>client.getSceneClipRevisionFile(id,assetId,options);

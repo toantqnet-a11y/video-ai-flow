@@ -12,7 +12,7 @@ import {fingerprint} from '../../../packages/providers/src/index.mjs';
 import {presetCapabilities} from '../../../packages/core/src/preset-schema.mjs';
 import {providerReadiness} from '../../../packages/providers/src/readiness.mjs';
 const safeId=(id)=>typeof id==='string' && /^[a-zA-Z0-9-]{1,80}$/.test(id);
-export function createControllers({repo,store,registry,manifest,vault,paidPolicy=null,remoteLlmEnabled=false,renderExports=null}) {
+export function createControllers({repo,store,registry,manifest,vault,paidPolicy=null,remoteLlmEnabled=false,renderExports=null,clips=null}) {
   const providers = new ProviderAccountRepository(repo.db,{clock:repo.clock});
   const quotaLedger = new QuotaLedgerRepository(repo.db,{clock:repo.clock});
   const providerMonitor = new ProviderMonitorR212(repo.db,{clock:repo.clock});
@@ -354,6 +354,20 @@ export function createControllers({repo,store,registry,manifest,vault,paidPolicy
       return {provider:'comfyui',configured:true,health:result.reachable?'reachable':'unavailable',
         note:'Connectivity only; model/workflow/GPU inference not verified'};
     },
+    // Local AI Video: all policy writes require revision, all GPU jobs are
+    // explicit SP-04 jobs. No remote fallback and no automatic paid dispatch.
+    videoMediaPolicy:(scope,id)=>clips.getScopePolicy(scope,id),
+    saveVideoMediaPolicy:(scope,id,body)=>clips.saveScopePolicy(scope,id,body),
+    videoMediaPolicyHistory:(scope,id)=>clips.history(scope,id),
+    videoClipStatus:id=>clips.status(id),
+    videoClipPreflight:id=>clips.preflight(id),
+    queueVideoClip:(id,body)=>clips.queue(id,body),
+    queueVideoClipBatch:(id,body)=>clips.enqueueBatch(id,body),
+    importVideoClip:(id,body)=>clips.importBase64(id,body),
+    selectVideoClip:(id,body)=>clips.select(id,body),
+    fallbackVideoToImage:(id,body)=>clips.fallbackToImage(id,body),
+    videoClipFile:id=>clips.activeBytes(id),
+    videoClipRevisionFile:(id,assetId)=>clips.revisionBytes(id,assetId),
     queueSceneImage:(id,body)=>sceneImages.queue(id,body),
     sceneImageStatus:id=>sceneImages.status(id),
     selectSceneImage:(id,body)=>sceneImages.select(id,body),

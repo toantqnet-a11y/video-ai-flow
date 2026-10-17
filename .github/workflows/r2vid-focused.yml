@@ -1,0 +1,72 @@
+name: R2VID focused integration diagnostics
+# Follow-on branches modifying the AI-video production code get the same
+# focused regression; the main CI still runs the complete offline suite.
+on:
+  pull_request:
+    paths:
+      - packages/core/**
+      - apps/api/**
+      - apps/web/**
+      - packages/sdk/**
+      - packages/contracts/**
+      - .github/workflows/r2vid-focused.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install actual FFmpeg/FFprobe for genuine MP4 fixtures
+        shell: bash
+        run: |
+          if ! command -v ffmpeg || ! command -v ffprobe; then sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; fi
+      - name: Execute new SQLite and SP-04 video integration tests with raw TAP
+        run: node --test packages/core/test/scene-video-r2vid.test.mjs
+      - name: Recheck historical provider security route test
+        if: always()
+        run: node --test apps/api/test/provider-r007-routes.test.mjs
+      - name: Print complete TAP from previously failing batch 3
+        if: always()
+        run: |
+          node --test --test-concurrency=1 \
+            apps/api/test/mock-pipeline-r014.test.mjs \
+            apps/api/test/paid-r013-routes.test.mjs \
+            apps/api/test/preset-diff-r401.test.mjs \
+            apps/api/test/preset-r008-routes.test.mjs \
+            apps/api/test/project-zip-r311.test.mjs \
+            apps/api/test/provider-credential-guard-r007.test.mjs \
+            apps/api/test/provider-monitor-r212.test.mjs \
+            apps/api/test/provider-r007-routes.test.mjs
+      - name: Raw TAP historical core batch 9 migration regressions
+        if: always()
+        run: |
+          node --test --test-concurrency=1 \
+            apps/web/src/voice-preview-form.test.mjs \
+            packages/contracts/test/contracts-r005.test.mjs \
+            packages/core/test/asset-dag-r207.test.mjs \
+            packages/core/test/asset-library-r209.test.mjs \
+            packages/core/test/asset-registry-r206.test.mjs \
+            packages/core/test/assets.test.mjs \
+            packages/core/test/channel-avatar-r0gate.test.mjs \
+            packages/core/test/channel-r001.test.mjs
+      - name: Print raw TAP for full-suite batch 13 focused regression
+        if: always()
+        run: |
+          node --test --test-concurrency=1 \
+            packages/core/test/render-safety-r313.test.mjs \
+            packages/core/test/scene-builder-r201.test.mjs \
+            packages/core/test/scene-image-r205.test.mjs \
+            packages/core/test/scene-inspector-r301.test.mjs \
+            packages/core/test/scene-video-r2vid.test.mjs \
+            packages/core/test/scene-voice-r203.test.mjs \
+            packages/core/test/script-skills-r1ext01.test.mjs \
+            packages/core/test/selective-regeneration-r211.test.mjs
+      - name: Verify generated API contracts and SDK types
+        if: always()
+        run: node tools/generate-api.mjs --check

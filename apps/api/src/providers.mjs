@@ -76,6 +76,8 @@ export function setupProviders({dataRoot,comfyUrl='http://127.0.0.1:8188',imageW
   }
   if(videoWorkflow){
     const comfyVideo=new ComfyVideoAdapter({origin:comfyUrl,workflowPath:videoWorkflow.path,bindings:videoWorkflow.bindings});
+    // Expose only operator-configured LOCAL video adapter to the production worker.
+    registry.videoAdapter=comfyVideo;
     const service=new VideoAssetService({dataRoot,adapter:comfyVideo});
     registry.register({id:'comfyui-video',kind:'video',location:'local',costTier:'local',
       invoke:async ({projectId,sceneId,request},{signal})=>{

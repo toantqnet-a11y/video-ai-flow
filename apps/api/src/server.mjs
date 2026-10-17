@@ -28,8 +28,9 @@ import {createLlmDispatcher} from './llm-dispatch.mjs';
 import {registerChannelAvatarRoutes} from './channel-avatar.mjs';
 import {registerSceneVoiceAudioRoute} from './scene-voice-audio.mjs';
 import {registerSceneImageFileRoute} from './scene-image-file.mjs';
+import {registerSceneClipFileRoute} from './scene-video-file.mjs';
 import {RenderExportService} from './render-export-r2ext0406.mjs';
-import {CompositionRepository} from '../../../packages/core/src/index.mjs';
+import {CompositionRepository,SceneClipService} from '../../../packages/core/src/index.mjs';
 import {cleanupOrphanRenderStages} from '../../../packages/core/src/render-safety-r313.mjs';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'../../..');
@@ -117,7 +118,9 @@ export async function startApi({listen=true}={}) {
   }
   const remoteDispatcher=createLlmDispatcher({db,store,credentialAccess,paidPolicy,
     allowRemote,confirmedFreeModelIds,verifiedCostCapsMicroUsd,quotaReservationUnitsByModel});
+  const clips=new SceneClipService({repo,manifest,store,videoAdapter:registry.videoAdapter??null});
   const handlers=createJobHandlers({repo,registry,dataRoot});
+  handlers['scene:ai-video']=clips.handler();
   // Exactly one durable SP-04 queue. Remote LLM only via guarded dispatcher.
   const llmOptions={repo,store,remoteDispatcher};
   handlers['content:outline']=createOutlineJobHandler(llmOptions);
@@ -134,9 +137,10 @@ export async function startApi({listen=true}={}) {
   const security=installSecurity(app,{port,devFrontend:process.env.NODE_ENV!=='production'});
   registerVaultRoutes(app,{vault,isCredentialUsed:id=>Boolean(db.prepare('SELECT 1 FROM provider_accounts WHERE credential_id=? LIMIT 1').get(id))});
   app.get('/health',async()=>({status:'ok',service:'contentstudio',version:'arc01'}));
-  const controllers=createControllers({repo,store,registry,manifest,vault,paidPolicy,remoteLlmEnabled:allowRemote,renderExports});
+  const controllers=createControllers({repo,store,registry,manifest,vault,paidPolicy,remoteLlmEnabled:allowRemote,renderExports,clips});
   registerStudioRoutes(app,{controllers,store,diagnostics});
   registerSceneImageFileRoute(app,controllers);
+  registerSceneClipFileRoute(app,controllers);
   registerVoicePreviewRoute(app,createVoicePreview({repo}));
   registerSceneVoiceAudioRoute(app,new SceneVoiceRepository(repo,{store,manifest,localVoices:registry.localVoiceDefaults??{}}));
   registerChannelAvatarRoutes(app,new ChannelAvatarService({repo,dataRoot}));

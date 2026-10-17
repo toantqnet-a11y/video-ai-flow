@@ -3,6 +3,7 @@
  */
 import React,{useEffect,useMemo,useState} from 'react';
 import {api} from './api.js';
+import {SceneVideoPanel} from './SceneVideoPanelR2VID.jsx';
 
 const FIELDS=['text','visualPrompt','mediaType','durationMs'];
 export function SceneInspectorR301({videoId,sceneId,onDirtyChange=()=>{},onSaved=()=>{}}){
@@ -35,7 +36,7 @@ export function SceneInspectorR301({videoId,sceneId,onDirtyChange=()=>{},onSaved
   finally{setBusy(false)}
  };
  if(!sceneId)return null;
- return <section className="timeline-scene-inspector" aria-label="Scene Inspector R3-01">
+ return <><section className="timeline-scene-inspector" aria-label="Scene Inspector R3-01">
   <h3>✎ Scene Inspector — chỉnh sửa có kiểm soát</h3>
   {!draft?<p>Đang tải scene… {error}</p>:<>
    <p className="muted">Phiên bản scene #{source.rowVersion} · Lưu thủ công · Không tự chạy AI.</p>
@@ -58,5 +59,5 @@ export function SceneInspectorR301({videoId,sceneId,onDirtyChange=()=>{},onSaved
    {notice&&<div className="info">{notice}</div>}{error&&<div role="alert" className="error">{error}</div>}
    <p className="muted">Preset hiệu ứng và Brand Kit ở khung Motion phía trên; chọn phiên bản giọng đọc tại Voice/Assets. Đây không phải lệnh tái tạo tài nguyên.</p>
   </>}
- </section>;
+ </section><SceneVideoPanel sceneId={sceneId} disabled={busy||dirty} onUpdated={onSaved}/></>;
 }

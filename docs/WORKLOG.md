@@ -923,3 +923,14 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
 - Hardened Windows full-length composition MP4/SRT canonical safe paths, added post-recovery genuine media read-only inspector for H264/AAC >=35min/sha/bytes, added operator-controlled existing local voice-file probe; tests prove mock outputs cannot trigger release approval.
 - Added `tools/fi0410-hosted-matrix.mjs`: intentionally `hostedTechnicalStatus=PARTIAL`, `releaseStatus=NOT_READY`, `releaseReady=false`. Artifact expires 2026-10-24.
 - Updated generator and single 69-task backlog to show hosted evidence without pretending to have witnessed Windows 11 authenticated UI, real 35min/OS-kill, local GPU/TTS, human audio/visual QA or production security signoff. See `docs/FI0405_FI0410_TEST_REPORT.md` and `docs/FI0405_FI0410_HANDOFF.md`.
+
+## 2026-10-17 — R2-VID-01 → R2-VID-05 production AI Video clip integration
+- SQLite v33: inherited channel/video/scene media policy, immutable history and optimistic lock, scene voice untouched. Local-only ComfyUI/Wan adapter wired through existing SP-04; atomic <=40 scene batch with one-attempt and stale-intent fencing.
+- Real FFprobe MP4 import <=8 MiB, immutable SHA asset/selection provenance, explicit manual healthy-image fallback; private authenticated Blob preview, per-scene clip editor and Scene Builder bulk queue.
+- Added real FFmpeg MP4+SQLite+SP-04 integration tests using injected adapter (NOT live Wan GPU), contract/SDK/OpenAPI operations, migration backfill fixture updates. See docs/R2VID01_05_HANDOFF.md.
+- Release remains NOT_READY; Windows 11 UI, actual Wan/ComfyUI GPU, large-file upload and multi-process GPU resource locks are pending. No paid remote call.
+
+- Additional R2-VID-01 UI: `VideoMediaScopePolicyR2VID.jsx` is integrated in the Channel Media tab and Video Settings, so channel/video policies no longer require API-only editing. Per-scene overrides still take precedence. Saving a scope never invokes a model.
+- Additional R2-VID-05 UI: version rows can preview prior MP4 before selecting it via the private `/api/scenes/:id/video/assets/:assetId/file` route and SDK in-memory bearer Blob. Added cross-scene ownership test. Current scene selection stays unchanged until explicit activation.
+- Cleaned temporary feature-branch API generator after it generated OpenAPI and SDK types; retained focused PR regression workflow. Diagnosed and corrected duplicated registered MP4 preview route from initial edit; real Fastify HTTP build catches route collisions.
+- CI checks must be read against final head, not earlier bot artifact commits; Windows 11 GUI/ComfyUI GPU remains blocked.

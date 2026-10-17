@@ -127,6 +127,7 @@ export function createStudioClient({fetchImpl=globalThis.fetch,baseUrl='/api'}={
    if(op.binaryAudio)throw new StudioApiError('USE_VOICE_PREVIEW');
    if(op.binaryImage)throw new StudioApiError('USE_CHANNEL_AVATAR');
    if(op.binarySceneImage)throw new StudioApiError('USE_SCENE_IMAGE_FILE');
+   if(op.binarySceneVideo)throw new StudioApiError('USE_SCENE_CLIP_FILE');
    if(!op.public&&!credentials)throw new StudioApiError('PAIRING_REQUIRED');
    const path=pathFor(op,args);
    const headers={'accept':'application/json'};
@@ -245,6 +246,32 @@ export function createStudioClient({fetchImpl=globalThis.fetch,baseUrl='/api'}={
      throw new StudioApiError('INVALID_IMAGE_FILE');
    return new Blob([bytes],{type:mime});
  };
+ /** R2-VID-05: authenticated video playback; never expose bearer in src URL.
+  * Fetch only allowlisted current scene clip; hard cap bytes and MP4 signature.
+  */
+ const readPrivateSceneClip=async(opId,args,{signal}={})=>{
+   if(!credentials)throw new StudioApiError('PAIRING_REQUIRED');
+   const op=operationById.get(opId);
+   const res=await fetchImpl(`${base}${pathFor(op,args)}`,{method:'GET',headers:{
+     authorization:`Bearer ${credentials.bearer}`,accept:'video/mp4'},signal});
+   if(!res.ok){if(res.status===401)clear();let body;try{body=await res.json()}catch{}
+     throw new StudioApiError(safeCode(body?.error,`HTTP_${res.status}`),res.status);}
+   if(!res.headers.get('content-type')?.startsWith('video/mp4'))throw new StudioApiError('INVALID_VIDEO_PREVIEW');
+   const max=100*1024*1024;if(Number(res.headers.get('content-length'))>max)
+     throw new StudioApiError('VIDEO_PREVIEW_TOO_LARGE');
+   const reader=res.body?.getReader();if(!reader)throw new StudioApiError('INVALID_VIDEO_PREVIEW');
+   const parts=[];let bytes=0;
+   try{while(true){const {done,value}=await reader.read();if(done)break;
+     bytes+=value.byteLength;if(bytes>max)throw new StudioApiError('VIDEO_PREVIEW_TOO_LARGE');
+     parts.push(value);}}
+   finally{if(bytes>max)await reader.cancel().catch(()=>{});reader.releaseLock();}
+   const data=new Uint8Array(bytes);let at=0;for(const part of parts){data.set(part,at);at+=part.length;}
+   if(data.length<16||String.fromCharCode(...data.subarray(4,8))!=='ftyp')
+     throw new StudioApiError('INVALID_VIDEO_PREVIEW');
+   return new Blob([data],{type:'video/mp4'});
+ };
+ const getSceneClipFile=(id,opts)=>readPrivateSceneClip('getSceneClipFile',{id},opts);
+ const getSceneClipRevisionFile=(id,assetId,opts)=>readPrivateSceneClip('getSceneClipRevisionFile',{id,assetId},opts);
  /** EXT-08: private thumbnail, bounded JPEG and no auth token in DOM URL. */
  const downloadLocalVideoThumbnail=async(videoId,jobId,{signal}={})=>{
    if(!credentials)throw new StudioApiError('PAIRING_REQUIRED');
@@ -458,5 +485,5 @@ export function createStudioClient({fetchImpl=globalThis.fetch,baseUrl='/api'}={
    }
    return {lastEventId:cursor};
  };
- return {authenticated,clear,pair,request,requestPath,previewVoice,getSceneVoiceAudio,getSceneImageFile,getChannelAvatar,downloadLocalVideoThumbnail,downloadLocalVideoRender,downloadLocalVideoSubtitle,saveLocalVideoRender,downloadProjectZip,saveProjectZip,streamJobs};
+ return {authenticated,clear,pair,request,requestPath,previewVoice,getSceneVoiceAudio,getSceneImageFile,getSceneClipFile,getSceneClipRevisionFile,getChannelAvatar,downloadLocalVideoThumbnail,downloadLocalVideoRender,downloadLocalVideoSubtitle,saveLocalVideoRender,downloadProjectZip,saveProjectZip,streamJobs};
 }

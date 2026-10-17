@@ -970,16 +970,17 @@
         "R2-02"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "PARTIAL_MEDIA_POLICY__PER_SCENE_PERSISTENCE_UNVERIFIED",
+      "status": "PRODUCTION_SQLITE_MEDIA_POLICY_IMPLEMENTED__WINDOWS_UX_PENDING",
       "evidence": [
-        "apps/web/src/ChannelWorkspace.jsx",
-        "apps/web/src/SceneBuilderWorkspace.jsx",
-        "apps/web/src/SceneInspectorR301.jsx"
+        "packages/core/src/scene-video-r2vid.mjs",
+        "apps/web/src/SceneVideoPanelR2VID.jsx",
+        "packages/core/test/scene-video-r2vid.test.mjs"
       ],
       "remainingGate": [
-        "persisted versioned per-scene I2V/T2V media policy, targeted impact/voice stability"
+        "Windows 11 authenticated policy inheritance/edit preview",
+        "Future policy change impact on already approved clips"
       ],
-      "acceptance": "Media options visible; not a complete dedicated policy implementation",
+      "acceptance": "SQLite v33 channel/video/scene versioned policy + optimistic lock, intent-safe scene media selector, tested offline; no provider called on save",
       "verifiedTests": [
         "prior focused/offline reference only; NOT new FI04 live acceptance"
       ]
@@ -994,14 +995,17 @@
         "R2-05"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "SPIKE_ADAPTER_MOCK_ONLY__PRODUCTION_INFERENCE_UNVERIFIED",
+      "status": "PRODUCTION_LOCAL_COMFY_ADAPTER_INTEGRATED__NATIVE_GPU_PENDING",
       "evidence": [
+        "packages/core/src/scene-video-r2vid.mjs",
+        "apps/api/src/providers.mjs",
         "spikes/SP-VID-01/src/comfy-video.mjs"
       ],
       "remainingGate": [
-        "production worker adapter and actual Wan GPU I2V/T2V output, FFprobe and Windows QA"
+        "Actual ComfyUI/Wan T2V/I2V GPU inference with on-device checkpoint and resource/license QA",
+        "Multi-process GPU mutex and Windows UX"
       ],
-      "acceptance": "SPIKE ComfyUI protocol is not a production AI-video generator",
+      "acceptance": "Production SP-04 adapter connected to explicit local ComfyUI workflow; focused test injected fake GPU adapter, not native Wan inference",
       "verifiedTests": [
         "prior focused/offline reference only; NOT new FI04 live acceptance"
       ]
@@ -1015,15 +1019,17 @@
         "R2-VID-01"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "SPIKE_IMPORT_ONLY__PRODUCTION_ROUTES_UNVERIFIED",
+      "status": "AUTHENTICATED_GENUINE_MP4_IMPORT_FFPROBE_CODE_PASS__LARGE_FILE_PENDING",
       "evidence": [
-        "spikes/SP-VID-01/src/service.mjs",
-        "spikes/SP-VID-01/src/media.mjs"
+        "packages/core/src/scene-video-r2vid.mjs",
+        "apps/api/src/routes.mjs",
+        "packages/core/test/scene-video-r2vid.test.mjs"
       ],
       "remainingGate": [
-        "authenticated production clip import, revisions/provenance UI and destructive-path tests"
+        "Windows browser file import user acceptance",
+        "Streaming clip import above 8MiB and disk/resource stress"
       ],
-      "acceptance": "Working Spike import checks real MP4 bytes, but lacks production scene contract",
+      "acceptance": "Private bounded 8MiB MP4 import, real ffprobe, SHA256, immutable revision, scene version guard, manual selection tested offline",
       "verifiedTests": [
         "prior focused/offline reference only; NOT new FI04 live acceptance"
       ]
@@ -1038,14 +1044,17 @@
         "R2-VID-03"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "SPIKE_QUEUE_BRIDGE_ONLY__FULL_REGEN_UNVERIFIED",
+      "status": "SP04_ATOMIC_LOCAL_VIDEO_BATCH_CODE_PASS__GPU_STRESS_PENDING",
       "evidence": [
-        "spikes/SP-VID-01/src/service.mjs"
+        "packages/core/src/scene-video-r2vid.mjs",
+        "apps/web/src/BatchVideoClipsR2VID.jsx",
+        "packages/core/test/scene-video-r2vid.test.mjs"
       ],
       "remainingGate": [
-        "production clip batch DAG, bounded GPU mutex, idempotency and crash recovery"
+        "Real local GPU 40-scene batch and worker crash/recovery",
+        "Cross-process GPU lock and selective clip regeneration UI"
       ],
-      "acceptance": "Spike reuses SP-04; complete production clip queue not confirmed",
+      "acceptance": "Explicit <=40 scene ordered SP-04 DAG, idempotency, no auto GPU retry, snapshot fencing, process-local provider mutex; fixture adapter only",
       "verifiedTests": [
         "prior focused/offline reference only; NOT new FI04 live acceptance"
       ]
@@ -1060,13 +1069,20 @@
         "R2-VID-04"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "NOT_VERIFIED_IN_PRODUCTION",
-      "evidence": [],
-      "remainingGate": [
-        "scene clip preview, compare, activate revision and still-image fallback E2E"
+      "status": "EDITOR_PREVIEW_VERSION_AND_IMAGE_FALLBACK_CODE_PASS__WINDOWS_BROWSER_PENDING",
+      "evidence": [
+        "apps/web/src/SceneVideoPanelR2VID.jsx",
+        "apps/api/src/scene-video-file.mjs",
+        "packages/sdk/src/client.mjs"
       ],
-      "acceptance": "No verified production scene clip UI",
-      "verifiedTests": []
+      "remainingGate": [
+        "Windows 11 authenticated MP4 playback/clip selection/import manual QA",
+        "Actual model-output comparison and 500-scene browser scale"
+      ],
+      "acceptance": "Scene Inspector media policy, jobs, real imported clip versions, private bearer Blob MP4 preview and explicit healthy-image fallback; real browser acceptance pending",
+      "verifiedTests": [
+        "prior focused/offline reference only; NOT new FI04 live acceptance"
+      ]
     },
     {
       "id": "R2-VID-06",
