@@ -969,3 +969,8 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
 - R4-03: private, sanitized quarantine inventory now includes a digest; explicit RESTORE_STAGING with 20-item limit, stale-state fencing, symlink/ownership/collision checks and running job block, via paired UI and authenticated API. No permanent delete and no immutable media modifications.
 - R3-08: cache fragment key includes narration/timing fields and visual kind, avoiding false cache hits when audio window changes but voice SHA and scene frame length stay the same.
 - Pending: Windows native HyperFrames + 35min mixed-video/audio, UI/large workspace tests and manual review. Release NOT_READY.
+
+## 2026-10-18 — EXT-07 local visual batch no longer partial on enqueue
+- Added SceneImageRepository.queueBatch() for 1–20 explicitly selected still-image scenes. Validates all local ComfyUI workflows before atomic SP-04 enqueueManyAtomic, then sets matching scene_image_intents in the SAME SQLite WAL transaction. Checks live scene text/prompt/media type/config again under queue lock; stale source rolls back every inserted job.
+- Visual router execute delegates to atomic queueBatch; it cannot queue paid/remote AI or silently send video scenes to still-image adapters. Reused jobs retain idempotent keys; worker promotion still fences against stale intent.
+- Acceptance pending: real ComfyUI local GPU/native Windows and browser flow; do not claim actual model inference from offline workflow mocks. Release NOT_READY.

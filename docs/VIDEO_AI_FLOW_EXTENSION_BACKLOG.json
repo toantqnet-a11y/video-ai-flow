@@ -252,7 +252,7 @@
         "R2-05",
         "R2-06"
       ],
-      "status": "EXPLICIT_LOCAL_ONLY_IMAGE_ROUTE_INTEGRATED__GPU_PENDING",
+      "status": "ATOMIC_LOCAL_IMAGE_ROUTER_CODE_PASS__WINDOWS_NATIVE_GPU_PENDING",
       "acceptanceSummary": "Three deterministic cache-first modes, trusted-pin health, local ComfyUI configured-only suggestion, paid clip option displayed blocked; no paid/AI calls, no invented billing. Preview only, provider execution selection stays manual.",
       "verifiedTests": [
         "npm run test:ext0708",
@@ -260,11 +260,14 @@
         "npm run check",
         "npm run typecheck:sdk",
         "npm run test:negative-control",
-        "PR #7 focused + full CI pending"
+        "PR #7 focused + full CI pending",
+        "node --test packages/core/test/visual-router-atomic-ext07.test.mjs",
+        "CI PR #9 required"
       ],
       "remainingGate": [
-        "Native local ComfyUI selective routing smoke",
-        "Per-scene submit may partially finish; paid OFF"
+        "Real local ComfyUI GPU workflow and Windows browser E2E",
+        "Concurrent editor mutations and multi-process SP-04 stress under genuine GPU",
+        "AI-video scenes intentionally excluded; no paid/remote fallback"
       ]
     },
     {
