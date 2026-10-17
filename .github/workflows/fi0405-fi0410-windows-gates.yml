@@ -60,6 +60,8 @@ jobs:
           if ($exit -eq 0 -or $report.syntheticRecovery -ne 'PASS' -or $report.releaseGateSatisfied -ne $false) {
             throw 'FI0407_SYNTHETIC_FAIL_CLOSED_INVARIANT'
           }
+          # An expected fail-closed exit must not leak as the step's last native status.
+          exit 0
       - name: Local AI inventory only; no inference, quota or paid call
         run: node tools/fi0408-provider-e2e.mjs --inspect --report=docs/evidence/FI0410_provider_inspect.json
       - name: Online npm dependency vulnerability audit (reviewed lock)
@@ -77,6 +79,7 @@ jobs:
           if ($exit -eq 0 -or $report.evidence.focusedSecurityTests -ne 'PASS' -or $report.status -ne 'NOT_READY') {
             throw 'FI0409_SECURITY_INVENTORY_FAILED'
           }
+          exit 0
       - name: Release inventory must refuse unconditional certification
         run: |
           node tools/fi0410-final-release.mjs --inspect --report=docs/evidence/FI0410_release.json
