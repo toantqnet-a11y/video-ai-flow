@@ -451,6 +451,19 @@ export function createStudioClient({fetchImpl=globalThis.fetch,baseUrl='/api'}={
    try{return await parseResponse(response)}catch(error){
      if(error instanceof StudioApiError&&error.status===401)clear();throw error;}
  };
+ // Music upload retains bearer+CSRF in in-memory headers, never URL/localStorage.
+ const uploadMusicFile=async(videoId,file,{signal}={})=>{
+   if(!credentials)throw new StudioApiError('PAIRING_REQUIRED');
+   if(!validId(videoId)||!file||!Number.isFinite(file.size)||file.size<100||file.size>50*1024*1024)
+     throw new StudioApiError('R4_MUSIC_STREAM_INVALID');
+   const extension=/\.(mp3|wav|m4a)$/i.exec(file.name)?.[1]?.toLowerCase();
+   if(!extension)throw new StudioApiError('R4_MUSIC_STREAM_INVALID');
+   const res=await fetchImpl(`${base}/videos/${videoId}/music/import-stream`,{method:'POST',headers:{
+     accept:'application/json','content-type':'application/octet-stream',
+     authorization:`Bearer ${credentials.bearer}`,'x-contentstudio-csrf':credentials.csrf,
+     'x-contentstudio-extension':extension},body:file,signal});
+   try{return await parseResponse(res)}catch(e){if(e instanceof StudioApiError&&e.status===401)clear();throw e;}
+ };
  const requestPath=async(path,{method='GET',body,signal}={})=>{
    if(typeof path!=='string'||!path.startsWith('/'))throw new StudioApiError('UNKNOWN_OPERATION');
    const [pathname,search='']=path.split('?');
@@ -503,5 +516,5 @@ export function createStudioClient({fetchImpl=globalThis.fetch,baseUrl='/api'}={
    }
    return {lastEventId:cursor};
  };
- return {authenticated,clear,pair,request,requestPath,uploadSceneClipStream,previewVoice,getSceneVoiceAudio,getSceneImageFile,getSceneClipFile,getSceneClipRevisionFile,getChannelAvatar,downloadLocalVideoThumbnail,downloadLocalVideoRender,downloadLocalVideoSubtitle,saveLocalVideoRender,downloadProjectZip,saveProjectZip,streamJobs};
+ return {authenticated,clear,pair,request,requestPath,uploadSceneClipStream,previewVoice,getSceneVoiceAudio,getSceneImageFile,getSceneClipFile,getSceneClipRevisionFile,getChannelAvatar,uploadMusicFile,downloadLocalVideoThumbnail,downloadLocalVideoRender,downloadLocalVideoSubtitle,saveLocalVideoRender,downloadProjectZip,saveProjectZip,streamJobs};
 }

@@ -2,7 +2,7 @@
  * Every preflight is read-only; actual rendering needs explicit confirmation.
  * Scene completion is not an overall encode ETA (final mux/QA still run). */
 import React,{useEffect,useRef,useState} from 'react';
-import {api,streamJobs} from './api.js';
+import {api,streamJobs,uploadMusicFile} from './api.js';
 const labels={queued:'Đang chờ',preparing:'Chuẩn bị media',encoding:'Đang render scene',
  finalizing:'Đang ghép và xuất',verifying:'Đang kiểm tra đầu ra',completed:'Hoàn thành',failed:'Thất bại'};
 export function RenderDrawerR312({videoId,revision,styleRevision,styleDirty,editorDirty,engine,setEngine,render,setRender,onMessage,onError,busy=false}){
@@ -22,10 +22,8 @@ export function RenderDrawerR312({videoId,revision,styleRevision,styleDirty,edit
   if(!file)return;setMusicError('');setMusicUploading(true);
   try{
    const extension=file.name.split('.').at(-1)?.toLowerCase();
-   if(!['mp3','wav','m4a'].includes(extension)||file.size>640*1024)throw Error('Chỉ hỗ trợ MP3/WAV/M4A tối đa 640 KiB trong phiên bản này.');
-   const buffer=new Uint8Array(await file.arrayBuffer());let raw='';
-   for(let i=0;i<buffer.length;i+=8192)raw+=String.fromCharCode(...buffer.subarray(i,i+8192));
-   const response=await api(`/videos/${videoId}/music/import`,{method:'POST',body:{extension,base64:btoa(raw)}});
+   if(!['mp3','wav','m4a'].includes(extension)||file.size>50*1024*1024||file.size<100)throw Error('Chỉ hỗ trợ MP3/WAV/M4A tối đa 50 MiB.');
+   const response=await uploadMusicFile(videoId,file);
    setMusicTrack(response);setMusicEnabled(true);setMusicRights(false);await refreshMusic();
   }catch(e){setMusicError(e.code??e.message)}finally{setMusicUploading(false)}
  };
@@ -79,7 +77,7 @@ export function RenderDrawerR312({videoId,revision,styleRevision,styleDirty,edit
    <div className="actions"><label><input type="checkbox" checked={applySubtitleDraft} disabled={!subtitleDraft?.revision} onChange={e=>setApplySubtitleDraft(e.target.checked)}/> Áp dụng phụ đề nháp {subtitleDraft?.revision?`#${subtitleDraft.revision}`:'(chưa lưu)'}</label>
     <button className="btn secondary" onClick={refreshSubtitle} type="button">↻ Cập nhật bản nháp</button></div>
    <small>Chỉ khi chọn, bản nháp đã lưu mới được đóng băng vào job render và burn-in trong MP4; SRT riêng dùng cùng cues.</small>
-   <div><label>Nhạc nền (MP3, WAV hoặc M4A ≤ 640 KiB; local, lặp theo video)
+   <div><label>Nhạc nền (MP3, WAV hoặc M4A ≤ 50 MiB; stream local, lặp theo video)
     <input type="file" accept=".mp3,.wav,.m4a,audio/*" disabled={musicUploading} onChange={e=>void importMusic(e.target.files?.[0])}/></label></div>
    {musicLibrary.length>0&&<label>Chọn nhạc đã tải lên
     <select value={musicTrack?.pin?.relativePath??''} onChange={e=>{

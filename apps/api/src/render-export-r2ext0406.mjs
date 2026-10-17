@@ -6,7 +6,7 @@ import {lstat,realpath} from 'node:fs/promises';
 import {join,sep} from 'node:path';
 import {prepareSubtitleRenderPlan,validateRenderMusic,renderMusicDigest} from '../../../packages/core/src/render-finishing-r405-r406.mjs';
 import {SubtitleDraftsR405,mixMusicIntoMp4} from '../../../packages/core/src/r4-editor-music-style.mjs';
-import {importMusicTrack,listMusicTracks} from '../../../packages/core/src/music-import-r406.mjs';
+import {importMusicTrack,importMusicTrackStream,listMusicTracks} from '../../../packages/core/src/music-import-r406.mjs';
 import {probeMp4,checkMp4Quality} from '../../../packages/core/src/render-ffmpeg-r2ext04.mjs';
 import {MotionBrandRepository,resolveMotionStyle} from '../../../packages/core/src/index.mjs';
 import {DomainError} from '../../../packages/core/src/domain.mjs';
@@ -40,6 +40,10 @@ export class RenderExportService{
  async importMusic(videoId,body){
   if(!this.repo.getVideo(videoId))fail('R4_VIDEO_NOT_FOUND',404);
   return importMusicTrack({videoId,body,dataRoot:this.manifest.dataRoot});
+ }
+ async importMusicStream(videoId,stream,extension){
+  if(!this.repo.getVideo(videoId))fail('R4_VIDEO_NOT_FOUND',404);
+  return importMusicTrackStream({videoId,stream,extension,dataRoot:this.manifest.dataRoot});
  }
  /** R4-05/06 require explicit opt-in; a saved draft is immutable in the
   * queued snapshot even if another tab modifies it while rendering. */

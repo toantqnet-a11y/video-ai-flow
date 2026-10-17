@@ -962,3 +962,5 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
 - R4-06: optional fixed-parameter local sidechain ducking of music; existing explicit music rights confirmation preserved. Upload of music >640 KiB remains future work.
 - EXT-08: safe UI motion preview, explicitly labeled not a rendered proof; versioned presets remain immutable. EXT-07: explicit operator-approved local-only ComfyUI image queue from digest-rechecked route plan, with partial result reporting. R4-07: checksum-health evidence for selected visuals; model-based visual identity not verified.
 - Tests: New focused regressions + complete CI gates required; real Windows 11 browser, native Wan/ComfyUI, 35min hybrid render, full HyperFrames cache quality, music listening tests remain NOT_READY.
+
+- R4-06 follow-up: new 50MiB authenticated streaming local MP3/WAV/M4A upload (actual format validated by ffprobe), immutable SHA pins. React now uses streamed File/Blob; existing 640KiB JSON import kept for backward compatibility. No new paid inference or network egress beyond loopback upload.

@@ -2,8 +2,10 @@
  * under Fastify's existing 1 MiB limit avoids changing the global body limit.
  * Larger music files require a future streamed upload implementation.
  */
-import {createHash} from 'node:crypto';
-import {mkdir,writeFile,rename,rm,stat,realpath} from 'node:fs/promises';
+import {createHash,randomUUID} from 'node:crypto';
+import {createReadStream,createWriteStream,constants as fsConstants} from 'node:fs';
+import {pipeline} from 'node:stream/promises';
+import {mkdir,writeFile,rename,rm,stat,realpath,copyFile,lstat} from 'node:fs/promises';
 import {join,resolve,relative} from 'node:path';
 import {DomainError} from './domain.mjs';
 import {runBinary,safePinnedPath} from './render-ffmpeg-r2ext04.mjs';
@@ -37,6 +39,51 @@ export async function importMusicTrack({videoId,body,dataRoot,ffprobe='ffprobe'}
   await safePinnedPath(dataRoot,pin);
   return {pin,durationSeconds:duration,codec:streams.find(s=>s.codec_type==='audio')?.codec_name};
  }finally{await rm(temporary,{force:true}).catch(()=>{});}
+}
+
+/** Authenticated binary music import up to 50MiB, streamed to private disk.
+ * The extension is a user hint; ffprobe must independently confirm format.
+ * No Buffer.concat, paid service, arbitrary path, symlink, or overwrite.
+ */
+export async function importMusicTrackStream({videoId,stream,extension,dataRoot,ffprobe='ffprobe'}={}){
+ if(!/^[A-Za-z0-9-]{1,100}$/.test(videoId??'')||!['mp3','wav','m4a'].includes(extension)||
+    !stream||typeof stream[Symbol.asyncIterator]!=='function')fail('R4_MUSIC_STREAM_INVALID');
+ const max=50*1024*1024,root=await realpath(dataRoot);
+ const directory=join(root,'music',videoId);
+ await mkdir(directory,{recursive:true,mode:0o700});
+ if(relative(resolve(root,'music',videoId),await realpath(directory))!=='')fail('R4_MUSIC_IMPORT_UNSAFE');
+ const tmp=join(directory,`.incoming-${randomUUID()}.part`);let bytes=0;
+ try{
+  async function* bounded(source){for await(const part of source){
+   const block=Buffer.from(part);bytes+=block.length;
+   if(bytes>max)fail('R4_MUSIC_STREAM_TOO_LARGE',413);
+   yield block;
+  }}
+  await pipeline(stream,bounded,createWriteStream(tmp,{flags:'wx',mode:0o600}));
+  if(bytes<100)fail('R4_MUSIC_STREAM_INVALID');
+  let probe;
+  try{probe=JSON.parse(await runBinary(ffprobe,['-v','error',
+   '-show_entries','stream=codec_type,codec_name:format=duration,format_name','-of','json',tmp],{timeoutMs:15000}));}
+  catch{fail('R4_MUSIC_FORMAT_INVALID');}
+  const streams=probe.streams??[],duration=Number(probe.format?.duration);
+  const formats=String(probe.format?.format_name??'').split(',');
+  const allowed=extension==='mp3'?formats.includes('mp3'):extension==='wav'?formats.includes('wav'):
+   formats.some(x=>['mov','mp4','m4a'].includes(x));
+  if(!allowed||!streams.some(s=>s.codec_type==='audio')||streams.some(s=>s.codec_type==='video')||
+   !Number.isFinite(duration)||duration<=0||duration>14400)fail('R4_MUSIC_FORMAT_INVALID');
+  const h=createHash('sha256');
+  for await(const chunk of createReadStream(tmp))h.update(chunk);
+  const sha256=h.digest('hex'),relativePath=`music/${videoId}/${sha256}.${extension}`;
+  const target=join(directory,`${sha256}.${extension}`);
+  try{await copyFile(tmp,target,fsConstants.COPYFILE_EXCL)}
+  catch(e){if(e.code!=='EEXIST')throw e;}
+  const pin={relativePath,sha256,bytes};
+  // Detect unsafe existing/symlink colliders and the full expected checksum.
+  const st=await lstat(target);
+  if(!st.isFile()||st.isSymbolicLink()||st.size!==bytes)fail('R4_MUSIC_IMPORT_COLLISION');
+  await safePinnedPath(root,pin);
+  return {pin,durationSeconds:duration,codec:streams.find(s=>s.codec_type==='audio').codec_name};
+ }finally{await rm(tmp,{force:true}).catch(()=>{})}
 }
 
 /** Local library index is reconstructed from SHA-named imports; it contains

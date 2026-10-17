@@ -396,6 +396,7 @@ export const operations=[
   get('getMotionStyleRevision','/api/videos/:id/motion-style/revisions/:revision','Read frozen style revision',ref('MotionStyleLatest')),
   post('publishMotionStyle','/api/videos/:id/motion-style/revisions','Create immutable local-only style revision, optimistic expectedRevision',ref('MotionStyleLatest'),ref('MotionStylePublishInput'),{created:true}),
   get('listLocalVideoMusicR406','/api/videos/:id/music','List locally imported music pins with verified SHA-256 and audio duration',ref('MusicListR406')),
+  post('importLocalMusicStreamR406','/api/videos/:id/music/import-stream','Authenticated bounded streaming local MP3/WAV/M4A with validated audio-only FFprobe',ref('MusicImportResultR406')),
   post('importLocalVideoMusicR406','/api/videos/:id/music/import','Import a bounded local MP3/WAV/M4A music file; explicit user action, no paid provider',ref('MusicImportResultR406'),ref('MusicImportInputR406')),
   post('previewLocalVideoRender','/api/videos/:id/renders/preflight','Read-only pinned-asset, revision and resolution checks for render drawer',ref('RenderPreflightResult'),ref('RenderPreflightInput')),
   post('enqueueLocalVideoRender','/api/videos/:id/renders','Enqueue local video render (HyperFrames default, explicit FFmpeg fallback)',ref('RenderExportQueueResult'),ref('RenderExportInput')),

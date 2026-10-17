@@ -59,6 +59,10 @@ export function registerStudioRoutes(app,{controllers,store,diagnostics}) {
   // R3-12 preview uses identical guards to dispatch but never reserves a job.
   app.get('/api/videos/:id/music',use(req=>controllers.musicList(req.params.id)));
   app.post('/api/videos/:id/music/import',use((req,reply)=>reply.code(201).send(controllers.musicImport(req.params.id,req.body))));
+  // Fastify binary parser installed on the REAL server, never mocks.
+  // Bearer + CSRF are checked globally before the streamed audio is consumed.
+  app.post('/api/videos/:id/music/import-stream',{bodyLimit:50*1024*1024+8192},
+    use((req,reply)=>reply.code(201).send(controllers.musicImportStream(req.params.id,req.body,req.headers['x-contentstudio-extension']))));
   app.post('/api/videos/:id/renders/preflight',use(req=>controllers.renderPreflight(req.params.id,req.body)));
   app.post('/api/videos/:id/renders',use((req,reply)=>reply.code(202).send(controllers.renderQueue(req.params.id,req.body))));
   app.get('/api/videos/:id/renders/:jobId',use(req=>controllers.renderJob(req.params.id,req.params.jobId)));
