@@ -365,6 +365,7 @@ export function createControllers({repo,store,registry,manifest,vault,paidPolicy
     queueVideoClipBatch:(id,body)=>clips.enqueueBatch(id,body),
     importVideoClip:(id,body)=>clips.importBase64(id,body),
     selectVideoClip:(id,body)=>clips.select(id,body),
+    fallbackVideoToImage:(id,body)=>clips.fallbackToImage(id,body),
     videoClipFile:id=>clips.activeBytes(id),
     queueSceneImage:(id,body)=>sceneImages.queue(id,body),
     sceneImageStatus:id=>sceneImages.status(id),
