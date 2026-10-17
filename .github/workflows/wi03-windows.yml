@@ -32,6 +32,16 @@ jobs:
         run: node tools/ci-github-lock.mjs
       - name: Install exact dependencies (no lifecycle scripts)
         run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Ensure Windows FFmpeg and FFprobe
+        run: |
+          if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue) -or -not (Get-Command ffprobe -ErrorAction SilentlyContinue)) {
+            choco install ffmpeg -y --no-progress
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          ffmpeg -version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ffprobe -version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Static contracts, SDK and frontend build on Windows
         run: |
           npm run check
