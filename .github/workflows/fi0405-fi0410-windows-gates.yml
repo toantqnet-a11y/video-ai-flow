@@ -62,6 +62,12 @@ jobs:
           }
       - name: Local AI inventory only; no inference, quota or paid call
         run: node tools/fi0408-provider-e2e.mjs --inspect --report=docs/evidence/FI0410_provider_inspect.json
+      - name: Online npm dependency vulnerability audit (reviewed lock)
+        run: |
+          npm audit --audit-level=high
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # Presence of this report is meaningful only with this successful job.
+          '{"task":"FI-04-09","status":"PASS","scope":"npm-audit-high"}' | Set-Content -LiteralPath docs/evidence/FI0410_audit.json -Encoding utf8
       - name: Security focused tests and Windows dependency audit inventory
         run: |
           $PSNativeCommandUseErrorActionPreference = $false
