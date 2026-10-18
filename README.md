@@ -1,3 +1,5 @@
+> **PRODUCT SCOPE (18/10/2026):** Video AI Flow is a **React/Vite + Fastify web app served on localhost**, not a Windows Desktop/EXE/Electron app. Windows Server CI below is historical test evidence, not a Windows 11 release prerequisite. The canonical 69-task release gates now target a real authenticated localhost browser, local AI where configured, genuine HyperFrames render, performance and recovery; release remains **NOT_READY**. See [localhost backlog handoff](docs/LOCALHOST_BACKLOG_HANDOFF.md), [canonical backlog](docs/VIDEO_AI_FLOW_MASTER_BACKLOG.json).
+
 # FI-04 – 17/10/2026 · Stability, dependency/bootstrap, runtime readiness
 
 **Dự án:** Video AI Flow / ContentStudio | **Nguồn mã:** FI-03 archive snapshot | **Release:** `NOT_READY`.
