@@ -3,6 +3,14 @@
 name: Localhost Browser E2E
 on:
   pull_request:
+    # Avoid spending browser runner minutes on documentation-only changes.
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+      - 'tools/localhost-browser-e2e.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/local-browser-e2e.yml'
   workflow_dispatch:
 
 permissions:
