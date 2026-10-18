@@ -42,6 +42,9 @@ test('Master Script opens server-backed builder; guided Render only scrolls to r
  const guide=await src('./ProductionFlowGuide.jsx');
  assert.match(guide,/Promise\.allSettled/); // Builder may be locked before Master approval.
  const main=await src('./main.jsx');
+ const store=await src('./store.js');
+ assert.match(store,/tab:resume\.step,flowTarget:resume\.step/);
+ assert.match(store,/setTab\(tab\)\{set\(\{tab,flowTarget:[^\n]+renderFocusToken:0/);
  const timeline=await src('./TimelineRenderWorkspace.jsx');
  assert.match(master,/onOpenSceneBuilder/);
  assert.doesNotMatch(master,/onCreateScenes/);
