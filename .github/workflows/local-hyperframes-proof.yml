@@ -50,14 +50,6 @@ jobs:
           ffmpeg -version | head -n 1
           ffprobe -version | head -n 1
           node tools/fi04-hyperframes-acceptance.mjs --inspect
-      - name: Run 5-scene real media through production SP-04 queue
-        timeout-minutes: 9
-        env:
-          CONTENTSTUDIO_REMOTE_LLM_CONSENT: '0'
-          CONTENTSTUDIO_CONFIRMED_NO_BILLING_MODEL_IDS: ''
-          NODE_ENV: production
-        run: |
-          node tools/fi04-hyperframes-acceptance.mjs --run --strict --save-review --report=docs/evidence/FI0404_localhost_hyperframes.json
       - name: Build production browser for actual HTTP render acceptance
         run: npm run build:web
       - name: Click actual HyperFrames Render in authenticated localhost browser and download MP4
@@ -67,6 +59,14 @@ jobs:
           CONTENTSTUDIO_CONFIRMED_NO_BILLING_MODEL_IDS: ''
           NODE_ENV: production
         run: node tools/localhost-browser-e2e.mjs --render-fixture
+      - name: Run 5-scene real media through production SP-04 queue
+        timeout-minutes: 9
+        env:
+          CONTENTSTUDIO_REMOTE_LLM_CONSENT: '0'
+          CONTENTSTUDIO_CONFIRMED_NO_BILLING_MODEL_IDS: ''
+          NODE_ENV: production
+        run: |
+          node tools/fi04-hyperframes-acceptance.mjs --run --strict --save-review --report=docs/evidence/FI0404_localhost_hyperframes.json
       - name: Preserve finite fixture proof for independent human review
         if: always()
         uses: actions/upload-artifact@v4
