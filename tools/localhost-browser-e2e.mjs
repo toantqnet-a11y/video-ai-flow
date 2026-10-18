@@ -132,11 +132,11 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  assert.equal(videos.length,1,'video must be persisted in real SQLite');
  const videoId=videos[0].id;
  mark('video_browser_sqlite');
- assert(await click('Nội dung','.production-flow-step'),'enter Content');
+ assert(await until(()=>click('Nội dung','.production-flow-step'),'CONTENT_NAV_BUTTON'),'E2E_CONTENT_BUTTON_MISSING');
  await wait('.content-brief-tabs','CONTENT_TABS');
- assert(await click('Bản chuẩn & Duyệt','.content-brief-tabs button'),'open master');
+ assert(await until(()=>click('Bản chuẩn & Duyệt','.content-brief-tabs button'),'MASTER_NAV_BUTTON'),'E2E_MASTER_TAB_MISSING');
  await wait('.master-workspace','MASTER_UI');
- assert(await click('Nhập kịch bản thủ công','.master-mode button'),'manual mode');
+ assert(await until(()=>click('Nhập kịch bản thủ công','.master-mode button'),'MASTER_MANUAL_BUTTON'),'E2E_MASTER_MANUAL_MISSING');
  const sentence='Xin chào mọi người, đây là nội dung hướng dẫn để kiểm tra quy trình tạo video trên trình duyệt nội bộ. ';
  const script=sentence.repeat(14).trim();
  await type('textarea.master-text',script,'MASTER_TEXT');
@@ -151,7 +151,7 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  await until(()=>expectText('.master-workspace','Đã chốt Bản chuẩn'),'MASTER_APPROVED');
  assert.equal(repo.getVideo(videoId).masterScript,script,'exact approved script must persist');
  mark('master_browser_approval');
- assert(await click('Mở Scene Builder','.master-workspace button'),'open canonical builder');
+ assert(await until(()=>click('Mở Scene Builder','.master-workspace button'),'OPEN_SCENE_BUILDER'),'E2E_BUILDER_BUTTON_MISSING');
  await wait('.scene-builder','BUILDER_UI');
  await until(()=>ev(`document.querySelector('.scene-builder button')?.disabled===false`),'BUILDER_READY').catch(()=>{});
  assert(await until(()=>click('Tự động chia scene','.scene-builder button'),'BUILDER_PREVIEW_BUTTON'),'split');
