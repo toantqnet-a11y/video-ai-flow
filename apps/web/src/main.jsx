@@ -23,7 +23,6 @@ import {TimelineRenderWorkspace} from './TimelineRenderWorkspace.jsx';
 import './style.css';
 
 function Button({children,onClick,secondary=false,disabled=false}){return <button className={secondary?'btn secondary':'btn'} onClick={onClick} disabled={disabled}>{children}</button>}
-function Frame({title,subtitle,children,actions}){return <section className="frame"><header className="frame-title"><div><h2>{title}</h2>{subtitle&&<p>{subtitle}</p>}</div>{actions}</header>{children}</section>}
 function Pairing(){
   const connect=useStudio(s=>s.connect),loading=useStudio(s=>s.loading),error=useStudio(s=>s.error);
   const [code,setCode]=useState('');
@@ -32,13 +31,55 @@ function Pairing(){
 function ContentEditor(){
   const video=useStudio(s=>s.currentVideo),[section,setSection]=useState('brief');
   useEffect(()=>setSection('brief'),[video?.id]);
+  const changeSection=next=>{
+    if(next===section)return;
+    const dirty=useStudio.getState();
+    if((dirty.contentBriefDirty||dirty.masterScriptDirty)&&
+       !window.confirm('Nội dung có thay đổi chưa lưu. Tiếp tục?'))return;
+    setSection(next);
+  };
   if(!video)return null;
-  return <div><div className="content-brief-tabs"><button className={section==='brief'?'selected':''} onClick={()=>setSection('brief')}>① Brief & Cấu hình</button><button className={section==='outline'?'selected':''} onClick={()=>{if(useStudio.getState().contentBriefDirty&&!window.confirm('Có thay đổi chưa lưu. Tiếp tục?'))return;setSection('outline')}}>② Dàn ý chương</button><button className={section==='chapters'?'selected':''} onClick={()=>{if(useStudio.getState().contentBriefDirty&&!window.confirm('Hãy lưu dàn ý trước khi tạo nội dung. Tiếp tục?'))return;setSection('chapters')}}>③ Viết nội dung</button><button className={section==='evaluate'?'selected':''} onClick={()=>setSection('evaluate')}>④ AI Judge</button><button className={section==='script'?'selected':''} onClick={()=>{if(useStudio.getState().contentBriefDirty&&!window.confirm('Có thay đổi chưa lưu. Tiếp tục?'))return;setSection('script')}}>⑤ Bản chuẩn & Duyệt</button></div>
-    {section==='brief'?<ContentBriefWorkspace video={video}/>:section==='outline'?<ContentOutlineWorkspace video={video} onBack={()=>setSection('brief')}/>:section==='chapters'?<ChapterGenerationWorkspace video={video} onBack={()=>setSection('outline')}/>:section==='evaluate'?<EvaluationWorkspace video={video} onBack={()=>setSection('chapters')}/>:<MasterScriptWorkspace video={video} onBack={()=>setSection('evaluate')} onApproved={()=>useStudio.getState().reloadVideo(video.id)} onOpenSceneBuilder={async()=>{await useStudio.getState().reloadVideo(video.id);useStudio.getState().setTab('scenes');}}/>}</div>;
+  return <div>
+    <div className="content-brief-tabs">
+      {[['brief','① Brief & Cấu hình'],['outline','② Dàn ý chương'],
+        ['chapters','③ Viết nội dung'],['evaluate','④ AI Judge'],
+        ['script','⑤ Bản chuẩn & Duyệt']].map(([id,label])=>
+        <button key={id} className={section===id?'selected':''} onClick={()=>changeSection(id)}>{label}</button>)}
+    </div>
+    {section==='brief'?<ContentBriefWorkspace video={video}/>:
+     section==='outline'?<ContentOutlineWorkspace video={video} onBack={()=>changeSection('brief')}/>:
+     section==='chapters'?<ChapterGenerationWorkspace video={video} onBack={()=>changeSection('outline')}/>:
+     section==='evaluate'?<EvaluationWorkspace video={video} onBack={()=>changeSection('chapters')}/>:
+     <MasterScriptWorkspace video={video} onBack={()=>changeSection('evaluate')}
+       onApproved={()=>useStudio.getState().reloadVideo(video.id)}
+       onOpenSceneBuilder={async()=>{
+         // Scene Builder derives a lossless proposal from the approved Master
+         // revision. Do NOT use the deprecated direct /scenes PUT shortcut.
+         await useStudio.getState().reloadVideo(video.id);
+         useStudio.getState().setTab('scenes');
+       }}/>}
+  </div>;
 }
-function Scenes(){const video=useStudio(s=>s.currentVideo);const [pane,setPane]=useState('builder');
+function Scenes(){
+  const video=useStudio(s=>s.currentVideo),[pane,setPane]=useState('builder');
   useEffect(()=>setPane('builder'),[video?.id]);
-  return video?<div><div className='content-brief-tabs'><button className={pane==='builder'?'selected':''} onClick={()=>setPane('builder')}>① Scene Builder</button><button className={pane==='voice'?'selected':''} onClick={()=>setPane('voice')}>② Voice TTS</button><button className={pane==='image'?'selected':''} onClick={()=>setPane('image')}>③ Hình ảnh</button><button className={pane==='assets'?'selected':''} onClick={()=>setPane('assets')}>④ Assets</button></div>{pane==='builder'?<SceneBuilderWorkspace video={video} onNext={()=>setPane('voice')}/>:pane==='voice'?<SceneVoiceWorkspace video={video}/>:pane==='image'?<SceneImageWorkspace video={video}/>:<AssetLibraryWorkspace video={video}/>}</div>:null;}
+  const changePane=next=>{
+    if(next===pane)return;
+    if(pane==='builder'&&useStudio.getState().sceneBuilderDirty&&
+       !window.confirm('Scene Builder có thay đổi chưa lưu. Tiếp tục?'))return;
+    setPane(next);
+  };
+  return video?<div><div className="content-brief-tabs">
+    {[['builder','① Scene Builder'],['voice','② Voice TTS'],['image','③ Hình ảnh'],
+      ['assets','④ Assets']].map(([id,label])=><button key={id} className={pane===id?'selected':''}
+      onClick={()=>changePane(id)}>{label}</button>)}
+    </div>
+    {pane==='builder'?<SceneBuilderWorkspace video={video} onNext={()=>changePane('voice')}/>:
+     pane==='voice'?<SceneVoiceWorkspace video={video}/>:
+     pane==='image'?<SceneImageWorkspace video={video}/>:
+     <AssetLibraryWorkspace video={video}/>}
+  </div>:null;
+}
 
 function Timeline(){return <TimelineRenderWorkspace/>;}
 
