@@ -6,6 +6,8 @@ export const useStudio=create((set,get)=>({
   paired:false,loading:false,error:'',channels:[],videos:[],videoNextCursor:null,videoFilter:{},videosLoading:false,videosError:'',videoRequestSeq:0,scenes:[],jobs:[],
   systemDiagnostics:null,diagnosticsLoading:false,diagnosticsError:'',
   currentChannel:null,currentVideo:null,tab:'channels',contentBriefDirty:false,
+  masterScriptDirty:false,sceneBuilderDirty:false,timelineWorkspaceDirty:false,
+  flowTarget:null,renderFocusToken:0,
   async connect(code){set({loading:true,error:''});try{await pair(code);set({paired:true});await get().refreshChannels();}catch(e){set({error:e.message});}finally{set({loading:false});}},
   async refreshChannels(){const result=await api('/channels?status=any');set({channels:result.items});},
   async openChannelSettings(channel){set({currentChannel:channel,currentVideo:null,tab:'channel-settings',error:''});},
@@ -87,5 +89,5 @@ export const useStudio=create((set,get)=>({
   },
   async refreshJobs(){const result=await api('/jobs');set({jobs:result.items});},
   async diagnostic(){await api('/jobs/diagnostic',{method:'POST',body:{idempotencyKey:String(Date.now())}});await get().refreshJobs();},
-  setTab(tab){set({tab});},setError(error){set({error})}
+  setTab(tab){set({tab,flowTarget:tab==='timeline'?'timeline':null});},setError(error){set({error})}
 }));
