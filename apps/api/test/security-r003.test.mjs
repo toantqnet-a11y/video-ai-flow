@@ -130,3 +130,43 @@ test('same-origin dev frontend allowed only when explicitly enabled',()=>{
   assert.equal(guard(fromVite,createSecurityGate({port:4311,devFrontend:false})),'INVALID_ORIGIN');
   assert.equal(guard(fromVite,createSecurityGate({port:4311,devFrontend:true})),null);
 });
+
+test('operator-only rearm revokes old bearer/CSRF, resets throttling and cannot replay pairing code',async()=>{
+  const gate=createSecurityGate({port:4311});
+  const initialCode=gate.pairingCodeForTerminal();
+  assert.ok(initialCode?.length>=16);
+  const initial=gate.pair(initialCode);
+  assert.ok(initial.bearer&&initial.csrf);
+  assert.equal(gate.pairingCodeForTerminal(),null);
+  assert.equal(gate.authorize({authorization:`Bearer ${initial.bearer}`,csrfHeader:initial.csrf,method:'POST'}),null);
+  gate.rearmFromLocalOperator();
+  const newCode=gate.pairingCodeForTerminal();
+  assert.notEqual(newCode,initialCode);
+  assert.equal(gate.authorize({authorization:`Bearer ${initial.bearer}`,csrfHeader:initial.csrf,method:'GET'}),'AUTH_REQUIRED');
+  assert.equal(gate.pair(initialCode).error,'INVALID_PAIR_CODE');
+  for(let i=0;i<4;i++)gate.pair('wrong-'+i);
+  assert.equal(gate.pair(newCode).error,'PAIRING_LOCKED');
+  // Local operator may recover from rate-limit; the browser cannot.
+  gate.rearmFromLocalOperator();
+  const finalCode=gate.pairingCodeForTerminal();
+  assert.notEqual(finalCode,newCode);
+  assert.equal(gate.pair(newCode).error,'INVALID_PAIR_CODE');
+  const next=gate.pair(finalCode);
+  assert.ok(next.bearer&&next.csrf);
+  assert.notEqual(next.bearer,initial.bearer);
+  assert.notEqual(next.csrf,initial.csrf);
+  assert.equal(gate.pair(finalCode).error,'ALREADY_PAIRED');
+  assert.equal(gate.authorize({authorization:`Bearer ${initial.bearer}`,csrfHeader:initial.csrf,method:'POST'}),'AUTH_REQUIRED');
+  assert.equal(gate.authorize({authorization:`Bearer ${next.bearer}`,csrfHeader:initial.csrf,method:'POST'}),'CSRF_REQUIRED');
+  assert.equal(gate.authorize({authorization:`Bearer ${next.bearer}`,csrfHeader:next.csrf,method:'POST'}),null);
+});
+
+test('terminal session rotation is not reachable from any unauthenticated HTTP route',async()=>{
+  const f=fakeApp(),gate=installSecurity(f.app,{port:4311});
+  assert.equal(f.routes.has('POST /api/session/rearm'),false);
+  assert.equal((await send(f,'POST','/api/session/rearm',{body:{}})).status,401);
+  const first=await send(f,'POST','/api/session/pair',{body:{code:gate.pairingCodeForTerminal()}});
+  gate.rearmFromLocalOperator();
+  assert.equal((await send(f,'GET','/api/channels',{headers:{authorization:`Bearer ${first.body.bearer}`}})).status,401);
+  assert.equal((await send(f,'POST','/api/session/rearm',{headers:{authorization:`Bearer ${first.body.bearer}`},body:{}})).status,401);
+});
