@@ -174,6 +174,10 @@ async function runBrowser(cdp,code,repo,store,security){
  await until(()=>visible('.timeline-r302')||visible('.timeline-render-layout'),'TIMELINE_UI');
  assert(await click('Xuất MP4','.production-flow-step'),'focus renderer');
  await until(()=>visible('.render-drawer-r312'),'RENDER_DRAWER');
+ await wait('select[aria-label="Lịch sử xuất MP4"]','RENDER_HISTORY_DROPDOWN');
+ assert.equal(await ev(`document.querySelector('select[aria-label="Lịch sử xuất MP4"]')?.value`),'',
+  'new video must not report a prior output');
+ mark('render_history_no_fake_output');
  const isDisabled=await ev(`[...document.querySelectorAll('.render-drawer-r312 button')]
    .some(b=>b.textContent.includes('Render MP4 local')&&b.disabled)`);
  assert.equal(isDisabled,true,'no render on missing voice/media');
@@ -196,6 +200,11 @@ async function runBrowser(cdp,code,repo,store,security){
  assert(await click('Tiếp tục','.video-library-card button'),'resume existing video');
  await wait('.production-flow','RESTORED_VIDEO_FLOW');
  assert.equal(repo.listScenes(videoId).length,7,'re-pair must not alter saved scenes');
+ assert(await click('Timeline','.production-flow-step'),'open restored timeline');
+ await wait('select[aria-label="Lịch sử xuất MP4"]','REPAIRED_RENDER_HISTORY');
+ assert.equal(await ev(`document.querySelector('select[aria-label="Lịch sử xuất MP4"]')?.value`),'',
+  're-pair must not invent a render job');
+ mark('render_history_restored_without_new_job');
  assert.equal(store.countByStatus().total,0,'re-pair must not trigger render or AI');
  mark('browser_refresh_operator_repair_preserves_sqlite');
  // Browser test must not be promoted to actual MP4 render or GPU proof.
