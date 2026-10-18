@@ -37,6 +37,13 @@ test('leaving unsaved Brief, Master, Scene Builder or Timeline requires confirma
  assert.equal(navigationWarning('timeline','timeline',{timelineWorkspaceDirty:true}),'');
  assert.equal(navigationWarning('scenes','content',{contentBriefDirty:false}),'');
 });
+test('read-only Timeline scene selection cannot silently clear approved Composition',async()=>{
+ const source=await src('./TimelineRenderWorkspace.jsx');
+ const selected=source.match(/const selectScene=\(id\)=>\{[\s\S]*?return true\};/);
+ assert.ok(selected,'scene selection handler must exist');
+ assert.doesNotMatch(selected[0],/setRevision\(null\)/);
+ assert.match(source,/const refresh=async\(\)=>\{[\s\S]*?setRevision\(null\)/);
+});
 test('Master Script opens server-backed builder; guided Render only scrolls to real drawer',async()=>{
  const master=await src('./MasterScriptWorkspace.jsx');
  const guide=await src('./ProductionFlowGuide.jsx');
