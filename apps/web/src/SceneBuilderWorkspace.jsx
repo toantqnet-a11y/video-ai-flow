@@ -9,7 +9,7 @@ import {useStudio} from './store.js';
 import {moveDraft,splitDraft,mergeDraft,applyVisualPrompts} from './scene-editor.mjs';
 import {BatchVideoClipsR2VID} from './BatchVideoClipsR2VID.jsx';
 
-export function SceneBuilderWorkspace({video}){
+export function SceneBuilderWorkspace({video,onNext}){
   const [options,setOptions]=useState({targetSeconds:18,minSeconds:4,maxSeconds:45,wpm:145,mediaType:'image_motion'});
   const [draft,setDraft]=useState([]),[state,setState]=useState(null),[history,setHistory]=useState([]);
   const [busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState('');
@@ -17,6 +17,7 @@ export function SceneBuilderWorkspace({video}){
   const [approved,setApproved]=useState(false),[page,setPage]=useState(0);
   const [visualModels,setVisualModels]=useState([]),[visualModelId,setVisualModelId]=useState('');
   const [visualRun,setVisualRun]=useState(null),[visualBusy,setVisualBusy]=useState(false);
+  useEffect(()=>{useStudio.setState({sceneBuilderDirty:changed});return()=>useStudio.setState({sceneBuilderDirty:false})},[changed]);
   // Registered local model metadata is NOT proof that Ollama is currently online.
   useEffect(()=>{let active=true;api('/provider-models').then(x=>{if(!active)return;
     const models=(x.items??[]).filter(m=>m.kind==='llm'&&m.location==='local'&&m.costTier==='local'&&m.status==='active');
@@ -118,7 +119,7 @@ export function SceneBuilderWorkspace({video}){
           <label>Prompt minh họa<input value={s.visualPrompt} maxLength={4000} onChange={e=>update(i,{visualPrompt:e.target.value})} placeholder="Sẽ được AI gợi ý ở R2"/></label></div></div>
       <div className="scene-builder-controls"><button onClick={()=>change(d=>moveDraft(d,i,i-1))} disabled={!i} title="Lên">↑</button><button onClick={()=>change(d=>moveDraft(d,i,i+1))} disabled={i===draft.length-1} title="Xuống">↓</button><button onClick={()=>change(d=>splitDraft(d,i,options.wpm))} title="Tách ở khoảng trắng gần giữa">Tách</button><button onClick={()=>change(d=>mergeDraft(d,i,options.wpm))} disabled={i===draft.length-1} title="Gộp 2 scene liền nguồn">Gộp</button></div>
     </article>})}</div>
-    {draft.length>0&&<div className="scene-builder-commit"><label><input type="checkbox" checked={ack} onChange={e=>setAck(e.target.checked)}/> Tôi xác nhận những thay đổi text / thứ tự so với Bản chuẩn (nếu có).</label><button className="btn" disabled={busy||!draft.length} onClick={save}>💾 Lưu Scene & Phiên bản</button><button className="btn secondary" disabled={changed} onClick={()=>useStudio.getState().setTab('timeline')}>Mở Timeline →</button></div>}
+    {draft.length>0&&<div className="scene-builder-commit"><label><input type="checkbox" checked={ack} onChange={e=>setAck(e.target.checked)}/> Tôi xác nhận những thay đổi text / thứ tự so với Bản chuẩn (nếu có).</label><button className="btn" disabled={busy||!draft.length} onClick={save}>💾 Lưu Scene & Phiên bản</button><button className="btn secondary" disabled={changed||!state?.sceneRevision||busy} onClick={onNext}>Tiếp: Tạo Voice TTS →</button></div>}
     {history.length>0&&<details><summary>Lịch sử scene ({history.length})</summary>{history.map(h=><p key={h.revision}>#{h.revision} · {h.sceneCount} scene · {new Date(h.createdAt).toLocaleString('vi-VN')} {h.coverage.lossless?'· Nguyên bản':'· Có chỉnh sửa được xác nhận'}</p>)}</details>}
     </>}
   </section>;
