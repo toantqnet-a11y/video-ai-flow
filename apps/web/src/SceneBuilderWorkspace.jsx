@@ -42,6 +42,11 @@ export function SceneBuilderWorkspace({video,onNext}){
       // A saved scene plan can be reopened for safe editing, rather than silently regenerating.
       if(s.sceneRevision){const old=await api(`/videos/${video.id}/scenes/builder/revisions/${s.sceneRevision}`);
         setDraft(old.scenes);setPage(0);setChanged(false);setPreviewPending(false);setAck(false);setNotice(`Đang xem bản scene #${s.sceneRevision}.`);
+      }else{
+        // Loading an empty saved state must discard an acknowledged unsaved
+        // auto-split proposal; otherwise old draft text looks persisted.
+        setDraft([]);setPage(0);setChanged(false);setPreviewPending(false);setAck(false);
+        setNotice('Chưa có scene đã lưu. Bấm Tự động chia scene để xem đề xuất.');
       }
     }catch(e){setApproved(false);setError(e.code??e.message);}
   };
