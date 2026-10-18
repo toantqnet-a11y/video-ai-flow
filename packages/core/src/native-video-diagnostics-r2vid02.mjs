@@ -26,6 +26,7 @@ export async function inspectNativeVideoReadiness({workflowPath,bindings,origin=
  const blockers=[],result={taskId:'R2-VID-02',providerId:'comfyui-video',
    state:'NOT_READY',workflowSha256:null,workflowValidated:false,
    localApiReachable:null,deviceReported:false,nativeInferenceVerified:false,
+   localWorkflowModes:{text_to_video:false,image_to_video:false},
    licenseReviewed:false,paidCallsMade:0,probeLocal:probeLocal===true};
  let endpoint;
  try{endpoint=validateLocalOrigin(origin);}
@@ -43,6 +44,19 @@ export async function inspectNativeVideoReadiness({workflowPath,bindings,origin=
   const data=await adapter.loadWorkflow(request);
   result.workflowSha256=SHA(raw);
   result.workflowValidated=!!data.workflowHash&&Object.keys(data.workflow).length>0;
+  result.localWorkflowModes.text_to_video=result.workflowValidated;
+  // Test image-to-video bindings WITHOUT uploading even a dummy image.
+  // loadWorkflow validates the graph and binds a safe placeholder filename;
+  // only a real operator-initiated I2V job can prove actual model support.
+  try{
+   const imageBytes=Buffer.from('89504e470d0a1a0a0000000d','hex');
+   const i2v={...request,mode:'image_to_video',imageBytes};
+   const image=await adapter.loadWorkflow(i2v,'local-preflight-only.png');
+   result.localWorkflowModes.image_to_video=!!image.workflowHash&&Object.keys(image.workflow).length>0;
+  }catch(e){
+   result.i2vErrorCode=safeError(e);
+   blockers.push('R2VID02_I2V_WORKFLOW_NOT_READY');
+  }
  }catch(e){blockers.push(codes.invalid);result.workflowErrorCode=safeError(e);return {...result,blockers};}
  if(probeLocal){
   try{

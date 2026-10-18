@@ -979,3 +979,9 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
 - Added operator-only ComfyUI/Wan workflow read-only inspection with literal localhost enforcement, sanitized status, no POST /prompt and no model downloads. A reachable GPU is not a benchmark, model checkpoint license, or genuine clip.
 - Added separate read-only hybrid on-disk SHA-pinned asset and MP4 FFprobe verifier. It never turns a short fixture or metadata-only witness into an automatically accepted 35-minute movie.
 - R3-08 stronger cache-media QA and dedicated validation regressions; native Windows 11 HyperFrames/35min and GPU tests remain pending.
+
+## 2026-10-18 — R2-VID-02 / R3-08 / R3-VID-03 source-proof strengthening
+- Native ComfyUI diagnostic now validates **both** T2V and I2V API-format bindings offline with a local dummy reference filename; absolutely no /upload/image or /prompt request. Exposes separate workflow readiness, never claims actual GPU inference.
+- Hybrid long-film evidence gate now FFprobes EVERY unique SHA-pinned AI/import video source in addition to H264/AAC output and native operator witnesses, so renamed PNG/text cannot pass via kind='video'. Prompt/path stay private.
+- R3-08 cache regression now runs a third composition with changed narration in one scene, verifying 1 real FFmpeg segment rerender + 1 cache reuse. It remains separate from real installed HyperFrames/Windows testing.
+- Release NOT_READY until real 35min Windows GPU/HyperFrames/output visual/audio, restart/lease and model-license evidence.
