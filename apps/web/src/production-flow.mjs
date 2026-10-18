@@ -13,7 +13,7 @@ export function flowState({masterApproved=null,sceneRevision=null,sceneCount=0}=
   if(stage.id==='content')return {...stage,status:content?'done':masterApproved===null?'unknown':'pending',
    hint:content?'Bản chuẩn đã duyệt':'Duyệt Bản chuẩn trước khi tách scene'};
   if(stage.id==='scenes')return {...stage,status:scenes?'done':sceneRevision===null?'unknown':'pending',
-   hint:scenes?'${sceneCount} scene đã lưu; tiếp tục tạo voice/media':'Lưu Scene Builder và tạo voice/media'};
+   hint:scenes?String(sceneCount)+' scene đã lưu; tiếp tục tạo voice/media':'Lưu Scene Builder và tạo voice/media'};
   if(stage.id==='timeline')return {...stage,status:'review',
    hint:'Chỉnh sửa, kiểm tra voice/media và phê duyệt Composition'};
   return {...stage,status:'review',hint:'Chỉ xuất khi preflight đạt và bạn chủ động bấm Render'};
