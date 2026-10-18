@@ -1007,17 +1007,20 @@
         "R2-05"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "PRODUCTION_LOCAL_COMFY_ADAPTER_INTEGRATED__NATIVE_GPU_PENDING",
+      "status": "COMFY_T2V_I2V_READONLY_PREFLIGHT_CODE__NATIVE_GPU_PENDING",
       "evidence": [
         "packages/core/src/scene-video-r2vid.mjs",
         "apps/api/src/providers.mjs",
-        "spikes/SP-VID-01/src/comfy-video.mjs"
+        "spikes/SP-VID-01/src/comfy-video.mjs",
+        "packages/core/src/native-video-diagnostics-r2vid02.mjs",
+        "packages/core/test/native-video-evidence-r2vid02-r3vid03.test.mjs",
+        "tools/native-video-gates.mjs"
       ],
       "remainingGate": [
-        "Actual ComfyUI/Wan T2V/I2V GPU inference with on-device checkpoint and resource/license QA",
-        "Multi-process GPU mutex and Windows UX"
+        "Run real Windows 11 local Wan/ComfyUI checkpoint with T2V and I2V, confirm license and VRAM benchmark",
+        "Actual SP-04 native GPU generated clip plus real cross-process GPU lock/restart and operator UX"
       ],
-      "acceptance": "Production SP-04 adapter connected to explicit local ComfyUI workflow; focused test injected fake GPU adapter, not native Wan inference",
+      "acceptance": "Production ComfyUI/Wan SP-04 adapter + safe read-only T2V/I2V local-workflow binding checks and mock loopback GET; no witnessed model inference",
       "verifiedTests": [
         "prior focused/offline reference only; NOT new FI04 live acceptance"
       ]
@@ -1182,13 +1185,22 @@
         "R3-14"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "FAIL_CLOSED_HYBRID_35MIN_EVIDENCE_GATE_CODE__REAL_HARDWARE_PENDING",
-      "evidence": [],
-      "remainingGate": [
-        "real 35 min mixed timeline, at least one authentic AI clip, crash/restart and no unauthorized paid request"
+      "status": "PINNED_NATIVE_SOURCE_AND_MP4_FFPROBE_GATE_CODE__REAL_35MIN_WINDOWS_PENDING",
+      "evidence": [
+        "packages/core/src/hybrid-evidence-r3vid03.mjs",
+        "packages/core/src/hybrid-acceptance-r3vid03.mjs",
+        "packages/core/test/native-video-evidence-r2vid02-r3vid03.test.mjs",
+        "tools/native-video-gates.mjs"
       ],
-      "acceptance": "No E2E video with genuine generative clip",
-      "verifiedTests": []
+      "remainingGate": [
+        "Produce real 35–40 minute mixed media composition with native AI Wan video and imported clip on Windows 11",
+        "Independently review GPU checkpoint license, input/output SHA, FFprobe audio/video/subtitles and restart/recovery with zero unauthorized paid calls",
+        "Human A/V inspection, native HyperFrames 0.8.159 and 35 minute cache performance"
+      ],
+      "acceptance": "Read-only local FFprobe/SHA verifies actual MP4 output and all SHA-pinned AI/import video sources in tiny offline media tests. Operator GPU provenance/35 minute Windows real E2E NOT VERIFIED",
+      "verifiedTests": [
+        "prior focused/offline reference only; NOT new FI04 live acceptance"
+      ]
     },
     {
       "id": "R4-VID-01",
