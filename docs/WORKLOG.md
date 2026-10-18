@@ -1018,3 +1018,9 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
 - Added standalone operator-console module with purpose comments, redaction and unit tests; expanded core security tests, Fastify HTTP smoke, and real Chrome E2E to hard refresh -> operator rearm -> re-pair -> saved video/7 scenes resumed.
 - Documentation/handoff: `docs/LOCALHOST_SESSION_REPAIR.md`. Non-interactive API processes cannot accept terminal commands and require interactive restart. Rotation invalidates all tabs; users must re-pair with the new code.
 - **Release unchanged:** NOT_READY; no ComfyUI/Wan native GPU, real audio/HyperFrames 35–40min media, or physical host QA from a session-repair change.
+
+## 2026-10-18 — LOCALHOST-04: actual HyperFrames 5-scene MP4 on hosted Ubuntu
+- Added path-scoped, manually callable GitHub Actions workflow `.github/workflows/local-hyperframes-proof.yml`; lock-reviewed `npm ci`, exact HyperFrames CLI 0.8.159, real FFmpeg/FFprobe, strict FI-04-04 SP-04 queue acceptance. Never calls paid/remote providers.
+- Hosted Linux CI `39119979455`: **PASS** for local fixture MP4, 5 scenes, 10 Vietnamese SRT cues, music, 429/429 frames, 14.3 s, H.264/AAC; generated review MP4/SRT/JSON artifact `12133842453` with 3-day retention (until ~2026-10-21). SHA256/elapsed/size in `docs/LOCALHOST_RENDER_PROOF.md`.
+- Initial renderer CI `39119936830` failed because FFmpeg/FFprobe weren't on hosted image; added conditional apt install. Renderer never switched to mock/FFmpeg substitute.
+- Current scope: real rendering backend proof with *test* WAV/PNG, NOT browser-triggered real video, native GPU/TTS, 35–40-minute mix, scene-cache benchmarking, manual A/V approval, or kill/recover. Release `NOT_READY`.
