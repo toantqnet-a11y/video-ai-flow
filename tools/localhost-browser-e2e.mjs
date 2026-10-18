@@ -100,6 +100,13 @@ async function runBrowser(cdp,code,repo,store){
   if(!f)return false;f.requestSubmit();return true;})()`);
  const expectText=(css,value)=>ev(`document.querySelector(${JSON.stringify(css)})?.textContent?.includes(${JSON.stringify(value)})===true`);
  const steps=[];const mark=label=>{steps.push(label);lastStage=label;console.log('LOCALHOST_E2E_STAGE '+label)};
+ // Decline a real native window.confirm from the guided bar. This exercises
+ // the browser navigation guard instead of trusting a pure helper-only test.
+ let rejectedDialogs=0;
+ cdp.on('Page.javascriptDialogOpening',()=>{
+  rejectedDialogs++;
+  void cdp.call('Page.handleJavaScriptDialog',{accept:false}).catch(()=>{});
+ });
  await wait('.pairing form','PAIRING_UI');mark('react_pairing_ui');
  assert.equal(await click('Kết nối','.pairing button'),false,'empty code must disable pairing');
  await type('.pairing form input',code,'PAIR_CODE');
@@ -151,6 +158,11 @@ async function runBrowser(cdp,code,repo,store){
  const nextDisabled=await ev(`(()=>{const b=[...document.querySelectorAll('.scene-builder button')]
   .find(x=>x.textContent.includes('Tiếp: Tạo Voice'));return b?.disabled===true})()`);
  assert.equal(nextDisabled,true,'cannot skip unsaved split');
+ assert(await click('Timeline','.production-flow-step'),'attempt to leave pending proposal');
+ await until(()=>rejectedDialogs===1,'NATIVE_UNSAVED_CONFIRM');
+ assert(await visible('.scene-builder'),'cancelling native dialog must keep Scene Builder visible');
+ assert.equal(repo.listScenes(videoId).length,0,'cancelled navigation must not save scenes');
+ mark('browser_unsaved_navigation_guard');
  mark('builder_preview_no_premature_write');
  assert(await click('Lưu Scene & Phiên bản','.scene-builder button'),'commit scenes');
  await until(()=>repo.listScenes(videoId).length>0,'SCENE_PERSIST');
