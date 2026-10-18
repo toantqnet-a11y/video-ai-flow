@@ -2,7 +2,9 @@
  * Local-only pairing for a browser UI. The one-time 16-char startup code is
  * shown only in the foreground terminal (not log files or HTTP pages). The
  * browser exchanges it once for random memory-only bearer/CSRF tokens.
- * The user must pair again after server restart; no permanent secrets in JS.
+ * Refresh loses in-memory browser secrets. The local terminal operator may
+ * explicitly re-arm with a new one-time code without restarting SQLite/jobs;
+ * existing sessions are invalidated. No permanent secrets in JS.
  */
 import {randomBytes,timingSafeEqual} from 'node:crypto';
 
@@ -13,12 +15,18 @@ const secureEqual=(a,b)=>{
   return x.length===y.length&&timingSafeEqual(x,y);
 };
 export function createSecurityGate({port=4311,devFrontend=false}={}) {
-  const pairCode=randomSecret(12),bearer=randomSecret(),csrf=randomSecret();
+  let pairCode=randomSecret(12),bearer=null,csrf=null;
   let paired=false,attempts=0;
   const canonical=`http://127.0.0.1:${port}`;
   return {
     // Do not expose this value to any HTTP response or persistent debug log.
     pairingCodeForTerminal:()=>paired?null:pairCode,
+    /** Terminal operator ONLY. Never mount this method on an HTTP route.
+     * Rotation invalidates every existing bearer/CSRF token immediately.
+     */
+    rearmFromLocalOperator(){
+      pairCode=randomSecret(12);bearer=null;csrf=null;paired=false;attempts=0;
+    },
     verifyTransport({host,origin,peer,forwarded}) {
       if (!['127.0.0.1','::1','::ffff:127.0.0.1'].includes(peer)) return 'NOT_LOOPBACK';
       if(host!==`127.0.0.1:${port}`) return 'BAD_HOST';
@@ -32,6 +40,8 @@ export function createSecurityGate({port=4311,devFrontend=false}={}) {
       attempts++;
       if (!secureEqual(code,pairCode)) return {error:'INVALID_PAIR_CODE',status:401};
       paired=true;
+      // Mint session secrets only once the new one-time code is accepted.
+      bearer=randomSecret();csrf=randomSecret();
       return {bearer,csrf};
     },
     authorize({authorization,csrfHeader,method}) {
