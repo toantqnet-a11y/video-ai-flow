@@ -40,7 +40,7 @@ try{
   const wrongQuery=await app.inject({method:'GET',url:`/api/videos/${video.id}/renders?limit=100`,headers:authorized});
   assert.equal(wrongQuery.statusCode,400,'unbounded history reads forbidden');
   const unknownQuery=await app.inject({method:'GET',url:`/api/videos/${video.id}/renders?other=1`,headers:authorized});
-  assert.equal(unknownQuery.statusCode,400);
+  assert.equal(unknownQuery.statusCode,403,'request policy must reject unsupported query keys');
   const upload=await app.inject({method:'PUT',url:`/api/channels/${ch.id}/avatar`,headers:authorized,
     payload:{rowVersion:ch.rowVersion,mimeType:'image/png',dataBase64:png}});
   assert.equal(upload.statusCode,200,`upload HTTP ${upload.statusCode}`);
