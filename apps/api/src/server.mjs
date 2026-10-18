@@ -10,6 +10,7 @@ import {openProjectDb,StudioRepository,AssetManifest,promotePendingQueueAssets,P
 import {JobStore} from '../../../spikes/SP-04/src/store.js';
 import {JobRunner} from '../../../spikes/SP-04/src/runner.js';
 import {installSecurity} from './security.mjs';
+import {handleOperatorCommand} from './operator-console.mjs';
 import {safeRequestLog} from './request-policy.mjs';
 import {PassphraseVault,createCredentialAccess} from '../../../packages/security/src/index.mjs';
 import {registerVaultRoutes} from './vault-routes.mjs';
@@ -177,6 +178,18 @@ export async function startApi({listen=true}={}) {
     await runner.stop({abort:true});
     vault.lock();store.close();db.close();
   });
+  // Only the foreground operator can rearm after a browser refresh. This
+  // command never crosses HTTP, stores no secret, and revokes all old sessions.
+  // Skip stdin handling in CI/headless tests and when Fastify isn't listening.
+  let operatorConsole=null;
+  if(listen&&process.stdin.isTTY){
+    const {createInterface}=await import('node:readline');
+    operatorConsole=createInterface({input:process.stdin,terminal:false,crlfDelay:Infinity});
+    operatorConsole.on('line',line=>handleOperatorCommand(line,{
+      security,write:message=>process.stdout.write(message)
+    }));
+  }
+  app.addHook('onClose',async()=>operatorConsole?.close());
   if (listen) {
     await app.listen({host:'127.0.0.1',port});
     // Pairing is a console-only one-time session code, never written to disk.

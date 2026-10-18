@@ -76,7 +76,7 @@ async function browserConnect(port,debugPort,profile){
  await cdp.call('Page.enable');
  return {child,cdp};
 }
-async function runBrowser(cdp,code,repo,store){
+async function runBrowser(cdp,code,repo,store,security){
  const ev=async expr=>{
   const result=await cdp.call('Runtime.evaluate',{expression:expr,returnByValue:true,awaitPromise:true});
   if(result.exceptionDetails)throw Error('E2E_PAGE_EVALUATION');
@@ -179,6 +179,25 @@ async function runBrowser(cdp,code,repo,store){
  assert.equal(isDisabled,true,'no render on missing voice/media');
  assert.equal(store.countByStatus().total,0,'UI journey must not dispatch any AI/paid/render jobs');
  mark('timeline_real_drawer_fail_closed');
+ // Hard reload intentionally clears the browser's memory-only credentials.
+ // The host terminal (never an HTTP endpoint) explicitly rotates pairing.
+ await cdp.call('Page.reload',{ignoreCache:true});
+ await wait('.pairing form','REFRESH_PAIRING_UI');
+ assert.equal(repo.listScenes(videoId).length,7,'refresh must not lose SQLite scenes');
+ security.rearmFromLocalOperator();
+ const newCode=security.pairingCodeForTerminal();
+ assert.notEqual(newCode,code,'rotation must mint a different one-time code');
+ await type('.pairing form input',newCode,'REPAIR_CODE');
+ assert(await click('Kết nối','.pairing button'),'new one-time code accepted');
+ await wait('.shell .side','REPAIR_SUCCESS');
+ assert.equal(repo.listChannels().length,1);
+ assert(await until(()=>click('Video','.channel-tile .tile-actions button'),'RESTORED_CHANNEL_LINK'),'open existing channel');
+ await wait('.video-library-card','RESTORED_VIDEO_LIST');
+ assert(await click('Tiếp tục','.video-library-card button'),'resume existing video');
+ await wait('.production-flow','RESTORED_VIDEO_FLOW');
+ assert.equal(repo.listScenes(videoId).length,7,'re-pair must not alter saved scenes');
+ assert.equal(store.countByStatus().total,0,'re-pair must not trigger render or AI');
+ mark('browser_refresh_operator_repair_preserves_sqlite');
  // Browser test must not be promoted to actual MP4 render or GPU proof.
  return {status:'PASS',browser:findChrome(),steps,sceneCount:repo.listScenes(videoId).length,
   finalRender:'BLOCKED_NO_MEDIA',aiInference:'NOT_EXECUTED',release:'NOT_READY'};
@@ -200,7 +219,7 @@ async function main(){
   const health=await fetch(url+'/health');assert.equal(health.status,200);
   assert.equal((await fetch(url+'/api/channels')).status,401);
   chrome=await browserConnect(apiPort,debugPort,join(dir,'chrome-profile'));
-  const evidence=await runBrowser(chrome.cdp,runtime.security.pairingCodeForTerminal(),runtime.repo,runtime.store);
+  const evidence=await runBrowser(chrome.cdp,runtime.security.pairingCodeForTerminal(),runtime.repo,runtime.store,runtime.security);
   console.log('LOCALHOST_BROWSER_E2E '+JSON.stringify(evidence));
  }catch(e){
   // Do not print URLs, DOM, SQLite data or pairing code on errors.

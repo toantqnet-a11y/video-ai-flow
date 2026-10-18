@@ -44,7 +44,25 @@ try{
   const rejected=await app.inject({method:'PUT',url:`/api/channels/${ch.id}/avatar`,headers:authorized,
     payload:{rowVersion:ch.rowVersion,mimeType:'image/png',dataBase64:png}});
   assert.equal(rejected.statusCode,409);
-  console.log('LIVE_HTTP_SMOKE_PASS health/auth/channel/avatar/version-conflict');
+  // Operator rearm revokes existing HTTP credentials without restarting
+  // Fastify or changing local SQLite. Never expose the reset as an API route.
+  runtime.security.rearmFromLocalOperator();
+  const revoked=await app.inject({method:'GET',url:'/api/channels',headers:authorized});
+  assert.equal(revoked.statusCode,401);
+  const noHttpReset=await app.inject({method:'POST',url:'/api/session/rearm',headers:authorized,payload:{}});
+  assert.equal(noHttpReset.statusCode,401);
+  const oldCode=await app.inject({method:'POST',url:'/api/session/pair',headers,payload:{code:tokens.bearer}});
+  assert.equal(oldCode.statusCode,401);
+  const rotatedCode=runtime.security.pairingCodeForTerminal();
+  const newPair=await app.inject({method:'POST',url:'/api/session/pair',headers,payload:{code:rotatedCode}});
+  assert.equal(newPair.statusCode,200);
+  const nextTokens=newPair.json();
+  assert.notEqual(nextTokens.bearer,tokens.bearer);
+  const fresh=await app.inject({method:'GET',url:'/api/channels',
+    headers:{...headers,authorization:`Bearer ${nextTokens.bearer}`}});
+  assert.equal(fresh.statusCode,200);
+  assert.ok(fresh.json().items.some(x=>x.id===ch.id));
+  console.log('LIVE_HTTP_SMOKE_PASS health/auth/channel/avatar/version-conflict/rearm');
 }catch(error){
   console.error(`LIVE_HTTP_SMOKE_FAILED ${error?.code??error?.name??'UNKNOWN'}`);
   process.exitCode=1;
