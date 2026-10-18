@@ -1,6 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {parseVideoRoadmap,mergeBacklog,expectedVideoIds} from './fi04-backlog.mjs';
+import {normalizeLocalhostBacklog} from './localhost-backlog.mjs';
 const get=async path=>readFile(new URL(`../${path}`,import.meta.url),'utf8');
 test('FI-04 backlog: roadmap has 14 unambiguous AI video tasks with dependencies',async()=>{
  const tasks=parseVideoRoadmap(await get('docs/reference/VIDEO_AI_FLOW_EXECUTION_PLAN_V3.md'));
@@ -39,5 +40,30 @@ test('FI-04 backlog preserves every old task and refuses duplicate IDs or missin
 test('FI-04 backlog output matches generated artifact',async()=>{
  const base=JSON.parse(await get('docs/VIDEO_AI_FLOW_EXTENSION_BACKLOG.json'));
  const video=parseVideoRoadmap(await get('docs/reference/VIDEO_AI_FLOW_EXECUTION_PLAN_V3.md'));
- assert.deepEqual(JSON.parse(await get('docs/VIDEO_AI_FLOW_MASTER_BACKLOG.json')),mergeBacklog(base,video));
+ const policy=JSON.parse(await get('docs/LOCALHOST_BACKLOG_POLICY.json'));
+ assert.deepEqual(JSON.parse(await get('docs/VIDEO_AI_FLOW_MASTER_BACKLOG.json')),normalizeLocalhostBacklog(mergeBacklog(base,video),policy));
+});
+
+test('Localhost policy retains 69 IDs and real CI history but drops mandatory Windows target',async()=>{
+ const base=JSON.parse(await get('docs/VIDEO_AI_FLOW_EXTENSION_BACKLOG.json'));
+ const video=parseVideoRoadmap(await get('docs/reference/VIDEO_AI_FLOW_EXECUTION_PLAN_V3.md'));
+ const policy=JSON.parse(await get('docs/LOCALHOST_BACKLOG_POLICY.json'));
+ const merged=normalizeLocalhostBacklog(mergeBacklog(base,video),policy);
+ assert.equal(merged.taskCount,69);
+ assert.equal(new Set(merged.tasks.map(t=>t.id)).size,69);
+ assert.equal(merged.releaseStatus,'NOT_READY');
+ assert.equal(merged.scope.productType,'local_web_app');
+ assert.ok(merged.constraints.includes('localhost-browser-first'));
+ assert.ok(!merged.constraints.includes('Windows-local-first'));
+ assert.ok(merged.tasks.every(t=>(t.remainingGate||[]).every(g=>!/Windows/i.test(g))));
+ assert.ok(merged.tasks.find(t=>t.id==='FI-04-05').remainingGate.some(g=>/authenticated localhost browser/i.test(g)));
+ assert.ok(merged.tasks.find(t=>t.id==='FI-04-06').remainingGate.some(g=>/2100–2400/.test(g)));
+ assert.ok(merged.tasks.find(t=>t.id==='R2-VID-02').remainingGate.some(g=>/ComfyUI|Wan/.test(g)));
+ assert.ok(merged.tasks.find(t=>t.id==='WI-03').status.includes('HOSTED_WINDOWS_'));
+ assert.ok(merged.statusEvidence.fi0404WindowsHosted.includes('39022682686'));
+ assert.ok(merged.milestones.find(m=>m.name==='MVP_localhost'));
+ assert.ok(merged.milestones.find(m=>m.name==='AI_video_local'));
+ assert.ok(!merged.milestones.find(m=>m.name==='MVP_localhost').required.includes('WI-03'));
+ assert.throws(()=>normalizeLocalhostBacklog({...merged,taskCount:10},policy),/BAD_SOURCE/);
+ assert.throws(()=>normalizeLocalhostBacklog(mergeBacklog(base,video),{...policy,taskOverrides:{'NO-TASK':{}}}),/UNKNOWN_TASK/);
 });
