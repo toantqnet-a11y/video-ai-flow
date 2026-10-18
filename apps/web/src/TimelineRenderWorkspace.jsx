@@ -3,7 +3,7 @@
  * EXT-06: explicit measured Composition approval → existing SP-04 render queue.
  * No AI request, automatic paid fallback, or fake live MP4 preview.
  */
-import React,{useEffect,useState} from 'react';
+import React,{useEffect,useRef,useState} from 'react';
 import {api,downloadLocalVideoRender,downloadLocalVideoThumbnail,downloadLocalVideoSubtitle,saveLocalVideoRender,downloadProjectZip,saveProjectZip} from './api.js';
 import {useStudio} from './store.js';
 import {VisualCostMotionPanel} from './VisualCostMotionPanel.jsx';
@@ -13,7 +13,8 @@ import {RenderDrawerR312} from './RenderDrawerR312.jsx';
 import {SubtitleDraftPanelR405,VisualConsistencyPanelR407} from './SubtitleAndStyleR4.jsx';
 const seconds=n=>(n/1000).toFixed(2);
 export function TimelineRenderWorkspace(){
- const video=useStudio(s=>s.currentVideo),[snapshot,setSnapshot]=useState(null),[sceneId,setSceneId]=useState(null);
+ const video=useStudio(s=>s.currentVideo),renderFocusToken=useStudio(s=>s.renderFocusToken),[snapshot,setSnapshot]=useState(null),[sceneId,setSceneId]=useState(null);
+ const renderSectionRef=useRef(null);
  const [timeline,setTimeline]=useState(null);
  const [duration,setDuration]=useState(1500),[capStart,setCapStart]=useState(0),[capEnd,setCapEnd]=useState(1200);
  const [styleRevision,setStyleRevision]=useState(null),[styleDirty,setStyleDirty]=useState(true);
@@ -21,6 +22,16 @@ export function TimelineRenderWorkspace(){
  const [inspectorDirty,setInspectorDirty]=useState(false),[timelineDirty,setTimelineDirty]=useState(false),[timelineRefresh,setTimelineRefresh]=useState(0);
  const [revision,setRevision]=useState(null),[render,setRender]=useState(null),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState('');
  const scene=snapshot?.scenes?.find(s=>s.id===sceneId)??snapshot?.scenes?.[0];
+ // Dirty scene/timeline edits must be guarded even when leaving via sidebar.
+ useEffect(()=>{useStudio.setState({timelineWorkspaceDirty:inspectorDirty||timelineDirty});
+  return()=>useStudio.setState({timelineWorkspaceDirty:false});},[inspectorDirty,timelineDirty]);
+ // A guided 'Render' click lands on the *existing* secured drawer, not a
+ // second route or an automatic render. Wait until the async snapshot mounts.
+ useEffect(()=>{if(!renderFocusToken||!snapshot)return;
+  const raf=requestAnimationFrame(()=>renderSectionRef.current?.scrollIntoView({block:'start',behavior:'smooth'}));
+  return()=>cancelAnimationFrame(raf);
+ },[renderFocusToken,!!snapshot,video?.id]);
+
  const refresh=async()=>{
   const [t,s]=await Promise.all([api(`/videos/${video.id}/timeline`),api(`/videos/${video.id}/composition/timing/preview`,{method:'POST',body:{tailPaddingMs:250}})]);
   setTimeline(t);setSnapshot(s);setRevision(null);setTimelineRefresh(k=>k+1);if(!s.scenes.some(x=>x.id===sceneId))setSceneId(s.scenes[0]?.id??null);
@@ -137,6 +148,7 @@ export function TimelineRenderWorkspace(){
     <div className="actions"><button className="btn" disabled={!snapshot.readiness.ready||busy||inspectorDirty||timelineDirty} onClick={approve}>✓ Phê duyệt timing</button></div>
     <SubtitleDraftPanelR405 key={`${video.id}:${revision}:${scene?.id}`} videoId={video.id} compositionRevision={revision} sceneId={scene?.id}/>
     <VisualConsistencyPanelR407 videoId={video.id}/>
+    <div ref={renderSectionRef} id="render-export" className="production-render-section" aria-label="Xuất MP4 local">
     <RenderDrawerR312 videoId={video.id} revision={revision} styleRevision={styleRevision} styleDirty={styleDirty}
       editorDirty={inspectorDirty||timelineDirty} engine={engine} setEngine={setEngine} busy={busy}
       render={render} setRender={setRender} onMessage={setNotice} onError={setError}/>
@@ -146,6 +158,7 @@ export function TimelineRenderWorkspace(){
       {render?.output?.thumbnailUrl&&<button className="btn secondary" disabled={busy} onClick={thumbnail}>⬇ Tải thumbnail JPG</button>}
     </div>
     {render?.output&&<p className={render.output.qa?.passed?'info':'warn'}>QA MP4: {render.output.qa?.passed?'PASS':'FAILED'} · {render.output.bytes} bytes · {render.output.engine}</p>}
+    </div>
     <p className="muted">Preview chỉ phát file gốc theo scene; không phải video đã render. MP4 sẽ đốt phụ đề vào hình, có giọng và khoảng đệm. Chrome/Edge hỗ trợ lưu trực tiếp video dài qua File System Access. Trình duyệt không hỗ trợ chỉ tải Blob đến 100MB.</p>
   </>}
  </section>;
