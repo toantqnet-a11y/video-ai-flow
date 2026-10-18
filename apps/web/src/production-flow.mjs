@@ -19,6 +19,8 @@ export function flowState({masterApproved=null,sceneRevision=null,sceneCount=0}=
   return {...stage,status:'review',hint:'Chỉ xuất khi preflight đạt và bạn chủ động bấm Render'};
  });
 }
+/** Newly previewed scenes are unsaved until an explicit revisioned save. */
+export function sceneDraftUnsaved({changed=false,previewPending=false}={}){return changed||previewPending;}
 /** Only leaving an editor risks losing local drafts. Jumping to its render section does not unmount it. */
 export function navigationWarning(destination,currentTab,dirty={}){
  if(destination===currentTab)return '';
