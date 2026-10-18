@@ -266,21 +266,44 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
   const bytes=await readFile(join(manifest.dataRoot,succeeded.result.relativePath));
   assert(bytes.length>1000);
   const digest=sha(bytes);
+  assert.deepEqual(succeeded.result.segmentCache,{reused:0,encoded:1,total:1},
+   'first real HyperFrames render must encode the new scene');
+  mark('hyperframes_scene_cache_cold_miss');
+  // A second EXPLICIT browser click with the SAME immutable composition proves
+  // a genuine cache hit. It must not dispatch AI or re-encode the scene.
+  assert(await until(()=>ev(`(()=>{
+    const b=[...document.querySelectorAll('.render-drawer-r312 button')].find(x=>x.textContent.includes('Render MP4 local'));
+    if(!b||b.disabled)return false;b.click();return true;
+  })()`),'RENDER_CACHED_SUBMIT',30000));
+  const reusedJob=await until(()=>store.list({limit:20})
+    .find(j=>j.kind==='render:hyperframes'&&j.payload?.projectId===v.id&&j.id!==job.id),
+   'SP04_SECOND_RENDER_JOB');
+  const reusedDone=await until(()=>{
+   const q=store.get(reusedJob.id);
+   if(q?.status==='failed')throw Error('E2E_CACHE_RENDER_FAILED');
+   return q?.status==='succeeded'?q:null;
+  },'HYPERFRAMES_CACHE_HIT_COMPLETE',180000);
+  assert.deepEqual(reusedDone.result?.segmentCache,{reused:1,encoded:0,total:1},
+   'unchanged scene must be reused from verified HyperFrames segment cache');
+  const cachedBytes=await readFile(join(manifest.dataRoot,reusedDone.result.relativePath));
+  assert.equal(sha(cachedBytes),digest,'cached export must preserve exact output bytes');
+  mark('hyperframes_scene_cache_warm_hit');
+  const downloadJobId=reusedJob.id;
   await until(()=>ev(`[...document.querySelectorAll('.production-render-section button')].some(
    b=>b.textContent.includes('Lưu MP4')&&!b.disabled)`),'RENDER_DOWNLOAD_BUTTON',25000);
   const responses=[];
   cdp.on('Network.responseReceived',event=>{
    const response=event.response;
-   if(response?.url?.endsWith(`/videos/${v.id}/renders/${job.id}/mp4`))
+   if(response?.url?.endsWith(`/videos/${v.id}/renders/${downloadJobId}/mp4`))
     responses.push({status:response.status,type:response.mimeType});
   });
   await cdp.call('Network.enable');
   await ev(`Object.defineProperty(window,'showSaveFilePicker',{value:undefined,configurable:true})`);
   assert(await click('Lưu MP4','.production-render-section button'),'download real local MP4');
   await until(()=>responses.some(x=>x.status===200&&x.type==='video/mp4'),'BROWSER_AUTHENTICATED_MP4_DOWNLOAD',30000);
-  assert.equal(store.countByStatus().total,1,'only one explicit render, no paid/AI call');
+  assert.equal(store.countByStatus().total,2,'exactly two explicitly clicked local renders, zero AI/paid calls');
   realRender={status:'PASS',engine:'hyperframes',bytes:bytes.length,sha256:digest,
-    outputQa:true,sceneCount:1,source:'LOCAL_TEST_PNG_WAV_ONLY',browserAuthenticatedMp4Http:200};
+    outputQa:true,sceneCount:1,coldCache:{reused:0,encoded:1},warmCache:{reused:1,encoded:0},source:'LOCAL_TEST_PNG_WAV_ONLY',browserAuthenticatedMp4Http:200};
   mark('browser_hyperframes_real_mp4_download');
  }
  // Browser test must not be promoted to AI/GPU or long-form proof.
