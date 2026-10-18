@@ -142,15 +142,15 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  const script=sentence.repeat(14).trim();
  await type('textarea.master-text',script,'MASTER_TEXT');
  lastStage='MASTER_PREVIEW_SUBMIT';
- assert(await click('Kiểm tra kịch bản','.master-workspace button'),'preview master');
+ assert(await until(()=>click('Kiểm tra kịch bản','.master-workspace button'),'MASTER_PREVIEW_BUTTON'),'preview master');
  await until(()=>expectText('.master-workspace','Kịch bản nhập tay hợp lệ'),'MASTER_PREVIEW');
  lastStage='MASTER_SAVE';
- assert(await click('Lưu phiên bản chưa duyệt','.master-workspace button'),'save master');
+ assert(await until(()=>click('Lưu phiên bản chưa duyệt','.master-workspace button'),'MASTER_SAVE_BUTTON'),'save master');
  await until(()=>expectText('.master-workspace','Đã lưu bản ứng viên'),'MASTER_SAVED');
  // A master approval is always explicit; warnings cannot be silently accepted.
  const ack=await ev(`(()=>{const el=document.querySelector('.master-ack input[type=checkbox]');
   if(!el)return false;el.click();return true})()`);
- assert(await click('Duyệt Bản chuẩn','.master-workspace button'),'approve master');
+ assert(await until(()=>click('Duyệt Bản chuẩn','.master-workspace button'),'MASTER_APPROVE_BUTTON'),'approve master');
  await until(()=>expectText('.master-workspace','Đã chốt Bản chuẩn'),'MASTER_APPROVED');
  assert.equal(repo.getVideo(videoId).masterScript,script,'exact approved script must persist');
  mark('master_browser_approval');
@@ -169,13 +169,13 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  assert.equal(repo.listScenes(videoId).length,0,'cancelled navigation must not save scenes');
  mark('browser_unsaved_navigation_guard');
  mark('builder_preview_no_premature_write');
- assert(await click('Lưu Scene & Phiên bản','.scene-builder button'),'commit scenes');
+ assert(await until(()=>click('Lưu Scene & Phiên bản','.scene-builder button'),'SCENE_SAVE_BUTTON'),'commit scenes');
  await until(()=>repo.listScenes(videoId).length>0,'SCENE_PERSIST');
  await until(()=>click('Tiếp: Tạo Voice','.scene-builder button'),'VOICE_BUTTON');
  await wait('.content-brief-tabs','VOICE_TABS');
  assert(await until(()=>ev(`document.querySelector('.content-brief-tabs button.selected')?.textContent.includes('Voice TTS')`),'VOICE_ACTIVE'),'must navigate to voice');
  mark('scene_revision_voice_navigation');
- assert(await click('Timeline','.production-flow-step'),'open Timeline');
+ assert(await until(()=>click('Timeline','.production-flow-step'),'TIMELINE_BUTTON'),'open Timeline');
  await until(()=>visible('.timeline-r302')||visible('.timeline-render-layout'),'TIMELINE_UI');
  assert(await click('Xuất MP4','.production-flow-step'),'focus renderer');
  await until(()=>visible('.render-drawer-r312'),'RENDER_DRAWER');
