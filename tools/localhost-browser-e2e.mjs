@@ -15,6 +15,7 @@ import {existsSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const pause=ms=>new Promise(ok=>setTimeout(ok,ms));
+let lastStage='BOOT';
 async function freePort(){
  const s=createServer();
  await new Promise((ok,no)=>{s.once('error',no);s.listen(0,'127.0.0.1',ok)});
@@ -63,14 +64,13 @@ async function browserConnect(port,debugPort,profile){
   'http://127.0.0.1:'+port+'/'];
  const child=spawn(binary,args,{cwd:root,stdio:'ignore',env:{...process.env,
   CONTENTSTUDIO_REMOTE_LLM_CONSENT:'0'}});
- const pages=await until(async()=>{
+ const page=await until(async()=>{
   if(child.exitCode!==null)throw Error('E2E_BROWSER_EXITED');
   try{const res=await fetch('http://127.0.0.1:'+debugPort+'/json/list',{signal:AbortSignal.timeout(850)});
-   if(!res.ok)return null;return await res.json();}catch{return null}
+   if(!res.ok)return null;const pages=await res.json();
+   return pages.find(p=>p.type==='page'&&p.webSocketDebuggerUrl&&
+     p.url.startsWith('http://127.0.0.1:'+port+'/'));}catch{return null}
  },'BROWSER_BOOT',18000);
- const page=pages.find(p=>p.type==='page'&&p.webSocketDebuggerUrl&&
-   p.url.startsWith('http://127.0.0.1:'+port+'/'));
- if(!page)throw Error('E2E_LOCAL_PAGE_MISSING');
  const wsUrl=new URL(page.webSocketDebuggerUrl);wsUrl.hostname='127.0.0.1';
  const cdp=cdpConnect(wsUrl.toString());await cdp.call('Runtime.enable');
  await cdp.call('Page.enable');
@@ -99,30 +99,30 @@ async function runBrowser(cdp,code,repo,store){
  const submit=css=>ev(`(()=>{const f=document.querySelector(${JSON.stringify(css)});
   if(!f)return false;f.requestSubmit();return true;})()`);
  const expectText=(css,value)=>ev(`document.querySelector(${JSON.stringify(css)})?.textContent?.includes(${JSON.stringify(value)})===true`);
- const steps=[];
- await wait('.pairing form','PAIRING_UI');steps.push('react_pairing_ui');
+ const steps=[];const mark=label=>{steps.push(label);lastStage=label;console.log('LOCALHOST_E2E_STAGE '+label)};
+ await wait('.pairing form','PAIRING_UI');mark('react_pairing_ui');
  assert.equal(await click('Kết nối','.pairing button'),false,'empty code must disable pairing');
  await type('.pairing form input',code,'PAIR_CODE');
  assert(await click('Kết nối','.pairing button'),'pair submit');
- await wait('.shell .side','PAIR_SUCCESS');steps.push('authenticated_pairing');
+ await wait('.shell .side','PAIR_SUCCESS');mark('authenticated_pairing');
  assert.equal(repo.listChannels().length,0,'isolated SQLite must start empty');
  assert(await click('Tạo kênh','.channel-workspace button'),'open channel modal');
  await wait('.modal form','CHANNEL_MODAL');
  await type('.modal form input','Local Flow CI Channel','CHANNEL_NAME');
  assert(await submit('.modal form'),'channel form submit');
  await until(()=>repo.listChannels().length===1,'CHANNEL_PERSIST');
- steps.push('channel_browser_sqlite');
+ mark('channel_browser_sqlite');
  assert(await click('Video','.side button.nav'),'open videos');
  await wait('.video-library','VIDEO_LIBRARY');
  assert(await click('Video mới','.video-library button'),'open video modal');
  await wait('.video-library-modal','VIDEO_MODAL');
- await type('.video-library-modal input[type=text]','Localhost smoke video','VIDEO_TITLE');
+ await type('.video-library-modal label input','Localhost smoke video','VIDEO_TITLE');
  assert(await submit('.video-library-modal'),'video submit');
  await wait('.production-flow','VIDEO_CREATED_FLOW');
  const channel=repo.listChannels()[0],videos=repo.listVideoPage(channel.id,{limit:20}).items;
  assert.equal(videos.length,1,'video must be persisted in real SQLite');
  const videoId=videos[0].id;
- steps.push('video_browser_sqlite');
+ mark('video_browser_sqlite');
  assert(await click('Nội dung','.production-flow-step'),'enter Content');
  await wait('.content-brief-tabs','CONTENT_TABS');
  assert(await click('Bản chuẩn & Duyệt','.content-brief-tabs button'),'open master');
@@ -141,7 +141,7 @@ async function runBrowser(cdp,code,repo,store){
  assert(await click('Duyệt Bản chuẩn','.master-workspace button'),'approve master');
  await until(()=>expectText('.master-workspace','Đã chốt Bản chuẩn'),'MASTER_APPROVED');
  assert.equal(repo.getVideo(videoId).masterScript,script,'exact approved script must persist');
- steps.push('master_browser_approval');
+ mark('master_browser_approval');
  assert(await click('Mở Scene Builder','.master-workspace button'),'open canonical builder');
  await wait('.scene-builder','BUILDER_UI');
  await until(()=>ev(`document.querySelector('.scene-builder button')?.disabled===false`),'BUILDER_READY').catch(()=>{});
@@ -151,13 +151,13 @@ async function runBrowser(cdp,code,repo,store){
  const nextDisabled=await ev(`(()=>{const b=[...document.querySelectorAll('.scene-builder button')]
   .find(x=>x.textContent.includes('Tiếp: Tạo Voice'));return b?.disabled===true})()`);
  assert.equal(nextDisabled,true,'cannot skip unsaved split');
- steps.push('builder_preview_no_premature_write');
+ mark('builder_preview_no_premature_write');
  assert(await click('Lưu Scene & Phiên bản','.scene-builder button'),'commit scenes');
  await until(()=>repo.listScenes(videoId).length>0,'SCENE_PERSIST');
  await until(()=>click('Tiếp: Tạo Voice','.scene-builder button'),'VOICE_BUTTON');
  await wait('.content-brief-tabs','VOICE_TABS');
  assert(await until(()=>ev(`document.querySelector('.content-brief-tabs button.selected')?.textContent.includes('Voice TTS')`),'VOICE_ACTIVE'),'must navigate to voice');
- steps.push('scene_revision_voice_navigation');
+ mark('scene_revision_voice_navigation');
  assert(await click('Timeline','.production-flow-step'),'open Timeline');
  await until(()=>visible('.timeline-r302')||visible('.timeline-render-layout'),'TIMELINE_UI');
  assert(await click('Xuất MP4','.production-flow-step'),'focus renderer');
@@ -166,7 +166,7 @@ async function runBrowser(cdp,code,repo,store){
    .some(b=>b.textContent.includes('Render MP4 local')&&b.disabled)`);
  assert.equal(isDisabled,true,'no render on missing voice/media');
  assert.equal(store.countByStatus().total,0,'UI journey must not dispatch any AI/paid/render jobs');
- steps.push('timeline_real_drawer_fail_closed');
+ mark('timeline_real_drawer_fail_closed');
  // Browser test must not be promoted to actual MP4 render or GPU proof.
  return {status:'PASS',browser:findChrome(),steps,sceneCount:repo.listScenes(videoId).length,
   finalRender:'BLOCKED_NO_MEDIA',aiInference:'NOT_EXECUTED',release:'NOT_READY'};
@@ -192,7 +192,7 @@ async function main(){
   console.log('LOCALHOST_BROWSER_E2E '+JSON.stringify(evidence));
  }catch(e){
   // Do not print URLs, DOM, SQLite data or pairing code on errors.
-  console.error('LOCALHOST_BROWSER_E2E_FAILED '+(/^[A-Z0-9_]{3,120}$/.test(e?.message??'')?e.message:'E2E_ASSERTION_OR_INTEGRATION_FAILED'));
+  console.error('LOCALHOST_BROWSER_E2E_FAILED '+lastStage+' '+(/^[A-Z0-9_]{3,120}$/.test(e?.message??'')?e.message:'E2E_ASSERTION_OR_INTEGRATION_FAILED'));
   process.exitCode=1;
  }finally{
   chrome?.cdp?.close();
