@@ -1,5 +1,6 @@
 import React,{useEffect,useState} from 'react';
 import {api} from './api.js';
+import {useStudio} from './store.js';
 
 const errorMessage=error=>({MASTER_CHAPTER_COVERAGE:'Cần chọn một bản thảo cho từng chương.',
   MASTER_SOURCE_MISMATCH:'Bản thảo thuộc chương, video hoặc phiên bản dàn ý khác.',
@@ -14,8 +15,11 @@ const errorMessage=error=>({MASTER_CHAPTER_COVERAGE:'Cần chọn một bản th
  * then explicitly approve. The Preview/Save buttons NEVER write videos.master_script.
  * A failed source or stale outline check stops the flow rather than inventing text.
  */
-export function MasterScriptWorkspace({video,onBack,onApproved,onCreateScenes}){
+export function MasterScriptWorkspace({video,onBack,onApproved,onOpenSceneBuilder}){
   const id=video.id;
+  // Warn when leaving an unsaved Master Script draft; this is independent of
+  // Brief/Outline dirty state and must not dispatch AI or scene mutations.
+  useEffect(()=>{useStudio.setState({masterScriptDirty:dirty});return()=>useStudio.setState({masterScriptDirty:false})},[dirty]);
   const [outline,setOutline]=useState(null),[variants,setVariants]=useState([]),[selected,setSelected]=useState({}),
     [status,setStatus]=useState(null),[history,setHistory]=useState([]),[candidate,setCandidate]=useState(null),
     [text,setText]=useState(''),[dirty,setDirty]=useState(false),[approvedWarnings,setApprovedWarnings]=useState(false),
@@ -153,7 +157,7 @@ export function MasterScriptWorkspace({video,onBack,onApproved,onCreateScenes}){
         {status?.approvedRevision&&status?.hasApprovedScript&&<button className="btn secondary"
           disabled={busy||dirty} onClick={exportApprovedJson}>⇩ Xuất JSON kịch bản đã duyệt</button>}
         {candidate?.revision===status?.approvedRevision&&status?.hasApprovedScript&&<button className="btn secondary"
-          disabled={busy||dirty} onClick={()=>perform(()=>onCreateScenes(candidate.text))}>Tách scene (sơ bộ) →</button>}
+          disabled={busy||dirty} onClick={()=>perform(()=>onOpenSceneBuilder?.())}>Mở Scene Builder →</button>}
         </div>
       <p className="muted">Chỉ nút “Duyệt Bản chuẩn” mới cập nhật kịch bản chính của video. Sau khi đã có scene, không thể thay Bản chuẩn mà chưa xử lý tác động đến scene.</p>
     </div></div>
