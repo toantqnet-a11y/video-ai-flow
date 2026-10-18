@@ -6,6 +6,8 @@
  * This is NOT HyperFrames MP4, GPU inference, or human audiovisual acceptance.
  */
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {readFile} from 'node:fs/promises';
 import {spawn,spawnSync} from 'node:child_process';
 import {createServer} from 'node:net';
 import {mkdtemp,rm} from 'node:fs/promises';
@@ -76,7 +78,7 @@ async function browserConnect(port,debugPort,profile){
  await cdp.call('Page.enable');
  return {child,cdp};
 }
-async function runBrowser(cdp,code,repo,store,security){
+async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixture=false){
  const ev=async expr=>{
   const result=await cdp.call('Runtime.evaluate',{expression:expr,returnByValue:true,awaitPromise:true});
   if(result.exceptionDetails)throw Error('E2E_PAGE_EVALUATION');
@@ -207,9 +209,83 @@ async function runBrowser(cdp,code,repo,store,security){
  mark('render_history_restored_without_new_job');
  assert.equal(store.countByStatus().total,0,'re-pair must not trigger render or AI');
  mark('browser_refresh_operator_repair_preserves_sqlite');
- // Browser test must not be promoted to actual MP4 render or GPU proof.
+ // Optional real local fixture: drive HyperFrames via the authenticated
+ // BROWSER button and SP-04 job. Committed PNG/WAV are test assets, not AI.
+ let realRender=null;
+ if(withRenderFixture){
+  lastStage='RENDER_FIXTURE_SETUP';
+  const sha=s=>createHash('sha256').update(s).digest('hex');
+  const v=repo.createVideo(channel.id,{title:'LOCAL_RENDER_BROWSER_FIXTURE'});
+  const sc=repo.replaceScenes(v.id,{rowVersion:v.rowVersion,scenes:[
+   {text:'Kiểm thử xuất video bằng HyperFrames từ giao diện trình duyệt local.',durationMs:3000,mediaType:'image_motion'}
+  ]})[0];
+  const inputHash=sha('browser-fixture-voice-'+sc.id),jobTag='browser-fixture-'+sc.id;
+  await manifest.importFile({sceneId:sc.id,kind:'voice',source:'mock-tts',
+   inputPath:join(root,'spikes/EXT-03/assets/voice-01.wav'),
+   metadata:{queueJobId:jobTag,inputHash,textSha256:sha(sc.text),providerId:'piper'}});
+  repo.db.prepare(`INSERT INTO scene_voice_intents
+   (scene_id,job_id,input_hash,text_sha256,config_revision,provider_id,voice_id,rate,requested_at)
+   VALUES(?,?,?,?,?,?,?,?,?)`).run(sc.id,jobTag,inputHash,sha(sc.text),
+    repo.getVideo(v.id).configRevision,'piper','fixture',0,Date.now());
+  const image=await manifest.importFile({sceneId:sc.id,kind:'image',source:'manual_import',
+   inputPath:join(root,'spikes/EXT-03/assets/background-01.png')});
+  repo.db.prepare('INSERT INTO scene_image_manual_selections(scene_id,asset_id,selected_at) VALUES(?,?,?)')
+   .run(sc.id,image.id,Date.now());
+  assert(await until(()=>click('Video','.side button.nav'),'RENDER_VIDEO_TAB'));
+  await wait('.video-library','RENDER_VIDEO_LIBRARY');
+  await until(()=>click('Làm mới','.video-toolbar button'),'RENDER_LIBRARY_REFRESH');
+  assert(await until(()=>ev(`(()=>{
+   const card=[...document.querySelectorAll('.video-library-card')].find(x=>x.textContent.includes('LOCAL_RENDER_BROWSER_FIXTURE'));
+   if(!card)return false;const btn=[...card.querySelectorAll('button')].find(b=>b.textContent.includes('Tiếp tục'));
+   if(!btn)return false;btn.click();return true;
+  })()`),'RENDER_FIXTURE_VIDEO_SELECT'),'select fixture from real UI');
+  await wait('.production-flow','RENDER_FIXTURE_FLOW');
+  assert(await click('Timeline','.production-flow-step'),'open media fixture Timeline');
+  await wait('.timeline-render-layout','RENDER_FIXTURE_TIMELINE');
+  assert(await until(()=>click('Phê duyệt timing','.timeline-render-layout ~ .actions button'),'RENDER_TIMING_APPROVAL'), 'user approval');
+  await until(()=>expectText('.timeline-render-layout','Timing Lock'),'RENDER_TIMELINE_LOADED');
+  await until(()=>expectText('.frame','Đã phê duyệt Composition'), 'RENDER_TIMING_COMMITTED');
+  mark('real_media_timing_approved_from_browser');
+  assert(await until(()=>ev(`(()=>{
+    const b=[...document.querySelectorAll('.render-drawer-r312 button')].find(x=>x.textContent.includes('Render MP4 local'));
+    if(!b||b.disabled)return false;b.click();return true;
+   })()`),'RENDER_BROWSER_SUBMIT',35000),'must explicitly click real Render button');
+  mark('hyperframes_render_submitted_via_browser');
+  const job=await until(()=>{
+   const candidate=store.list({limit:20}).find(j=>j.kind==='render:hyperframes'&&j.payload?.projectId===v.id);
+   return candidate??null;
+  },'SP04_PERSISTED_RENDER_JOB');
+  const succeeded=await until(()=>{
+   const q=store.get(job.id);
+   if(q?.status==='failed')throw Error('E2E_REAL_RENDER_FAILED');
+   return q?.status==='succeeded'?q:null;
+  },'HYPERFRAMES_MP4_COMPLETE',240000);
+  assert.equal(succeeded.result?.engine,'hyperframes');
+  assert.equal(succeeded.result?.qa?.passed,true);
+  assert.equal(succeeded.result?.videoId,v.id);
+  const bytes=await readFile(join(manifest.dataRoot,succeeded.result.relativePath));
+  assert(bytes.length>1000);
+  const digest=sha(bytes);
+  await until(()=>ev(`[...document.querySelectorAll('.production-render-section button')].some(
+   b=>b.textContent.includes('Lưu MP4')&&!b.disabled)`),'RENDER_DOWNLOAD_BUTTON',25000);
+  const responses=[];
+  cdp.on('Network.responseReceived',event=>{
+   const response=event.response;
+   if(response?.url?.endsWith(`/videos/${v.id}/renders/${job.id}/mp4`))
+    responses.push({status:response.status,type:response.mimeType});
+  });
+  await cdp.call('Network.enable');
+  await ev(`Object.defineProperty(window,'showSaveFilePicker',{value:undefined,configurable:true})`);
+  assert(await click('Lưu MP4','.production-render-section button'),'download real local MP4');
+  await until(()=>responses.some(x=>x.status===200&&x.type==='video/mp4'),'BROWSER_AUTHENTICATED_MP4_DOWNLOAD',30000);
+  assert.equal(store.countByStatus().total,1,'only one explicit render, no paid/AI call');
+  realRender={status:'PASS',engine:'hyperframes',bytes:bytes.length,sha256:digest,
+    outputQa:true,sceneCount:1,source:'LOCAL_TEST_PNG_WAV_ONLY',browserAuthenticatedMp4Http:200};
+  mark('browser_hyperframes_real_mp4_download');
+ }
+ // Browser test must not be promoted to AI/GPU or long-form proof.
  return {status:'PASS',browser:findChrome(),steps,sceneCount:repo.listScenes(videoId).length,
-  finalRender:'BLOCKED_NO_MEDIA',aiInference:'NOT_EXECUTED',release:'NOT_READY'};
+  finalRender:realRender??'BLOCKED_NO_MEDIA',aiInference:'NOT_EXECUTED',release:'NOT_READY'};
 }
 async function main(){
  assert(existsSync(join(root,'apps/web/dist/index.html')),'E2E_WEB_BUILD_REQUIRED');
@@ -228,7 +304,7 @@ async function main(){
   const health=await fetch(url+'/health');assert.equal(health.status,200);
   assert.equal((await fetch(url+'/api/channels')).status,401);
   chrome=await browserConnect(apiPort,debugPort,join(dir,'chrome-profile'));
-  const evidence=await runBrowser(chrome.cdp,runtime.security.pairingCodeForTerminal(),runtime.repo,runtime.store,runtime.security);
+  const evidence=await runBrowser(chrome.cdp,runtime.security.pairingCodeForTerminal(),runtime.repo,runtime.store,runtime.security,runtime.manifest,process.argv.includes('--render-fixture'));
   console.log('LOCALHOST_BROWSER_E2E '+JSON.stringify(evidence));
  }catch(e){
   // Do not print URLs, DOM, SQLite data or pairing code on errors.
