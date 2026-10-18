@@ -1,0 +1,68 @@
+# Reproducible real local HyperFrames, not a mock, paid provider or Windows desktop.
+# Only committed fixture WAV/PNG; artifact is for manual glyph/music review.
+name: Local HyperFrames MP4 Proof
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/local-hyperframes-proof.yml'
+      - 'tools/fi04-hyperframes-acceptance.mjs'
+      - 'packages/core/src/render-hyperframes.mjs'
+      - 'apps/api/src/render-export-r2ext0406.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hyperframes-local-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  five-scenes:
+    name: Pinned HyperFrames 5-scene H264/AAC/SRT fixture
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify reviewed dependency lock
+        run: |
+          node tools/ci-github-lock.mjs
+          npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verify local FFmpeg, FFprobe and CLI
+        shell: bash
+        run: |
+          # New Ubuntu hosted images may not ship media tools. This is an
+          # OS package installation only; no remote AI or unpinned npm graph.
+          if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq ffmpeg
+          fi
+          command -v ffmpeg
+          command -v ffprobe
+          ffmpeg -version | head -n 1
+          ffprobe -version | head -n 1
+          node tools/fi04-hyperframes-acceptance.mjs --inspect
+      - name: Run 5-scene real media through production SP-04 queue
+        timeout-minutes: 9
+        env:
+          CONTENTSTUDIO_REMOTE_LLM_CONSENT: '0'
+          CONTENTSTUDIO_CONFIRMED_NO_BILLING_MODEL_IDS: ''
+          NODE_ENV: production
+        run: |
+          node tools/fi04-hyperframes-acceptance.mjs --run --strict --save-review --report=docs/evidence/FI0404_localhost_hyperframes.json
+      - name: Preserve finite fixture proof for independent human review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-hyperframes-5scene-proof
+          path: |
+            docs/evidence/FI0404_localhost_hyperframes.json
+            docs/evidence/FI0404_review.mp4
+            docs/evidence/FI0404_review.srt
+          retention-days: 3
+          if-no-files-found: warn
