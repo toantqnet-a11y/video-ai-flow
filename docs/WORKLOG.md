@@ -997,3 +997,11 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
 - Separated `MVP_localhost`, `AI_video_local`, `Optional_extensions` milestones. Local GPU inference gates only apply to configured native AI clip providers; imported-media editing must not be blocked by absent GPU. Paid/remote calls remain explicit-opt-in.
 - Updated README, AGENTS and FI04 status links. Full decision and agent handoff: `docs/LOCALHOST_BACKLOG_HANDOFF.md`.
 - **Tests / acceptance:** generator and tests must be verified by GitHub CI on this branch; no new real browser/GPU/35min media was run by a backlog-only change. Release remains `NOT_READY`. Next: CI consistency; authenticated localhost browser & A/V; true long render/restart; native ComfyUI/Wan where available.
+
+## 2026-10-18 — Localhost Web Step 1: actual Content → Scene → Timeline → MP4 integration
+- Added browser production guide showing 4 actual stages with authenticated persisted Master approval and scene revision reads. Never infer finished render from navigational position.
+- Fixed Master Script CTA: previously direct legacy `makeScenes()` skipped revisioned Scene Builder and Voice/Image. Now opens canonical Scene Builder without writing scenes; user must explicitly preview/save, then continue to Voice TTS.
+- Clicking Render focuses existing Timeline HyperFrames/FFmpeg drawer; no render or AI is auto-triggered.
+- Central navigation/subtab warning for unsaved Brief/Outline/Master, Scene Builder and Timeline/Inspector; mobile-friendly stepper styles, corrected false 'LLM/render unavailable' footer and removed unused mock Timeline implementation.
+- Automated regression in `apps/web/src/production-flow.test.mjs`; CI verification is required before merge. No backend/schema/provider change, new live inference or 35min render performed. Release `NOT_READY`.
+- Handoff `docs/LOCALHOST_FLOW_STEP1_HANDOFF.md`. Next: real authenticated browser E2E with setup/pairing, scene voice/image, Composition approval, HyperFrames MP4 download, stale edit and crash handling.
