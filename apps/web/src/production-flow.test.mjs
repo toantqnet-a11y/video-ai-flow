@@ -39,6 +39,8 @@ test('leaving unsaved Brief, Master, Scene Builder or Timeline requires confirma
 });
 test('Master Script opens server-backed builder; guided Render only scrolls to real drawer',async()=>{
  const master=await src('./MasterScriptWorkspace.jsx');
+ const guide=await src('./ProductionFlowGuide.jsx');
+ assert.match(guide,/Promise\.allSettled/); // Builder may be locked before Master approval.
  const main=await src('./main.jsx');
  const timeline=await src('./TimelineRenderWorkspace.jsx');
  assert.match(master,/onOpenSceneBuilder/);
