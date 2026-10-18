@@ -50,6 +50,8 @@ test('Localhost policy retains 69 IDs and real CI history but drops mandatory Wi
  const policy=JSON.parse(await get('docs/LOCALHOST_BACKLOG_POLICY.json'));
  const merged=normalizeLocalhostBacklog(mergeBacklog(base,video),policy);
  assert.equal(merged.taskCount,69);
+ assert.equal(merged.groups.localRuntimeAcceptance,3);
+ assert.equal(merged.groups.windowsAcceptance,undefined);
  assert.equal(new Set(merged.tasks.map(t=>t.id)).size,69);
  assert.equal(merged.releaseStatus,'NOT_READY');
  assert.equal(merged.scope.productType,'local_web_app');
