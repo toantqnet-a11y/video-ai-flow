@@ -373,6 +373,7 @@ export function createControllers({repo,store,registry,manifest,vault,paidPolicy
     musicImport:(id,body)=>renderExports?.importMusic(id,body)??missing('RENDER_UNAVAILABLE'),
     musicImportStream:(id,stream,ext)=>renderExports?.importMusicStream(id,stream,ext)??missing('RENDER_UNAVAILABLE'),
     musicList:(id)=>renderExports?.listMusic(id)??missing('RENDER_UNAVAILABLE'),
+    renderHistory:(id,query)=>renderExports?.list(id,query)??missing('RENDER_UNAVAILABLE'),
     renderJob:(id,jobId)=>renderExports?.job(id,jobId)??missing('RENDER_UNAVAILABLE'),
     renderFile:(id,jobId)=>renderExports?.file(id,jobId)??missing('RENDER_UNAVAILABLE'),
     renderSubtitle:(id,jobId)=>renderExports?.subtitle(id,jobId)??missing('RENDER_UNAVAILABLE'),
