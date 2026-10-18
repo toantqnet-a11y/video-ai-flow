@@ -131,17 +131,20 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  const channel=repo.listChannels()[0],videos=repo.listVideoPage(channel.id,{limit:20}).items;
  assert.equal(videos.length,1,'video must be persisted in real SQLite');
  const videoId=videos[0].id;
- mark('video_browser_sqlite');
+ mark('video_browser_sqlite');lastStage='NAV_CONTENT';
  assert(await until(()=>click('Nội dung','.production-flow-step'),'CONTENT_NAV_BUTTON'),'E2E_CONTENT_BUTTON_MISSING');
- await wait('.content-brief-tabs','CONTENT_TABS');
+ await wait('.content-brief-tabs','CONTENT_TABS');lastStage='NAV_MASTER';
  assert(await until(()=>click('Bản chuẩn & Duyệt','.content-brief-tabs button'),'MASTER_NAV_BUTTON'),'E2E_MASTER_TAB_MISSING');
- await wait('.master-workspace','MASTER_UI');
+ await wait('.master-workspace','MASTER_UI');lastStage='MASTER_MANUAL';
  assert(await until(()=>click('Nhập kịch bản thủ công','.master-mode button'),'MASTER_MANUAL_BUTTON'),'E2E_MASTER_MANUAL_MISSING');
+ lastStage='MASTER_TEXT';
  const sentence='Xin chào mọi người, đây là nội dung hướng dẫn để kiểm tra quy trình tạo video trên trình duyệt nội bộ. ';
  const script=sentence.repeat(14).trim();
  await type('textarea.master-text',script,'MASTER_TEXT');
+ lastStage='MASTER_PREVIEW_SUBMIT';
  assert(await click('Kiểm tra kịch bản','.master-workspace button'),'preview master');
  await until(()=>expectText('.master-workspace','Kịch bản nhập tay hợp lệ'),'MASTER_PREVIEW');
+ lastStage='MASTER_SAVE';
  assert(await click('Lưu phiên bản chưa duyệt','.master-workspace button'),'save master');
  await until(()=>expectText('.master-workspace','Đã lưu bản ứng viên'),'MASTER_SAVED');
  // A master approval is always explicit; warnings cannot be silently accepted.
