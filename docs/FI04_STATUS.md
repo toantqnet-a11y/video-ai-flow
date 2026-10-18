@@ -1,3 +1,5 @@
+> **CURRENT scope 2026-10-18:** local web app (Vite/React + Fastify loopback), not Windows desktop. 69 unique task IDs; see `docs/LOCALHOST_BACKLOG_HANDOFF.md` and `docs/VIDEO_AI_FLOW_MASTER_BACKLOG.json`. Historical statuses below predate the latest merges. Actual authenticated browser/AI GPU (for configured providers)/35min render/performance remain open. `NOT_READY`.
+
 # FI-04 Status — 17/10/2026
 
 Release: `NOT_READY`.

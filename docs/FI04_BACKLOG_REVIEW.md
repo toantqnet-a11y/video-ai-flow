@@ -1,3 +1,5 @@
+> **UPDATE 2026-10-18:** This file contains historical 59/60/61-task checkpoints. The authoritative **69-task** scope has been normalized to **localhost browser-first**, not Windows Desktop/EXE. The latest regenerated backlog is `docs/VIDEO_AI_FLOW_MASTER_BACKLOG.json` and the policy/agent acceptance contract is [LOCALHOST_BACKLOG_HANDOFF.md](LOCALHOST_BACKLOG_HANDOFF.md). Old Windows-hosted CI records are retained solely as verified provenance. Release remains **NOT_READY**.
+
 # Video AI Flow — Backlog hợp nhất FI-04 (17/10/2026)
 
 Nguồn: FI-03 full workspace archive (16/10/2026), 42 task FI-02 `docs/VIDEO_AI_FLOW_EXTENSION_BACKLOG.json`, roadmap v3 ngày 13/10/2026. Đây là **tracker hợp nhất của backlog FI-02 và nhánh AI Video**, không phải danh mục toàn bộ các task nền tảng R0/R1/R2 từ roadmap v3.

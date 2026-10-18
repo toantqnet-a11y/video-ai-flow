@@ -1,3 +1,5 @@
+> **CURRENT PRODUCT DECISION (2026-10-18):** Browser-first localhost web app, **not** Windows desktop application. The historic Windows-target acceptance notes below are superseded by [LOCALHOST_BACKLOG_HANDOFF.md](docs/LOCALHOST_BACKLOG_HANDOFF.md) for future release gates. Keep all 69 task IDs, preserve historical hosted Windows evidence, and regenerate with `npm run backlog:merge:fi04` then `npm run backlog:check:fi04`. Actual localhost authenticated browser UX, 35–40min real HyperFrames MP4/restart/performance and opted-in local AI inference remain **NOT_READY**. Append progress to `docs/WORKLOG.md`; do not mark these gates PASS from mock/CI pairing only.
+
 # FI-04 – 17/10/2026 · Stability, dependency/bootstrap, runtime readiness
 
 **Dự án:** Video AI Flow / ContentStudio | **Nguồn mã:** FI-03 archive snapshot | **Release:** `NOT_READY`.

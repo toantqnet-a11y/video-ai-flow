@@ -1,6 +1,6 @@
 {
-  "version": "2026-10-17-fi0410-hosted-windows-acceptance-partial",
-  "status": "FI0410_HOSTED_WINDOWS_PARTIAL_ACCEPTANCE__PRODUCTION_NOT_READY",
+  "version": "2026-10-18-localhost-browser-first",
+  "status": "LOCALHOST_SCOPE_NORMALIZED__RELEASE_NOT_READY",
   "releaseStatus": "NOT_READY",
   "origin": {
     "existing": "docs/VIDEO_AI_FLOW_EXTENSION_BACKLOG.json",
@@ -12,15 +12,18 @@
     "no-paid-auto",
     "keep-R2-original-ids",
     "engine-neutral",
-    "Windows-local-first",
-    "append-only-migrations-after-v26"
+    "append-only-migrations-after-v26",
+    "localhost-browser-first",
+    "host-OS-neutral-acceptance",
+    "real-browser-media-and-provider-evidence",
+    "no-automatic-paid-or-remote-fallback"
   ],
   "taskCount": 69,
   "groups": {
     "existingFI02": 42,
     "aiVideo": 14,
     "fi04": 10,
-    "windowsAcceptance": 3
+    "localRuntimeAcceptance": 3
   },
   "tasks": [
     {
@@ -40,7 +43,7 @@
       ],
       "remainingGate": [
         "live checkpoint/GPU",
-        "Windows/browser",
+        "local host/browser",
         "30-40min",
         "Vite dependency installation/build"
       ]
@@ -62,7 +65,7 @@
         "npm run test:negative-control"
       ],
       "remainingGate": [
-        "Windows + browser live acceptance",
+        "local host + browser live acceptance",
         "EXT-03 renderer engine benchmark",
         "MP4 output and long-form runtime"
       ]
@@ -84,7 +87,7 @@
         "npm run typecheck:sdk"
       ],
       "remainingGate": [
-        "Windows/browser/provider/long form",
+        "local host/browser/provider/long form",
         "destructive GC deferred",
         "physical cross-scene dedupe deferred to future decision"
       ]
@@ -106,7 +109,7 @@
         "npm run test:negative-control"
       ],
       "remainingGate": [
-        "Windows/live ComfyUI and native TTS",
+        "local host/live ComfyUI and native TTS",
         "browser HTTP UI",
         "30-40min multi-scene stress and memory",
         "actual caption timeline sync/render"
@@ -131,7 +134,7 @@
       "remainingGate": [
         "provider-official-quota-and-billing-verification",
         "live-HTTP-browser",
-        "Windows",
+        "local host",
         "multi-instance-and-35min",
         "Vite dependency installation/build"
       ]
@@ -157,7 +160,7 @@
         "npm run test:negative-control"
       ],
       "remainingGate": [
-        "actual native Vietnamese TTS/Windows/browser",
+        "actual native Vietnamese TTS/local host/browser",
         "word-level forced alignment from authentic timestamps",
         "real Remotion/HyperFrames render benchmark",
         "MP4 QA and 30-40min"
@@ -166,7 +169,7 @@
     {
       "id": "R2-EXT-03",
       "title": "Remotion / HyperFrames real POC benchmark",
-      "priority": "P0",
+      "priority": "P1",
       "dependsOn": [],
       "status": "PRIMARY_SELECTED_BY_PO_BENCHMARK_NOT_RUN",
       "acceptanceSummary": "HyperFrames selected by product owner; framework performance benchmark remains NOT_RUN; real CLI integration pending.",
@@ -176,10 +179,8 @@
         "npm run test:all"
       ],
       "remainingGate": [
-        "Network-enabled npm installation & lock dependencies",
-        "Real Remotion MP4 + HyperFrames MP4 for all 3 workloads × ≥3 trials",
-        "Record peak RAM/CPU, FFprobe, visual/glyph/audio QA on same Windows target",
-        "License check under actual organizational usage"
+        "Compare real Remotion vs HyperFrames only if changing renderer or seeking a measured performance improvement; both engines must run on the same supported local host with identical fixtures",
+        "Measure runtime, peak memory, FFprobe, glyph/music quality, and licenses; keep HyperFrames as current primary until evidence justifies a change"
       ]
     },
     {
@@ -203,7 +204,7 @@
       ],
       "remainingGate": [
         "EXT-03 fair engine benchmark",
-        "Windows/browser",
+        "local host/browser",
         "long form and render throttling"
       ]
     },
@@ -226,7 +227,7 @@
         "node tools/demo-render-r2ext040506.mjs"
       ],
       "remainingGate": [
-        "Windows 30-40min",
+        "local host 30-40min",
         "native TTS",
         "perceptual A/V QA and benchmark"
       ]
@@ -265,7 +266,7 @@
         "R2-05",
         "R2-06"
       ],
-      "status": "ATOMIC_LOCAL_IMAGE_ROUTER_CODE_PASS__WINDOWS_NATIVE_GPU_PENDING",
+      "status": "ATOMIC_LOCAL_IMAGE_ROUTER_CODE_PASS__LOCALHOST_NATIVE_GPU_PENDING",
       "acceptanceSummary": "Three deterministic cache-first modes, trusted-pin health, local ComfyUI configured-only suggestion, paid clip option displayed blocked; no paid/AI calls, no invented billing. Preview only, provider execution selection stays manual.",
       "verifiedTests": [
         "npm run test:ext0708",
@@ -278,7 +279,7 @@
         "CI PR #9 required"
       ],
       "remainingGate": [
-        "Real local ComfyUI GPU workflow and Windows browser E2E",
+        "Real local ComfyUI GPU workflow and local host browser E2E",
         "Concurrent editor mutations and multi-process SP-04 stress under genuine GPU",
         "AI-video scenes intentionally excluded; no paid/remote fallback"
       ]
@@ -303,7 +304,7 @@
         "PR #7 focused + full CI pending"
       ],
       "remainingGate": [
-        "Windows browser preset UX",
+        "local host browser preset UX",
         "Real HyperFrames transitions/fonts quality"
       ]
     },
@@ -327,7 +328,7 @@
       ],
       "remainingGate": [
         "Vite build/install",
-        "Windows/browser",
+        "local host/browser",
         "30-40min"
       ]
     },
@@ -350,7 +351,7 @@
       ],
       "remainingGate": [
         "Vite installation and browser/UI build",
-        "Windows",
+        "local host",
         "real provider quota and billing reconciliation",
         "long-form 30-40min"
       ]
@@ -373,7 +374,7 @@
         "npm run test:negative-control"
       ],
       "remainingGate": [
-        "Windows/browser/Vite install",
+        "local host/browser/Vite install",
         "native TTS/real ComfyUI GPU",
         "35min long-form and multi-process stress"
       ]
@@ -401,7 +402,7 @@
       ],
       "remainingGate": [
         "Vite install/build and Fastify live HTTP",
-        "Windows launcher and browser",
+        "local host launcher and browser",
         "Native Edge/Piper/VieNeu/ComfyUI",
         "real disk full and provider 429",
         "30–40 minute actual video render/export; extensions R2-EXT-01..06"
@@ -430,7 +431,7 @@
       ],
       "remainingGate": [
         "real 30-40min encoded MP4",
-        "Windows target/browser UI",
+        "local host target/browser UI",
         "npm install Vite/Fastify live HTTP",
         "GPU/TTS inference",
         "EXT-03 same-host comparison",
@@ -458,7 +459,7 @@
         "TypeScript JSX parser on two changed screens"
       ],
       "remainingGate": [
-        "Windows browser/Vite/Fastify dependencies",
+        "local host browser/Vite/Fastify dependencies",
         "live model generation content-quality scoring and editorial review",
         "full 30–40 min real MP4",
         "automatic web research and verifiable citations NOT IMPLEMENTED",
@@ -486,7 +487,7 @@
       ],
       "remainingGate": [
         "real HyperFrames CLI render",
-        "Windows target",
+        "local host target",
         "Vite/React/Fastify HTTP/UI",
         "provider inference",
         "30–40 min MP4"
@@ -512,7 +513,7 @@
       ],
       "remainingGate": [
         "Browser React/Vite integration",
-        "Windows end-to-end",
+        "local host end-to-end",
         "Real HyperFrames rendering",
         "30–40 minute export"
       ]
@@ -536,7 +537,7 @@
       ],
       "remainingGate": [
         "Real browser UX and Vite build",
-        "Windows and HyperFrames acceptance",
+        "local host and HyperFrames acceptance",
         "30–40 minute performance"
       ]
     },
@@ -558,7 +559,7 @@
       ],
       "remainingGate": [
         "Real browser UX and Vite build",
-        "Windows and HyperFrames acceptance",
+        "local host and HyperFrames acceptance",
         "30–40 minute performance"
       ]
     },
@@ -581,7 +582,7 @@
       ],
       "remainingGate": [
         "Real browser UX and Vite build",
-        "Windows and HyperFrames acceptance",
+        "local host and HyperFrames acceptance",
         "30–40 minute performance"
       ]
     },
@@ -604,7 +605,7 @@
       ],
       "remainingGate": [
         "Real HyperFrames CLI final MP4 and visual quality",
-        "Windows/browser preview/render acceptance",
+        "local host/browser preview/render acceptance",
         "35min H264/AAC + performance"
       ]
     },
@@ -623,7 +624,7 @@
       ],
       "remainingGate": [
         "Browser waveform/seek sync with real speech",
-        "Live Windows TTS outputs"
+        "Live local host TTS outputs"
       ]
     },
     {
@@ -640,8 +641,8 @@
         "npm run test:negative-control"
       ],
       "remainingGate": [
-        "Windows browser interaction and cross-tab latency remain untested.",
-        "Web/Vite and Windows full E2E blocked"
+        "local host browser interaction and cross-tab latency remain untested.",
+        "Web/Vite and local host full E2E blocked"
       ]
     },
     {
@@ -659,7 +660,7 @@
         "PR #7 focused + full CI pending"
       ],
       "remainingGate": [
-        "Real HyperFrames 0.8.159 CLI and human A/V compare on Windows",
+        "Real HyperFrames 0.8.159 CLI and human A/V compare on local host",
         "35–40 min cache hit/miss, subtitle/transition and resource soak"
       ]
     },
@@ -677,8 +678,8 @@
         "npm run test:negative-control"
       ],
       "remainingGate": [
-        "35-minute MP4 walltime, disk, crash-resume and Windows acceptance not run.",
-        "Web/Vite and Windows full E2E blocked"
+        "35-minute MP4 walltime, disk, crash-resume and local host acceptance not run.",
+        "Web/Vite and local host full E2E blocked"
       ]
     },
     {
@@ -696,14 +697,14 @@
       ],
       "remainingGate": [
         "Real HyperFrames output and long SRT acceptance pending.",
-        "Web/Vite and Windows full E2E blocked"
+        "Web/Vite and local host full E2E blocked"
       ]
     },
     {
       "id": "R3-11",
       "title": "Portable project ZIP64 with voice, visuals, script, SRT, timeline and SHA manifest",
       "priority": "P0",
-      "status": "CODE_COMPLETE_TESTED_OFFLINE__WINDOWS_BROWSER_4GB_PENDING",
+      "status": "CODE_COMPLETE_TESTED_OFFLINE__LOCALHOST_BROWSER_4GB_PENDING",
       "acceptanceSummary": "Small ZIP64 archive opened by Python zipfile/unzip, SHA checked, safe paths, authenticated controller and ZIP file-picker SDK/UI. Not a native editor import or SQLite backup.",
       "verifiedTests": [
         "npm run test:r311 (7/7)",
@@ -714,7 +715,7 @@
       ],
       "remainingGate": [
         ">4GB ZIP64 stress and disk-full/abort",
-        "Windows Fastify/browser",
+        "local host Fastify/browser",
         "HyperFrames live and 35-minute output"
       ]
     },
@@ -727,7 +728,7 @@
       "remainingGate": [
         "real HyperFrames",
         "browser",
-        "Windows"
+        "local host"
       ]
     },
     {
@@ -742,7 +743,7 @@
         "npm run test:ext040506"
       ],
       "remainingGate": [
-        "real Windows process kill/restart",
+        "real local host process kill/restart",
         "35min HyperFrames recovery",
         "low disk during real encoding"
       ]
@@ -760,7 +761,7 @@
       "remainingGate": [
         "HyperFrames real render",
         "Vite Fastify production build",
-        "Windows browser",
+        "local host browser",
         "30-40min real MP4",
         "real AI providers",
         "OS kill/resume long render"
@@ -785,7 +786,7 @@
       ],
       "remainingGate": [
         "Full test:all rerun to completion (prior attempt timed out)",
-        "Vite build/browser UI on Windows",
+        "Vite build/browser UI on local host",
         "R3-14 real HyperFrames and 35-min acceptance"
       ]
     },
@@ -799,7 +800,7 @@
       ],
       "acceptanceSummary": "WAL-safe SQLite snapshot, manifest+sha verified media, explicit dry-run/confirm empty restore; no vault keys",
       "remainingGate": [
-        "Large, cross-device/Windows, secret vault, live application restore not accepted"
+        "Large, cross-device/local host, secret vault, live application restore not accepted"
       ],
       "verifiedTests": [
         "npm run test:r402-r408 (10/10)",
@@ -811,10 +812,10 @@
       "id": "R4-03",
       "title": "Storage analyzer and conservative quarantine",
       "priority": "P1",
-      "status": "INVENTORY_QUARANTINE_RESTORE_CODE_INTEGRATED__WINDOWS_LARGE_WORKSPACE_PENDING",
+      "status": "INVENTORY_QUARANTINE_RESTORE_CODE_INTEGRATED__LOCALHOST_LARGE_WORKSPACE_PENDING",
       "acceptanceSummary": "Inventory and digest-fenced quarantine only >24h staging; no user assets hard-deleted",
       "remainingGate": [
-        "Windows browser and large workspace smoke",
+        "local host browser and large workspace smoke",
         "Quarantine/restore race, junction and long-job manual QA",
         "Immutable media untouched and no permanent deletion"
       ],
@@ -830,7 +831,7 @@
       "status": "PAGED_JOBS_AND_GUARDED_BULK_CODE_INTEGRATED__UX_PENDING",
       "acceptanceSummary": "Public DTO group counts, search and stale-pending observations plus prior safe single job control",
       "remainingGate": [
-        "Windows Job Center browser and 10k-job stress",
+        "local host Job Center browser and 10k-job stress",
         "GPU/provider bulk retry must remain forbidden"
       ],
       "verifiedTests": [
@@ -846,7 +847,7 @@
       "acceptanceSummary": "User-approved multi-cue draft pinned into render snapshot; real FFmpeg burn-in and matching SRT tested; actual HyperFrames MP4 unverified.",
       "remainingGate": [
         "real HyperFrames MP4",
-        "Windows/browser integrated subtitle editor QA"
+        "local host/browser integrated subtitle editor QA"
       ],
       "verifiedTests": [
         "npm run test:r402-r408 (10/10)"
@@ -859,7 +860,7 @@
       "status": "LOCAL_SIDECHAIN_DUCKING_STREAM_50MIB_CODE_INTEGRATED__AUDIO_REVIEW_PENDING",
       "acceptanceSummary": "Local audio import/list, checksum pin, explicit selection, queued FFmpeg music postmix passed H264/AAC FFprobe; primary HyperFrames run unverified.",
       "remainingGate": [
-        "Native voice/music sidechain listening on Windows",
+        "Native voice/music sidechain listening on local host",
         "50MiB streaming MP3/WAV/M4A HTTP/UI stress and timeout/ENOSPC",
         "Real HyperFrames 35min music finishing and license metadata review"
       ],
@@ -876,7 +877,7 @@
       "acceptanceSummary": "Deterministic prompt token lint, warning UI and read-only API",
       "remainingGate": [
         "Real character-reference identity requires future vision comparison",
-        "Windows browser review"
+        "local host browser review"
       ],
       "verifiedTests": [
         "npm run test:r402-r408 (10/10)",
@@ -892,7 +893,7 @@
       "remainingGate": [
         "full offline green suite",
         "Vite/Fastify live build",
-        "HyperFrames/Windows/browser QA",
+        "HyperFrames/local host/browser QA",
         "35-minute measured E2E",
         "production security review"
       ],
@@ -918,7 +919,7 @@
       ],
       "remainingGate": [
         "lockfile",
-        "Windows browser",
+        "local host browser",
         "real HyperFrames",
         "35-minute real render",
         "restart recovery",
@@ -942,7 +943,7 @@
         "docs/TEST_REPORT_R0VID01.md"
       ],
       "remainingGate": [
-        "real Windows GPU ComfyUI/Wan inference, VRAM/RAM/time benchmark and model license review"
+        "real local host GPU ComfyUI/Wan inference, VRAM/RAM/time benchmark and model license review"
       ],
       "acceptance": "Mock ComfyUI protocol / actual playable imported FFmpeg fixture, NOT generative AI output",
       "verifiedTests": [
@@ -965,7 +966,7 @@
         "apps/web/src/VideoProviderCapabilities.jsx"
       ],
       "remainingGate": [
-        "live ComfyUI handshake, Windows browser, official provider capabilities and consent verification"
+        "live ComfyUI handshake, local host browser, official provider capabilities and consent verification"
       ],
       "acceptance": "Capability metadata/preflight, v11 SQLite, API/UI; declared limits remain unverified",
       "verifiedTests": [
@@ -982,14 +983,14 @@
         "R2-02"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "PRODUCTION_SQLITE_MEDIA_POLICY_IMPLEMENTED__WINDOWS_UX_PENDING",
+      "status": "PRODUCTION_SQLITE_MEDIA_POLICY_IMPLEMENTED__LOCALHOST_UX_PENDING",
       "evidence": [
         "packages/core/src/scene-video-r2vid.mjs",
         "apps/web/src/SceneVideoPanelR2VID.jsx",
         "packages/core/test/scene-video-r2vid.test.mjs"
       ],
       "remainingGate": [
-        "Windows 11 authenticated policy inheritance/edit preview",
+        "supported local host authenticated policy inheritance/edit preview",
         "Future policy change impact on already approved clips"
       ],
       "acceptance": "SQLite v33 channel/video/scene versioned policy + optimistic lock, intent-safe scene media selector, tested offline; no provider called on save",
@@ -1017,7 +1018,7 @@
         "tools/native-video-gates.mjs"
       ],
       "remainingGate": [
-        "Run real Windows 11 local Wan/ComfyUI checkpoint with T2V and I2V, confirm license and VRAM benchmark",
+        "Run real supported local host local Wan/ComfyUI checkpoint with T2V and I2V, confirm license and VRAM benchmark",
         "Actual SP-04 native GPU generated clip plus real cross-process GPU lock/restart and operator UX"
       ],
       "acceptance": "Production ComfyUI/Wan SP-04 adapter + safe read-only T2V/I2V local-workflow binding checks and mock loopback GET; no witnessed model inference",
@@ -1034,14 +1035,14 @@
         "R2-VID-01"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "STREAMING_96M_MP4_MOV_INGEST_CODE__WINDOWS_LARGE_FILE_PENDING",
+      "status": "STREAMING_96M_MP4_MOV_INGEST_CODE__LOCALHOST_LARGE_FILE_PENDING",
       "evidence": [
         "packages/core/src/scene-video-r2vid.mjs",
         "apps/api/src/routes.mjs",
         "packages/core/test/scene-video-r2vid.test.mjs"
       ],
       "remainingGate": [
-        "Windows browser file import user acceptance",
+        "local host browser file import user acceptance",
         "Streaming clip import above 8MiB and disk/resource stress"
       ],
       "acceptance": "Private bounded 8MiB MP4 import, real ffprobe, SHA256, immutable revision, scene version guard, manual selection tested offline",
@@ -1084,14 +1085,14 @@
         "R2-VID-04"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "EDITOR_PREVIEW_VERSION_AND_IMAGE_FALLBACK_CODE_PASS__WINDOWS_BROWSER_PENDING",
+      "status": "EDITOR_PREVIEW_VERSION_AND_IMAGE_FALLBACK_CODE_PASS__LOCALHOST_BROWSER_PENDING",
       "evidence": [
         "apps/web/src/SceneVideoPanelR2VID.jsx",
         "apps/api/src/scene-video-file.mjs",
         "packages/sdk/src/client.mjs"
       ],
       "remainingGate": [
-        "Windows 11 authenticated MP4 playback/clip selection/import manual QA",
+        "supported local host authenticated MP4 playback/clip selection/import manual QA",
         "Actual model-output comparison and 500-scene browser scale"
       ],
       "acceptance": "Scene Inspector media policy, jobs, real imported clip versions, private bearer Blob MP4 preview and explicit healthy-image fallback; real browser acceptance pending",
@@ -1118,7 +1119,7 @@
       ],
       "remainingGate": [
         "Actual available GPU VRAM and model-specific minimum measured from local ComfyUI/Wan hardware",
-        "Real generation-time calibration, electricity/hardware cost benchmark and native Windows 11 acceptance"
+        "Real generation-time calibration, electricity/hardware cost benchmark and native supported local host acceptance"
       ],
       "acceptance": "Deterministic pixel-frame workload cap, optional operator-declared VRAM guard, optional measured calibration input, batch preview, fail-closed worker recheck; no claim of real GPU performance or all-in costs",
       "verifiedTests": [
@@ -1135,14 +1136,14 @@
         "R2-VID-05"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "TIMELINE_CLIP_PREVIEW_CLOCK_FIT_CODE__WINDOWS_BROWSER_PENDING",
+      "status": "TIMELINE_CLIP_PREVIEW_CLOCK_FIT_CODE__LOCALHOST_BROWSER_PENDING",
       "evidence": [
         "packages/core/src/mixed-clip-fit-r3vid01.mjs",
         "apps/web/src/TimelineEditorR302.jsx",
         "packages/core/test/mixed-clip-fit-r3vid01.test.mjs"
       ],
       "remainingGate": [
-        "Actual Windows 11 authenticated browser preview, visual decode/seek/500 scenes, audio/video drift measurements",
+        "Actual supported local host authenticated browser preview, visual decode/seek/500 scenes, audio/video drift measurements",
         "Real Wan GPU clip filmstrip quality and long narration voice sync"
       ],
       "acceptance": "Single audio-clock private muted MP4 preview with loop/hold and real duration-derived seek; deterministic six-second clip to eighteen-second narration tests PASS; browser acceptance pending",
@@ -1167,7 +1168,7 @@
         "packages/core/test/clip-normalize-r3vid02.test.mjs"
       ],
       "remainingGate": [
-        "Complete real published Composition v2 FFmpeg hybrid QA with image+AI MP4+MOV import and subtitle/music on target Windows 11",
+        "Complete real published Composition v2 FFmpeg hybrid QA with image+AI MP4+MOV import and subtitle/music on target supported local host",
         "Actual GPU-generated Wan source and 35-min H264/AAC/SRT rendering, crash/recovery and peak resource measurement"
       ],
       "acceptance": "FFprobe allowlist, real MOV/MP4 normalization into CFR H264 with embedded audio stripped, loop/hold source fit, checked frame counts, SHA-pinned render input and cache version; isolated real media fixture tests PASS",
@@ -1185,7 +1186,7 @@
         "R3-14"
       ],
       "source": "roadmap-v3-2026-10-13",
-      "status": "PINNED_NATIVE_SOURCE_AND_MP4_FFPROBE_GATE_CODE__REAL_35MIN_WINDOWS_PENDING",
+      "status": "PINNED_NATIVE_SOURCE_AND_MP4_FFPROBE_GATE_CODE__REAL_35MIN_LOCALHOST_PENDING",
       "evidence": [
         "packages/core/src/hybrid-evidence-r3vid03.mjs",
         "packages/core/src/hybrid-acceptance-r3vid03.mjs",
@@ -1193,7 +1194,7 @@
         "tools/native-video-gates.mjs"
       ],
       "remainingGate": [
-        "Produce real 35–40 minute mixed media composition with native AI Wan video and imported clip on Windows 11",
+        "Produce real 35–40 minute mixed media composition with native AI Wan video and imported clip on supported local host",
         "Independently review GPU checkpoint license, input/output SHA, FFprobe audio/video/subtitles and restart/recovery with zero unauthorized paid calls",
         "Human A/V inspection, native HyperFrames 0.8.159 and 35 minute cache performance"
       ],
@@ -1255,43 +1256,46 @@
     },
     {
       "id": "FI-04-01",
-      "title": "Bounded, reproducible offline suite and hang diagnostics",
+      "title": "Bounded cross-platform test suite, repeated soak and hang diagnosis",
       "priority": "P0",
-      "status": "CODE_COMPLETE_TESTED_OFFLINE__WINDOWS_SOAK_PENDING",
+      "status": "CODE_COMPLETE_TESTED_OFFLINE__LOCALHOST_SOAK_PENDING",
       "dependsOn": [
         "FI-03"
       ],
       "remainingGate": [
-        "multiple-run Windows test soak and actual root-cause proof for historical intermittent hang"
+        "Run full deterministic suite with retries/soak on supported local host or CI; determine whether historical intermittent FFmpeg hang recurs",
+        "Report timeouts, watchdog, stable exit codes and evidence, not only a passing isolated test"
       ]
     },
     {
       "id": "FI-04-02",
-      "title": "Reproducible dependencies and verified pinned lock",
+      "title": "Reproducible local Node/npm dependencies and pinned renderer toolchain",
       "priority": "P0",
-      "status": "HOSTED_WINDOWS_NPM_LOCK_AND_HYPERFRAMES_PIN_VERIFIED__WIN11_PENDING",
+      "status": "HOSTED_WINDOWS_NPM_LOCK_AND_HYPERFRAMES_PIN_VERIFIED__LOCALHOST_PENDING",
       "dependsOn": [
         "FI-03"
       ],
       "remainingGate": [
-        "Repeat exact locked installation on user Windows 11; audited dependency and release approval separate"
+        "Verify reviewed package-lock.json with npm ci, exact local HyperFrames and pinned FFmpeg/FFprobe on a supported host OS",
+        "Review dependency security and platform-specific availability; never silently install unknown binaries"
       ]
     },
     {
       "id": "FI-04-03",
-      "title": "Actual Vite production build and live Fastify HTTP",
+      "title": "Localhost web bootstrap: Vite build, Fastify loopback, authenticated browser",
       "priority": "P0",
-      "status": "HOSTED_WINDOWS_VITE_BUILD_FASTIFY_HTTP_PASS__WIN11_PENDING",
+      "status": "HOSTED_WINDOWS_VITE_BUILD_FASTIFY_HTTP_PASS__LOCALHOST_PENDING",
       "dependsOn": [
         "FI-04-02"
       ],
       "remainingGate": [
-        "Authenticated interactive browser and target Windows 11 operator acceptance remain separate"
+        "Start production Fastify over 127.0.0.1 with real SQLite and verified static Vite build; test lifecycle, auth and browser asset loading",
+        "Prove actual interactive browser behavior, not only a headless pairing-page DOM"
       ]
     },
     {
       "id": "FI-04-04",
-      "title": "Real pinned HyperFrames five-scene queued render with multi-cue Vietnamese subtitles and background music",
+      "title": "Real local HyperFrames five-scene MP4 with Vietnamese subtitles and music",
       "priority": "P0",
       "status": "HOSTED_WINDOWS_REAL_HYPERFRAMES_MP4_AUTOMATION_PASS__MANUAL_AV_REVIEW_PENDING",
       "dependsOn": [
@@ -1299,13 +1303,13 @@
         "FI-04-03"
       ],
       "remainingGate": [
-        "Manually inspect saved 5-scene review MP4 for Vietnamese subtitle glyph legibility and audible music",
-        "Repeat on target Windows 11; real 35+ minute video is separately FI-04-06"
+        "Review recorded five-scene MP4 for legible Vietnamese glyphs, audible selected music, voice and correct timing",
+        "Repeat with actual local browser-triggered SP-04 job on supported host; 35-minute render is a separate task"
       ]
     },
     {
       "id": "FI-04-05",
-      "title": "Windows timeline usability, keyboard, visual trim and single-audio acceptance",
+      "title": "Authenticated localhost Timeline UX, trim, reorder, waveform and scale",
       "priority": "P0",
       "status": "HOSTED_WINDOWS_TIMELINE_REGRESSIONS_PASS__AUTHENTICATED_UX_PENDING",
       "dependsOn": [
@@ -1318,8 +1322,8 @@
         "R3-07"
       ],
       "remainingGate": [
-        "Paired authenticated Timeline on target Windows 11 Chrome/Edge, witnessed mouse drag/reorder, trim save/cancel, undo/redo, waveform and zoom",
-        "Real 120/500-scene browser performance and human A/V review"
+        "Use authenticated localhost browser UI to witness drag/reorder, trim save/cancel, undo/redo, waveform, zoom and one-audio-track behavior",
+        "Measure 120/500-scene viewport responsiveness and A/V seeking in a real supported browser"
       ],
       "verifiedTests": [
         "npm run test:fi0405 (hosted Windows)",
@@ -1328,7 +1332,7 @@
     },
     {
       "id": "FI-04-06",
-      "title": "Actual Windows HyperFrames 35–40-minute queued Full HD video, captions and music",
+      "title": "Real 35–40-minute Full HD HyperFrames export through localhost web app",
       "priority": "P0",
       "status": "LONG_RENDER_CODE_AND_CANONICAL_MEDIA_QA_HARDENED__REAL_35MIN_PENDING",
       "dependsOn": [
@@ -1336,8 +1340,9 @@
         "FI-04-05"
       ],
       "remainingGate": [
-        "Real published 2100–2400-second 1080p Composition v2 on Windows 11 using pinned local HyperFrames",
-        "Witness H264/AAC/SRT/music/voice 35+ minute encode and GPU/CPU/RAM/disk resource measurements"
+        "Render an approved real 2100–2400-second 1080p Composition v2 using the local SP-04 queue and exact pinned HyperFrames on supported host",
+        "Validate MP4 H.264/AAC frame count, voice sync, Vietnamese captions/SRT, music and manual audiovisual quality",
+        "Capture encode walltime, child CPU/RAM, disk usage and GPU/VRAM only when GPU is used"
       ],
       "verifiedTests": [
         "npm run test:fi0406-fi0410 (hosted Windows)",
@@ -1346,7 +1351,7 @@
     },
     {
       "id": "FI-04-07",
-      "title": "OS crash and durable queue recovery during genuine long HyperFrames render",
+      "title": "Local render process interruption, durable job recovery and output integrity",
       "priority": "P0",
       "status": "HOSTED_WINDOWS_SYNTHETIC_OS_KILL_SQLITE_FENCING_PASS__REAL_RECOVERY_PENDING",
       "dependsOn": [
@@ -1354,8 +1359,8 @@
         "R3-13"
       ],
       "remainingGate": [
-        "Witness OS termination during genuine 35min HyperFrames encoding, restart and durable lease recovery",
-        "Verify no published partial output and full resulting MP4 checksum/codecs and audio"
+        "Actually terminate a live 35+ minute local renderer child and restart server/worker; verify lease fencing and safe retry",
+        "Prove no partial MP4 published and checksum/FFprobe/voice/subtitle/music QA of recovered output"
       ],
       "verifiedTests": [
         "GitHub Actions Windows Server 2022 run 39024552073 real child OS kill with synthetic handler, two attempts; not media recovery",
@@ -1364,7 +1369,7 @@
     },
     {
       "id": "FI-04-08",
-      "title": "Real native local LLM/TTS/ComfyUI provider E2E with consent and cost guard",
+      "title": "Configured local AI LLM/TTS/ComfyUI E2E and explicit consent safeguards",
       "priority": "P0",
       "status": "READ_ONLY_LOCAL_PROVIDER_MEDIA_GATES_TESTED__LIVE_INFERENCE_PENDING",
       "dependsOn": [
@@ -1373,8 +1378,9 @@
         "R2-05"
       ],
       "remainingGate": [
-        "Explicitly approved authentic local Vietnamese TTS, LLM, ComfyUI/Wan GPU inference and measured media QA",
-        "Test native quotas, HTTP429, cost guards; zero unauthorized paid/remote requests"
+        "For each enabled local provider, run actual LLM/TTS/image/video inference with captured quality and resource evidence; GPU is conditional on configured workflow",
+        "Verify quota/429 behavior, local-only routing, explicit approval for any remote or paid provider, and zero unauthorized charges",
+        "Maintain separate acceptance when model/GPU is unavailable instead of blocking unrelated browser/edit/import flows"
       ],
       "verifiedTests": [
         "hosted read-only provider inventory (no local inference)",
@@ -1383,7 +1389,7 @@
     },
     {
       "id": "FI-04-09",
-      "title": "Production security, dependencies and performance acceptance",
+      "title": "Localhost security, dependency audit and realistic media performance",
       "priority": "P0",
       "status": "HOSTED_WINDOWS_NPM_AUDIT_0_VULNS_SECURITY_REGRESSION_PASS__MANUAL_REVIEW_PENDING",
       "dependsOn": [
@@ -1392,8 +1398,8 @@
         "FI-04-07"
       ],
       "remainingGate": [
-        "Windows production credential/process isolation and security threat assessment",
-        "Measured real long render child/GPU/VRAM peak RAM/CPU/disk and performance signoff"
+        "Review loopback binding, authenticated private media, secrets at rest/process, path traversal, import limits, child process isolation and dependency audit",
+        "Profile real long render peak CPU/RAM/GPU (when present), disk/ENOSPC, 500 scenes, and browser responsiveness"
       ],
       "verifiedTests": [
         "GitHub Actions Windows Server 2022 run 39024552073 npm audit --audit-level=high, 0 vulnerabilities",
@@ -1402,7 +1408,7 @@
     },
     {
       "id": "FI-04-10",
-      "title": "Final reproducible release gate matrix and operator signoff",
+      "title": "Evidence-based localhost release matrix and explicit approval",
       "priority": "P0",
       "status": "HOSTED_WINDOWS_FAIL_CLOSED_RELEASE_MATRIX_PASS__NOT_READY",
       "dependsOn": [
@@ -1412,10 +1418,9 @@
         "FI-04-09"
       ],
       "remainingGate": [
-        "FI-04-05 manual Windows 11 UX and FI-04-04 subtitle/music visual-audible signoff",
-        "FI-04-06/07 real Full HD 35min render and recovery",
-        "FI-04-08 native local inference and FI-04-09 human security/performance review",
-        "Full fresh green suite on release commit, explicit operator go/no-go approval"
+        "Collect fresh successful CI plus live local browser, real HyperFrames MP4/35min, recovery, security and performance evidence",
+        "Require human voice/subtitle/music and end-to-end interaction signoff; if AI video release profile is chosen, require genuine GPU-produced clip",
+        "Release remains NOT_READY until all gates for selected profile are verified; preserve opt-in paid policy"
       ],
       "verifiedTests": [
         "GitHub Actions Windows Server 2022 run 39024552073 hosted partial matrix; releaseReady=false",
@@ -1424,7 +1429,7 @@
     },
     {
       "id": "WI-01",
-      "title": "Windows prerequisites triage with fail-closed actionable machine report",
+      "title": "Local host prerequisites and fail-closed diagnostics (legacy WI-01 ID)",
       "priority": "P0",
       "status": "HOSTED_WINDOWS_PREFLIGHT_10_PASS_2_BLOCKED__MEDIA_PENDING",
       "dependsOn": [
@@ -1433,8 +1438,8 @@
         "FI-04-04"
       ],
       "remainingGate": [
-        "Run preflight on supported Windows 11 x64/arm64 host with reviewed lock, npm ci, Chrome/Edge, FFmpeg and exact local HyperFrames",
-        "Complete actual Vite/Fastify, HyperFrames MP4, browser, 35-min restart and provider/security gates separately"
+        "Report Node/npm lock, FFmpeg/FFprobe, HyperFrames, browser, loopback and filesystem readiness on actual supported local host",
+        "Any existing PowerShell-only check is a platform-specific helper, never mandatory for a web release on a different OS"
       ],
       "verifiedTests": [
         "npm run test:wi01"
@@ -1443,7 +1448,7 @@
     },
     {
       "id": "WI-02",
-      "title": "Reproducible Windows bootstrap, real loopback Fastify and Vite runtime verification",
+      "title": "Local web server launch, Vite build and Fastify loopback verification (legacy WI-02 ID)",
       "priority": "P0",
       "status": "HOSTED_WINDOWS_FASTIFY_VITE_VERIFIED__USER_DESKTOP_PENDING",
       "dependsOn": [
@@ -1452,9 +1457,8 @@
         "FI-04-03"
       ],
       "remainingGate": [
-        "Use operator-reviewed package-lock then npm ci on supported Windows host",
-        "Actual npm run build:web and real 127.0.0.1 Fastify HTTP lifecycle smoke with auth/static/security checks",
-        "Production HyperFrames MP4, Chrome/Edge UI, 35-minute video and manual security gates remain separate"
+        "Verify reproducible npm ci + Vite static build and authenticated real Fastify HTTP/SQLite lifecycle on declared supported host",
+        "Run React UI on localhost in a real browser; no platform-specific installer/EXE or native desktop shell is required"
       ],
       "verifiedTests": [
         "npm run test:wi02"
@@ -1463,18 +1467,16 @@
     },
     {
       "id": "WI-03",
-      "title": "Hosted Windows integration verification: reviewed deps, Vite, Fastify TCP, Edge/Chrome pairing DOM",
+      "title": "Hosted CI compatibility evidence and browser integration verification (legacy WI-03 ID)",
       "priority": "P0",
-      "status": "HOSTED_WINDOWS_RUNTIME_VERIFIED__MEDIA_DESKTOP_PENDING",
+      "status": "HOSTED_WINDOWS_RUNTIME_VERIFIED__MEDIA_BROWSER_PENDING",
       "dependsOn": [
         "WI-02",
         "FI-04-03"
       ],
       "remainingGate": [
-        "Install trusted FFmpeg/FFprobe; hosted Windows Chocolatey package feed returned HTTP 504",
-        "Run genuine HyperFrames queued MP4 with subtitles and music; no synthetic FFmpeg stand-in",
-        "Witness authenticated Timeline drag/trim on user Windows 11 (runner is Windows Server 2022)",
-        "Run long Full HD job/recovery/GPU inference and production security acceptance"
+        "Perform authenticated real browser Timeline/Edit/Render interactions against localhost on at least one supported host",
+        "Prove five-scene HyperFrames media, 35-minute job/recovery and configured AI separately; hosted CI pairing-page evidence is historical only"
       ],
       "verifiedTests": [
         "GitHub Actions WI-03 hosted run 39014629188: runtime/browser/real socket PASS",
@@ -1486,11 +1488,10 @@
   ],
   "milestones": [
     {
-      "name": "MVP_no_paid",
+      "name": "MVP_localhost",
       "required": [
         "WI-01",
         "WI-02",
-        "WI-03",
         "FI-04-01",
         "FI-04-02",
         "FI-04-03",
@@ -1498,13 +1499,11 @@
         "FI-04-05",
         "FI-04-06",
         "FI-04-07",
-        "FI-04-08",
         "FI-04-09",
         "FI-04-10",
-        "FI-02",
         "R3-14"
       ],
-      "note": "Requires HyperFrames actual render/35min, Windows UI, real provider and security gates"
+      "note": "Browser-based local server, edits, genuine HyperFrames 35–40 min MP4, recovery, security and performance; no fixed Windows 11 prerequisite or local GPU if using imported media."
     },
     {
       "name": "AI_video_local",
@@ -1519,9 +1518,19 @@
         "R2-VID-06",
         "R3-VID-01",
         "R3-VID-02",
-        "R3-VID-03"
+        "R3-VID-03",
+        "FI-04-08"
       ],
-      "note": "Requires authentic local AI generated video; Spike-only mock is insufficient"
+      "note": "Additional selected-profile acceptance for real ComfyUI/Wan model-produced footage, correct provenance, GPU/VRAM benchmark and 35min hybrid export."
+    },
+    {
+      "name": "Optional_extensions",
+      "required": [
+        "R4-VID-01",
+        "R4-VID-02",
+        "R4-VID-03"
+      ],
+      "note": "Not part of MVP. Paid provider integrations require explicit opt-in, official pricing, security and consent review."
     }
   ],
   "statusEvidence": {
@@ -1532,7 +1541,20 @@
     "wi03WindowsHosted": "GitHub Actions run 39014629188: Windows Vite + Fastify real HTTP + Edge/Chrome React DOM PASS; FFmpeg/FFprobe BLOCKED in that historical run",
     "fi0404WindowsHosted": "GitHub Actions run 39022682686: SHA256-pinned FFmpeg/FFprobe, real HyperFrames 0.8.159 SP-04 5-scene MP4 10 cues + music; ffprobe H264/AAC 429 frames PASS; manual AV/Windows11/35min pending",
     "fi0405to10WindowsHosted": "GitHub Actions 39024552073 PASS: hosted Vite/Fastify/Edge pairing DOM, FI0405-10 tests, synthetic OS kill/SQLite fencing, npm audit 0 vulnerabilities, fail-closed release matrix; all actual Windows11/35min/native GPU and human gates BLOCKED",
-    "referenceOnly": true
+    "referenceOnly": true,
+    "scopeReconciliation": "2026-10-18: historical Windows-hosted runs retained; localhost browser is the product acceptance target"
   },
-  "note": "Do not claim code complete from mock protocols; retained FI02 task statuses are historical and must be freshly revalidated."
+  "note": "Localhost React/Vite + Fastify web app (not a Windows desktop executable). Legacy task IDs and hosted-CI evidence retained. No release without real browser/media/AI (where enabled)/performance gates.",
+  "scope": {
+    "productType": "local_web_app",
+    "ui": "React + Vite browser UI",
+    "server": "Fastify bound to loopback",
+    "data": "SQLite + private local media",
+    "deployment": "user-run localhost server; no Electron, EXE, native Windows application or Windows installer requirement",
+    "hostPolicy": "At least one declared supported local host OS with real dependencies and browser acceptance; OS-specific smoke is compatibility evidence, not a Windows 11 release prerequisite.",
+    "platforms": "Windows/Linux/macOS where actual FFmpeg, HyperFrames, Node and any configured local AI provider are supported. Do not claim an OS validated until tested.",
+    "aiPolicy": "Actual model inference only for locally configured providers and explicitly consented remote providers; local GPU required only for features configured to use it.",
+    "historyPolicy": "Keep historical Windows Server 2022 CI facts, PR/test runs, unmodified source backlog and reference roadmap for audit; supersede their platform constraints in this generated backlog.",
+    "releasePolicy": "NOT_READY until objective browser, render, performance, security, and selected-provider gates pass; no code-only PASS is production acceptance."
+  }
 }

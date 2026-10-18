@@ -989,3 +989,11 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
 ## 2026-10-18 — Canonical video roadmap notes reconciled after PR #11
 - Earlier R2-VID-02 and R3-VID-03 status changes were written to the extension backlog, but FI-04 canonical video tasks are generated from the **notes** map in tools/fi04-backlog.mjs. Reconciled the correct authoritative entries and their evidence/test paths, without changing release gate from NOT_READY.
 - Native Windows ComfyUI GPU and HyperFrames 35–40 minute real render remain pending; offline tests cannot substitute hardware proof.
+
+## 2026-10-18 — PO clarification: localhost web app, platform-neutral 69-task release backlog
+- Corrected **product scope**: React/Vite frontend in a browser + Fastify 127.0.0.1 API, local SQLite/media, *not* a Windows native desktop/EXE/Electron application. Windows is a possible host OS, not a release mandate.
+- Preserved exactly **69 unique task IDs** (42 legacy, 14 AI Video, 10 FI-04, 3 legacy WI) plus historical Windows Server CI facts. Superseded hard Windows 11 blockers with real authenticated localhost browser, actual HyperFrames short/35–40min, restart/recovery, CPU/RAM/disk/GPU when relevant, provider/consent, A/V manual and security gates.
+- Added deterministic `docs/LOCALHOST_BACKLOG_POLICY.json` + `tools/localhost-backlog.mjs` transform on top of historical source generator, regenerated canonical `docs/VIDEO_AI_FLOW_MASTER_BACKLOG.json` and expanded FI-04 backlog tests. `R2-EXT-03` same-host Remotion benchmark is P1 optimization, not mandatory to release the PO-selected HyperFrames MVP.
+- Separated `MVP_localhost`, `AI_video_local`, `Optional_extensions` milestones. Local GPU inference gates only apply to configured native AI clip providers; imported-media editing must not be blocked by absent GPU. Paid/remote calls remain explicit-opt-in.
+- Updated README, AGENTS and FI04 status links. Full decision and agent handoff: `docs/LOCALHOST_BACKLOG_HANDOFF.md`.
+- **Tests / acceptance:** generator and tests must be verified by GitHub CI on this branch; no new real browser/GPU/35min media was run by a backlog-only change. Release remains `NOT_READY`. Next: CI consistency; authenticated localhost browser & A/V; true long render/restart; native ComfyUI/Wan where available.
