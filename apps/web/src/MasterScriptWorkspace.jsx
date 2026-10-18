@@ -17,14 +17,14 @@ const errorMessage=error=>({MASTER_CHAPTER_COVERAGE:'Cần chọn một bản th
  */
 export function MasterScriptWorkspace({video,onBack,onApproved,onOpenSceneBuilder}){
   const id=video.id;
-  // Warn when leaving an unsaved Master Script draft; this is independent of
-  // Brief/Outline dirty state and must not dispatch AI or scene mutations.
-  useEffect(()=>{useStudio.setState({masterScriptDirty:dirty});return()=>useStudio.setState({masterScriptDirty:false})},[dirty]);
   const [outline,setOutline]=useState(null),[variants,setVariants]=useState([]),[selected,setSelected]=useState({}),
     [status,setStatus]=useState(null),[history,setHistory]=useState([]),[candidate,setCandidate]=useState(null),
     [text,setText]=useState(''),[dirty,setDirty]=useState(false),[approvedWarnings,setApprovedWarnings]=useState(false),
     [busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),
     [mode,setMode]=useState('ai');
+  // Warn when leaving an unsaved Master Script draft; this is independent of
+  // Brief/Outline dirty state and must not dispatch AI or scene mutations.
+  useEffect(()=>{useStudio.setState({masterScriptDirty:dirty});return()=>useStudio.setState({masterScriptDirty:false})},[dirty]);
   async function load(){
     setError('');const [o,master,batches]=await Promise.all([
       api(`/videos/${id}/content/outline`),api(`/videos/${id}/content/master/revisions`),
