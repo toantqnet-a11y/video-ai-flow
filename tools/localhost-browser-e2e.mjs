@@ -215,32 +215,28 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  if(withRenderFixture){
   lastStage='RENDER_FIXTURE_SETUP';
   const sha=s=>createHash('sha256').update(s).digest('hex');
-  const v=repo.createVideo(channel.id,{title:'LOCAL_RENDER_BROWSER_FIXTURE'});
-  const sc=repo.replaceScenes(v.id,{rowVersion:v.rowVersion,scenes:[
-   {text:'Kiểm thử xuất video bằng HyperFrames từ giao diện trình duyệt local.',durationMs:3000,mediaType:'image_motion'}
-  ]})[0];
-  const inputHash=sha('browser-fixture-voice-'+sc.id),jobTag='browser-fixture-'+sc.id;
-  await manifest.importFile({sceneId:sc.id,kind:'voice',source:'mock-tts',
-   inputPath:join(root,'spikes/EXT-03/assets/voice-01.wav'),
-   metadata:{queueJobId:jobTag,inputHash,textSha256:sha(sc.text),providerId:'piper'}});
-  repo.db.prepare(`INSERT INTO scene_voice_intents
-   (scene_id,job_id,input_hash,text_sha256,config_revision,provider_id,voice_id,rate,requested_at)
-   VALUES(?,?,?,?,?,?,?,?,?)`).run(sc.id,jobTag,inputHash,sha(sc.text),
-    repo.getVideo(v.id).configRevision,'piper','fixture',0,Date.now());
-  const image=await manifest.importFile({sceneId:sc.id,kind:'image',source:'manual_import',
-   inputPath:join(root,'spikes/EXT-03/assets/background-01.png')});
-  repo.db.prepare('INSERT INTO scene_image_manual_selections(scene_id,asset_id,selected_at) VALUES(?,?,?)')
-   .run(sc.id,image.id,Date.now());
-  assert(await until(()=>click('Video','.side button.nav'),'RENDER_VIDEO_TAB'));
-  await wait('.video-library','RENDER_VIDEO_LIBRARY');
-  await until(()=>click('Làm mới','.video-toolbar button'),'RENDER_LIBRARY_REFRESH');
-  assert(await until(()=>ev(`(()=>{
-   const card=[...document.querySelectorAll('.video-library-card')].find(x=>x.textContent.includes('LOCAL_RENDER_BROWSER_FIXTURE'));
-   if(!card)return false;const btn=[...card.querySelectorAll('button')].find(b=>b.textContent.includes('Tiếp tục'));
-   if(!btn)return false;btn.click();return true;
-  })()`),'RENDER_FIXTURE_VIDEO_SELECT'),'select fixture from real UI');
-  await wait('.production-flow','RENDER_FIXTURE_FLOW');
-  assert(await click('Timeline','.production-flow-step'),'open media fixture Timeline');
+  // Use the *browser-created, explicitly approved Master + revisioned scenes*.
+  // An unapproved synthetic video must never bypass the application's flow.
+  const v=repo.getVideo(videoId),savedScenes=repo.listScenes(videoId);
+  assert(savedScenes.length>0);
+  for(let i=0;i<savedScenes.length;i++){
+   const sc=savedScenes[i],seq=String(i%5+1).padStart(2,'0');
+   const inputHash=sha('browser-fixture-voice-'+sc.id),jobTag='browser-fixture-'+sc.id;
+   await manifest.importFile({sceneId:sc.id,kind:'voice',source:'mock-tts',
+    inputPath:join(root,`spikes/EXT-03/assets/voice-${seq}.wav`),
+    metadata:{queueJobId:jobTag,inputHash,textSha256:sha(sc.text),providerId:'piper'}});
+   repo.db.prepare(`INSERT INTO scene_voice_intents
+    (scene_id,job_id,input_hash,text_sha256,config_revision,provider_id,voice_id,rate,requested_at)
+    VALUES(?,?,?,?,?,?,?,?,?)`).run(sc.id,jobTag,inputHash,sha(sc.text),
+     repo.getVideo(v.id).configRevision,'piper','fixture',0,Date.now());
+   const image=await manifest.importFile({sceneId:sc.id,kind:'image',source:'manual_import',
+    inputPath:join(root,`spikes/EXT-03/assets/background-${seq}.png`)});
+   repo.db.prepare('INSERT INTO scene_image_manual_selections(scene_id,asset_id,selected_at) VALUES(?,?,?)')
+    .run(sc.id,image.id,Date.now());
+  }
+  // The operator explicitly presses Refresh to re-evaluate current pins,
+  // then Approve; importing test WAVs never auto-submits a render.
+  assert(await until(()=>click('Cập nhật','.frame-title button'),'RENDER_MEDIA_REFRESH'),'refresh media readiness');
   await wait('.timeline-render-layout','RENDER_FIXTURE_TIMELINE');
   assert(await until(()=>click('Phê duyệt timing','.timeline-render-layout ~ .actions button'),'RENDER_TIMING_APPROVAL'), 'user approval');
   await until(()=>expectText('.timeline-render-layout','Timing Lock'),'RENDER_TIMELINE_LOADED');
@@ -266,7 +262,7 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
   const bytes=await readFile(join(manifest.dataRoot,succeeded.result.relativePath));
   assert(bytes.length>1000);
   const digest=sha(bytes);
-  assert.deepEqual(succeeded.result.segmentCache,{reused:0,encoded:1,total:1},
+  assert.deepEqual(succeeded.result.segmentCache,{reused:0,encoded:savedScenes.length,total:savedScenes.length},
    'first real HyperFrames render must encode the new scene');
   mark('hyperframes_scene_cache_cold_miss');
   // A second EXPLICIT browser click with the SAME immutable composition proves
@@ -283,7 +279,7 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
    if(q?.status==='failed')throw Error('E2E_CACHE_RENDER_FAILED');
    return q?.status==='succeeded'?q:null;
   },'HYPERFRAMES_CACHE_HIT_COMPLETE',180000);
-  assert.deepEqual(reusedDone.result?.segmentCache,{reused:1,encoded:0,total:1},
+  assert.deepEqual(reusedDone.result?.segmentCache,{reused:savedScenes.length,encoded:0,total:savedScenes.length},
    'unchanged scene must be reused from verified HyperFrames segment cache');
   const cachedBytes=await readFile(join(manifest.dataRoot,reusedDone.result.relativePath));
   assert.equal(sha(cachedBytes),digest,'cached export must preserve exact output bytes');
@@ -303,7 +299,7 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
   await until(()=>responses.some(x=>x.status===200&&x.type==='video/mp4'),'BROWSER_AUTHENTICATED_MP4_DOWNLOAD',30000);
   assert.equal(store.countByStatus().total,2,'exactly two explicitly clicked local renders, zero AI/paid calls');
   realRender={status:'PASS',engine:'hyperframes',bytes:bytes.length,sha256:digest,
-    outputQa:true,sceneCount:1,coldCache:{reused:0,encoded:1},warmCache:{reused:1,encoded:0},source:'LOCAL_TEST_PNG_WAV_ONLY',browserAuthenticatedMp4Http:200};
+    outputQa:true,sceneCount:savedScenes.length,coldCache:{reused:0,encoded:savedScenes.length},warmCache:{reused:savedScenes.length,encoded:0},source:'LOCAL_TEST_PNG_WAV_ONLY',browserAuthenticatedMp4Http:200};
   mark('browser_hyperframes_real_mp4_download');
  }
  // Browser test must not be promoted to AI/GPU or long-form proof.
