@@ -1,0 +1,232 @@
+{
+  "version": "2026-10-18-localhost-browser-first",
+  "status": "LOCALHOST_SCOPE_NORMALIZED__RELEASE_NOT_READY",
+  "intent": "Browser-based React/Vite + Fastify web app on 127.0.0.1, not a Windows desktop application. Keep verified Windows CI results as historical evidence; do not require Windows 11 for release.",
+  "statusReplacements": [
+    [
+      "__WINDOWS_",
+      "__LOCALHOST_"
+    ],
+    [
+      "__WIN11_PENDING",
+      "__LOCALHOST_PENDING"
+    ],
+    [
+      "_WINDOWS_BROWSER",
+      "_LOCALHOST_BROWSER"
+    ],
+    [
+      "_WINDOWS_PENDING",
+      "_LOCALHOST_PENDING"
+    ],
+    [
+      "_35MIN_WINDOWS_PENDING",
+      "_35MIN_LOCALHOST_PENDING"
+    ],
+    [
+      "_WINDOWS_RENDER",
+      "_LOCALHOST_RENDER"
+    ],
+    [
+      "_WINDOWS_LONG_RECOVERY",
+      "_LOCALHOST_LONG_RECOVERY"
+    ],
+    [
+      "__MEDIA_DESKTOP_PENDING",
+      "__MEDIA_BROWSER_PENDING"
+    ]
+  ],
+  "gateReplacements": [
+    [
+      "Windows Server 2022",
+      "hosted CI runner"
+    ],
+    [
+      "Windows 11",
+      "supported local host"
+    ],
+    [
+      "Windows 10",
+      "supported local host"
+    ],
+    [
+      "Windows",
+      "local host"
+    ],
+    [
+      "Win11",
+      "local host"
+    ]
+  ],
+  "constraintsRemove": [
+    "Windows-local-first"
+  ],
+  "constraintsAdd": [
+    "localhost-browser-first",
+    "host-OS-neutral-acceptance",
+    "real-browser-media-and-provider-evidence",
+    "no-automatic-paid-or-remote-fallback"
+  ],
+  "scope": {
+    "productType": "local_web_app",
+    "ui": "React + Vite browser UI",
+    "server": "Fastify bound to loopback",
+    "data": "SQLite + private local media",
+    "deployment": "user-run localhost server; no Electron, EXE, native Windows application or Windows installer requirement",
+    "hostPolicy": "At least one declared supported local host OS with real dependencies and browser acceptance; OS-specific smoke is compatibility evidence, not a Windows 11 release prerequisite.",
+    "platforms": "Windows/Linux/macOS where actual FFmpeg, HyperFrames, Node and any configured local AI provider are supported. Do not claim an OS validated until tested.",
+    "aiPolicy": "Actual model inference only for locally configured providers and explicitly consented remote providers; local GPU required only for features configured to use it.",
+    "historyPolicy": "Keep historical Windows Server 2022 CI facts, PR/test runs, unmodified source backlog and reference roadmap for audit; supersede their platform constraints in this generated backlog.",
+    "releasePolicy": "NOT_READY until objective browser, render, performance, security, and selected-provider gates pass; no code-only PASS is production acceptance."
+  },
+  "taskOverrides": {
+    "R2-EXT-03": {
+      "priority": "P1",
+      "remainingGate": [
+        "Compare real Remotion vs HyperFrames only if changing renderer or seeking a measured performance improvement; both engines must run on the same supported local host with identical fixtures",
+        "Measure runtime, peak memory, FFprobe, glyph/music quality, and licenses; keep HyperFrames as current primary until evidence justifies a change"
+      ]
+    },
+    "FI-04-01": {
+      "title": "Bounded cross-platform test suite, repeated soak and hang diagnosis",
+      "remainingGate": [
+        "Run full deterministic suite with retries/soak on supported local host or CI; determine whether historical intermittent FFmpeg hang recurs",
+        "Report timeouts, watchdog, stable exit codes and evidence, not only a passing isolated test"
+      ]
+    },
+    "FI-04-02": {
+      "title": "Reproducible local Node/npm dependencies and pinned renderer toolchain",
+      "remainingGate": [
+        "Verify reviewed package-lock.json with npm ci, exact local HyperFrames and pinned FFmpeg/FFprobe on a supported host OS",
+        "Review dependency security and platform-specific availability; never silently install unknown binaries"
+      ]
+    },
+    "FI-04-03": {
+      "title": "Localhost web bootstrap: Vite build, Fastify loopback, authenticated browser",
+      "remainingGate": [
+        "Start production Fastify over 127.0.0.1 with real SQLite and verified static Vite build; test lifecycle, auth and browser asset loading",
+        "Prove actual interactive browser behavior, not only a headless pairing-page DOM"
+      ]
+    },
+    "FI-04-04": {
+      "title": "Real local HyperFrames five-scene MP4 with Vietnamese subtitles and music",
+      "remainingGate": [
+        "Review recorded five-scene MP4 for legible Vietnamese glyphs, audible selected music, voice and correct timing",
+        "Repeat with actual local browser-triggered SP-04 job on supported host; 35-minute render is a separate task"
+      ]
+    },
+    "FI-04-05": {
+      "title": "Authenticated localhost Timeline UX, trim, reorder, waveform and scale",
+      "remainingGate": [
+        "Use authenticated localhost browser UI to witness drag/reorder, trim save/cancel, undo/redo, waveform, zoom and one-audio-track behavior",
+        "Measure 120/500-scene viewport responsiveness and A/V seeking in a real supported browser"
+      ]
+    },
+    "FI-04-06": {
+      "title": "Real 35–40-minute Full HD HyperFrames export through localhost web app",
+      "remainingGate": [
+        "Render an approved real 2100–2400-second 1080p Composition v2 using the local SP-04 queue and exact pinned HyperFrames on supported host",
+        "Validate MP4 H.264/AAC frame count, voice sync, Vietnamese captions/SRT, music and manual audiovisual quality",
+        "Capture encode walltime, child CPU/RAM, disk usage and GPU/VRAM only when GPU is used"
+      ]
+    },
+    "FI-04-07": {
+      "title": "Local render process interruption, durable job recovery and output integrity",
+      "remainingGate": [
+        "Actually terminate a live 35+ minute local renderer child and restart server/worker; verify lease fencing and safe retry",
+        "Prove no partial MP4 published and checksum/FFprobe/voice/subtitle/music QA of recovered output"
+      ]
+    },
+    "FI-04-08": {
+      "title": "Configured local AI LLM/TTS/ComfyUI E2E and explicit consent safeguards",
+      "remainingGate": [
+        "For each enabled local provider, run actual LLM/TTS/image/video inference with captured quality and resource evidence; GPU is conditional on configured workflow",
+        "Verify quota/429 behavior, local-only routing, explicit approval for any remote or paid provider, and zero unauthorized charges",
+        "Maintain separate acceptance when model/GPU is unavailable instead of blocking unrelated browser/edit/import flows"
+      ]
+    },
+    "FI-04-09": {
+      "title": "Localhost security, dependency audit and realistic media performance",
+      "remainingGate": [
+        "Review loopback binding, authenticated private media, secrets at rest/process, path traversal, import limits, child process isolation and dependency audit",
+        "Profile real long render peak CPU/RAM/GPU (when present), disk/ENOSPC, 500 scenes, and browser responsiveness"
+      ]
+    },
+    "FI-04-10": {
+      "title": "Evidence-based localhost release matrix and explicit approval",
+      "remainingGate": [
+        "Collect fresh successful CI plus live local browser, real HyperFrames MP4/35min, recovery, security and performance evidence",
+        "Require human voice/subtitle/music and end-to-end interaction signoff; if AI video release profile is chosen, require genuine GPU-produced clip",
+        "Release remains NOT_READY until all gates for selected profile are verified; preserve opt-in paid policy"
+      ]
+    },
+    "WI-01": {
+      "title": "Local host prerequisites and fail-closed diagnostics (legacy WI-01 ID)",
+      "remainingGate": [
+        "Report Node/npm lock, FFmpeg/FFprobe, HyperFrames, browser, loopback and filesystem readiness on actual supported local host",
+        "Any existing PowerShell-only check is a platform-specific helper, never mandatory for a web release on a different OS"
+      ]
+    },
+    "WI-02": {
+      "title": "Local web server launch, Vite build and Fastify loopback verification (legacy WI-02 ID)",
+      "remainingGate": [
+        "Verify reproducible npm ci + Vite static build and authenticated real Fastify HTTP/SQLite lifecycle on declared supported host",
+        "Run React UI on localhost in a real browser; no Windows installer/EXE or native desktop shell is required"
+      ]
+    },
+    "WI-03": {
+      "title": "Hosted CI compatibility evidence and browser integration verification (legacy WI-03 ID)",
+      "remainingGate": [
+        "Perform authenticated real browser Timeline/Edit/Render interactions against localhost on at least one supported host",
+        "Prove five-scene HyperFrames media, 35-minute job/recovery and configured AI separately; hosted Windows pairing-page evidence is historical only"
+      ]
+    }
+  },
+  "milestones": [
+    {
+      "name": "MVP_localhost",
+      "required": [
+        "WI-01",
+        "WI-02",
+        "FI-04-01",
+        "FI-04-02",
+        "FI-04-03",
+        "FI-04-04",
+        "FI-04-05",
+        "FI-04-06",
+        "FI-04-07",
+        "FI-04-09",
+        "FI-04-10",
+        "R3-14"
+      ],
+      "note": "Browser-based local server, edits, genuine HyperFrames 35–40 min MP4, recovery, security and performance; no fixed Windows 11 prerequisite or local GPU if using imported media."
+    },
+    {
+      "name": "AI_video_local",
+      "required": [
+        "SP-VID-01",
+        "R0-VID-01",
+        "R2-VID-01",
+        "R2-VID-02",
+        "R2-VID-03",
+        "R2-VID-04",
+        "R2-VID-05",
+        "R2-VID-06",
+        "R3-VID-01",
+        "R3-VID-02",
+        "R3-VID-03",
+        "FI-04-08"
+      ],
+      "note": "Additional selected-profile acceptance for real ComfyUI/Wan model-produced footage, correct provenance, GPU/VRAM benchmark and 35min hybrid export."
+    },
+    {
+      "name": "Optional_extensions",
+      "required": [
+        "R4-VID-01",
+        "R4-VID-02",
+        "R4-VID-03"
+      ],
+      "note": "Not part of MVP. Paid provider integrations require explicit opt-in, official pricing, security and consent review."
+    }
+  ]
+}
