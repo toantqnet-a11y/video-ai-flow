@@ -177,6 +177,29 @@ export async function startApi({listen=true}={}) {
     await runner.stop({abort:true});
     vault.lock();store.close();db.close();
   });
+  // Only the foreground operator can rearm after a browser refresh. This
+  // command never crosses HTTP, stores no secret, and revokes all old sessions.
+  // Skip stdin handling in CI/headless tests and when Fastify isn't listening.
+  let operatorConsole=null;
+  if(listen&&process.stdin.isTTY){
+    const {createInterface}=await import('node:readline');
+    operatorConsole=createInterface({input:process.stdin,terminal:false,crlfDelay:Infinity});
+    operatorConsole.on('line',line=>{
+      const command=line.trim().toLowerCase();
+      if(command==='pair'){
+        security.rearmFromLocalOperator();
+        process.stdout.write('\nContentStudio: all browser sessions revoked.\n');
+        process.stdout.write(`New pairing code: ${security.pairingCodeForTerminal()}\n`);
+        process.stdout.write('Enter this code in the browser pairing page.\n');
+      }else if(command==='help'){
+        process.stdout.write('Commands: pair (rotate browser session and show a new one-time code), help.\n');
+      }else if(command){
+        // Never echo operator input: it might contain a pasted secret.
+        process.stdout.write('Unknown command. Type help.\n');
+      }
+    });
+  }
+  app.addHook('onClose',async()=>operatorConsole?.close());
   if (listen) {
     await app.listen({host:'127.0.0.1',port});
     // Pairing is a console-only one-time session code, never written to disk.
