@@ -12,13 +12,19 @@ export function ProductionFlowGuide({video,tab,onNavigate,flowTarget}){
   let current=true;setError('');setState({masterApproved:null,sceneRevision:null});
   // Master approval and saved Scene Builder revision are server-owned. Never
   // equate draft text, a local preview, or a queued render with completion.
-  Promise.all([
+  Promise.allSettled([
    api(`/videos/${video.id}/content/master/revisions`),
    api(`/videos/${video.id}/scenes/builder`)
   ]).then(([master,builder])=>{
-   if(current)setState({masterApproved:master.state?.hasApprovedScript===true,
-    sceneRevision:builder.sceneRevision??0});
-  }).catch(()=>{if(current)setError('Không đọc được trạng thái duyệt từ API local.');});
+   if(!current)return;
+   // Builder can reject while Master has not been approved. Keep independent
+   // read evidence instead of hiding a successful Master status.
+   setState({masterApproved:master.status==='fulfilled'?
+     master.value.state?.hasApprovedScript===true:null,
+    sceneRevision:builder.status==='fulfilled'?builder.value.sceneRevision??0:null});
+   if(master.status==='rejected'||builder.status==='rejected')
+     setError('Một phần trạng thái chưa đọc được (có thể do chưa duyệt Bản chuẩn).');
+  });
   return()=>{current=false};
  },[video?.id,video?.rowVersion,tab,sceneCount]);
  if(!video)return null;
