@@ -10,6 +10,7 @@ import {openProjectDb,StudioRepository,AssetManifest,promotePendingQueueAssets,P
 import {JobStore} from '../../../spikes/SP-04/src/store.js';
 import {JobRunner} from '../../../spikes/SP-04/src/runner.js';
 import {installSecurity} from './security.mjs';
+import {handleOperatorCommand} from './operator-console.mjs';
 import {safeRequestLog} from './request-policy.mjs';
 import {PassphraseVault,createCredentialAccess} from '../../../packages/security/src/index.mjs';
 import {registerVaultRoutes} from './vault-routes.mjs';
@@ -184,20 +185,9 @@ export async function startApi({listen=true}={}) {
   if(listen&&process.stdin.isTTY){
     const {createInterface}=await import('node:readline');
     operatorConsole=createInterface({input:process.stdin,terminal:false,crlfDelay:Infinity});
-    operatorConsole.on('line',line=>{
-      const command=line.trim().toLowerCase();
-      if(command==='pair'){
-        security.rearmFromLocalOperator();
-        process.stdout.write('\nContentStudio: all browser sessions revoked.\n');
-        process.stdout.write(`New pairing code: ${security.pairingCodeForTerminal()}\n`);
-        process.stdout.write('Enter this code in the browser pairing page.\n');
-      }else if(command==='help'){
-        process.stdout.write('Commands: pair (rotate browser session and show a new one-time code), help.\n');
-      }else if(command){
-        // Never echo operator input: it might contain a pasted secret.
-        process.stdout.write('Unknown command. Type help.\n');
-      }
-    });
+    operatorConsole.on('line',line=>handleOperatorCommand(line,{
+      security,write:message=>process.stdout.write(message)
+    }));
   }
   app.addHook('onClose',async()=>operatorConsole?.close());
   if (listen) {
