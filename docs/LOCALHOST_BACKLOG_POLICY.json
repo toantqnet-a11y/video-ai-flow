@@ -171,14 +171,14 @@
       "title": "Local web server launch, Vite build and Fastify loopback verification (legacy WI-02 ID)",
       "remainingGate": [
         "Verify reproducible npm ci + Vite static build and authenticated real Fastify HTTP/SQLite lifecycle on declared supported host",
-        "Run React UI on localhost in a real browser; no Windows installer/EXE or native desktop shell is required"
+        "Run React UI on localhost in a real browser; no platform-specific installer/EXE or native desktop shell is required"
       ]
     },
     "WI-03": {
       "title": "Hosted CI compatibility evidence and browser integration verification (legacy WI-03 ID)",
       "remainingGate": [
         "Perform authenticated real browser Timeline/Edit/Render interactions against localhost on at least one supported host",
-        "Prove five-scene HyperFrames media, 35-minute job/recovery and configured AI separately; hosted Windows pairing-page evidence is historical only"
+        "Prove five-scene HyperFrames media, 35-minute job/recovery and configured AI separately; hosted CI pairing-page evidence is historical only"
       ]
     }
   },
