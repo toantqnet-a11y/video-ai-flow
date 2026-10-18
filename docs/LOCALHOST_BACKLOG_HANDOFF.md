@@ -1,3 +1,5 @@
+> **LOCALHOST-02 new evidence (18/10/2026):** Actual authenticated Chrome → production Vite/Fastify → SQLite browser journey **PASS** on Ubuntu hosted CI run `39114179615`: pairing, channel/video, Master approval, unsaved scene guard, versioned scene commit (7 scenes), Voice navigation, Timeline and safe blocked Render. See [LOCALHOST_BROWSER_E2E_REPORT.md](LOCALHOST_BROWSER_E2E_REPORT.md). Does **not** clear FI-04-05 detailed 500-scene gestures or real media/GPU/35min/recovery gates. Browser refresh currently drops in-memory credentials; secure operator-mediated re-pair is an open UX/security blocker. **Release: NOT_READY.**
+
 # Localhost Web Backlog — Canonical Scope & Agent Handoff (2026-10-18)
 
 **Product:** ContentStudio / Video AI Flow is a **local web application**. React + Vite runs in the browser; Fastify serves the loopback API; SQLite and user media stay on local disk. It is **not** a Windows native desktop/EXE/Electron app. A Windows host may run it, but Windows 11 is not an unconditional product requirement.
