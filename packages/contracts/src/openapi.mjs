@@ -31,7 +31,7 @@ export function buildOpenApi(){
    if(!op.public && op.method!=='GET')entry.description='Requires Bearer authorization and x-contentstudio-csrf (CSRF) header; no auth query parameters.';
    item[op.method.toLowerCase()]=entry;
  }
- return {openapi:'3.1.0',info:{title:'ContentStudio Local API',version:'0.6.0',description:'Local-first Windows desktop companion. Secret values are write-only; paid AI never starts without approval.'},
+ return {openapi:'3.1.0',info:{title:'ContentStudio Local API',version:'0.6.0',description:'Localhost browser web application with local Fastify and SQLite. Secret values are write-only; paid AI never starts without approval.'},
    servers:[{url:'http://127.0.0.1:4311',description:'local process only'}],
    components:{securitySchemes:{SessionBearer:{type:'http',scheme:'bearer',bearerFormat:'opaque-memory-token'}},schemas},paths};
 }
