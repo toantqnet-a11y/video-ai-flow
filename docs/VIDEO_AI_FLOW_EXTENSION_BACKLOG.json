@@ -635,7 +635,7 @@
       "id": "R3-08",
       "title": "Enqueue-pinned immutable render snapshots & FFmpeg segment cache",
       "priority": "P0",
-      "status": "HF_SCENE_SHA_FPS_CACHE_QA_CODE__REAL_HYPERFRAMES_PENDING",
+      "status": "SCENE_CACHE_REAL_FFMPEG_CHANGED_SCENE_QA__NATIVE_HYPERFRAMES_PENDING",
       "acceptanceSummary": "SQLite v31 immutable job snapshots; actual FFmpeg segment cache keyed by pinned source assets, local trim, style and geometry. SHA and ffprobe verification; real two-scene incremental test reuses one segment. HyperFrames consumes pinned job snapshot but not per-scene cache.",
       "verifiedTests": [
         "npm run test:r307-r310",
@@ -646,8 +646,8 @@
         "PR #7 focused + full CI pending"
       ],
       "remainingGate": [
-        "Run pinned HyperFrames 0.8.159 on actual Windows with scene cache hit/miss and audio/subtitle review",
-        "35–40 minute native segment-cache soak and disk/CPU benchmark"
+        "Real HyperFrames 0.8.159 CLI and human A/V compare on Windows",
+        "35–40 min cache hit/miss, subtitle/transition and resource soak"
       ]
     },
     {

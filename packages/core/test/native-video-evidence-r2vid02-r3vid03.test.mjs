@@ -26,6 +26,18 @@ test('R2VID02 real local workflow hash, optional GET status but never POST infer
   assert.equal(inspected.localApiReachable,true);
   assert.equal(inspected.deviceReported,true);
   assert.equal(inspected.nativeInferenceVerified,false);
+  assert.equal(inspected.localWorkflowModes.text_to_video,true);
+  assert.equal(inspected.localWorkflowModes.image_to_video,false);
+  assert(inspected.blockers.includes('R2VID02_I2V_WORKFLOW_NOT_READY'));
+  // Even with a correctly bound I2V workflow, this inspect path never
+  // uploads a reference image or makes a paid/remote model call.
+  const imageWorkflow={...fakeWorkflow,'2':{class_type:'LoadImage',inputs:{image:'source.png'}}};
+  const file2=join(root,'workflow-i2v.json');
+  await writeFile(file2,JSON.stringify(imageWorkflow));
+  const both=await inspectNativeVideoReadiness({workflowPath:file2,
+    bindings:{...bindings,image:{nodeId:'2',input:'image'}},probeLocal:false,fetchImpl});
+  assert.equal(both.localWorkflowModes.image_to_video,true);
+  assert(both.blockers.includes('R2VID02_NATIVE_GPU_NOT_VERIFIED'));
   assert(inspected.blockers.includes('R2VID02_NATIVE_INFERENCE_NOT_WITNESSED'));
   assert.deepEqual(called.map(x=>x.method),['GET']);
   assert.match(called[0].url,/^http:\/\/127\.0\.0\.1:8188\/system_stats$/);
@@ -41,6 +53,13 @@ test('R3VID03 checks real 1s H264/AAC and SHA, never accepts it as a 35min rende
   await mkdir(renderDir,{recursive:true});await mkdir(join(root,'voices'));await mkdir(join(root,'images'));
   const voice=Buffer.from('voice pin'),visual=Buffer.from('visual pin');
   await writeFile(join(root,'voices','pin.wav'),voice);await writeFile(join(root,'images','pin.png'),visual);
+  // A valid source clip must be real decodable video, not PNG/text bytes
+  // with a forged "kind: video" label.
+  const clip=join(root,'images','source.mp4');
+  await runBinary('ffmpeg',['-hide_banner','-nostdin','-loglevel','error',
+   '-f','lavfi','-i','color=c=red:s=320x240:r=30:d=1','-t','1',
+   '-c:v','libx264','-preset','ultrafast','-pix_fmt','yuv420p','-y',clip],{timeoutMs:60000});
+  const clipBytes=await readFile(clip);
   const render=join(renderDir,'a'.repeat(64)+'.mp4');
   await runBinary('ffmpeg',['-hide_banner','-nostdin','-loglevel','error','-f','lavfi',
    '-i','color=c=blue:s=320x240:r=30:d=1','-f','lavfi','-i','sine=frequency=440:duration=1',
@@ -50,7 +69,8 @@ test('R3VID03 checks real 1s H264/AAC and SHA, never accepts it as a 35min rende
   const make=(kind,path,bytes)=>({kind,relativePath:path,sha256:sha(bytes),bytes:bytes.length});
   const voicePin=make('voice','voices/pin.wav',voice);
   const imagePin=make('image','images/pin.png',visual);
-  const videoPin=make('video','images/pin.png',visual);
+  const videoPin=make('video','images/source.mp4',clipBytes);
+  const fakeVideoPin=make('video','images/pin.png',visual);
   const comp={videoId,profile:{fps:30,width:320,height:240},totalFrames:30,
    scenes:['image_motion','ai_video','import_video'].map(mediaType=>{
     const kind=mediaType==='image_motion'?'image':'video';
@@ -61,6 +81,14 @@ test('R3VID03 checks real 1s H264/AAC and SHA, never accepts it as a 35min rende
   assert.equal(verified.fileChecks.ffprobeQa,true);
   assert.equal(verified.fileChecks.verifiedLocalAssets,true);
   assert.equal(verified.fileChecks.mediaKindsMatch,true);
+  assert.equal(verified.fileChecks.videoInputsProbed,true);
+  const forged=structuredClone(comp);
+  forged.scenes[1].visual.asset=fakeVideoPin;
+  const forgedReport=await verifyHybridArtifacts({composition:forged,dataRoot:root,
+    renderPath:render,expectedRenderSha256:outSha});
+  assert.equal(forgedReport.fileChecks.mediaKindsMatch,true);
+  assert.equal(forgedReport.fileChecks.videoInputsProbed,false);
+  assert(forgedReport.blockers.includes('R3VID03_REAL_VIDEO_INPUTS_UNVERIFIED'));
   const relabeled=structuredClone(comp);
   relabeled.scenes[1].visual.asset=imagePin;
   const mislabeled=await verifyHybridArtifacts({composition:relabeled,dataRoot:root,

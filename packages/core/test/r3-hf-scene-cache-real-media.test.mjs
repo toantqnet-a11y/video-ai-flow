@@ -59,5 +59,17 @@ test('R3-08 two real FFmpeg segments: immutable cache hit avoids new renderer wo
   assert.equal(b.qa.passed,true);assert.equal(b.segmentCache.encoded,0);
   assert.equal(b.segmentCache.reused,2);assert.equal(rendered,2);
   assert.equal(b.relativePath,a.relativePath);
+  // Edit narration/captions in exactly one scene: only that segment needs
+  // rerendering. Unchanged scene must get a real cache hit.
+  const changed=structuredClone(config.composition);
+  changed.scenes[0].text='A changed narration';
+  changed.scenes[0].textSha256=hash(changed.scenes[0].text);
+  changed.scenes[0].captions.cues[0].text=changed.scenes[0].text;
+  delete changed.digest;changed.digest=compositionDigest(changed);
+  const c=await renderCachedHyperframesComposition({...config,composition:changed});
+  assert.equal(c.qa.passed,true);
+  assert.equal(c.segmentCache.encoded,1);
+  assert.equal(c.segmentCache.reused,1);
+  assert.equal(rendered,3);
  }finally{db.close();await rm(dir,{recursive:true,force:true});}
 });

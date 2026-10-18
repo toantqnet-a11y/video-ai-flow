@@ -23,7 +23,7 @@ export async function verifyHybridArtifacts({composition,dataRoot,renderPath,exp
  ffprobe='ffprobe',signal,operatorEvidence={}}={}){
  const report={taskId:'R3-VID-03',status:'NOT_READY',accepted:false,
    fileChecks:{publishedMp4:false,checksumVerified:false,verifiedLocalAssets:false,
-     mediaKindsMatch:false,ffprobeQa:false},mediaSha256:null,metadata:null,blockers:[]};
+     mediaKindsMatch:false,videoInputsProbed:false,ffprobeQa:false},mediaSha256:null,metadata:null,blockers:[]};
  if(!composition||typeof composition!=='object'||!Array.isArray(composition.scenes))
   reject('R3VID03_COMPOSITION_REQUIRED');
  if(!dataRoot||!renderPath)reject('R3VID03_INPUT_PATH_REQUIRED');
@@ -58,6 +58,30 @@ export async function verifyHybridArtifacts({composition,dataRoot,renderPath,exp
   return !!expected&&scene.visual?.kind===expected&&
     scene.visual.asset?.kind===expected&&scene.voice?.asset?.kind==='voice';
  });
+ // Content provenance, not a filename or metadata label: for EVERY AI or
+ // imported video scene, independently confirm the pinned bytes contain an
+ // actual video stream. Identical referenced clips are probed only once.
+ // Still-image bytes falsely labelled "video" must never satisfy hybrid QA.
+ const sourceProbes=new Map();
+ let videoInputsProbed=true;
+ for(const scene of composition.scenes){
+  if(!['ai_video','import_video'].includes(scene.mediaType))continue;
+  const asset=scene.visual?.asset;
+  if(!asset?.sha256){videoInputsProbed=false;continue;}
+  if(!sourceProbes.has(asset.sha256)){
+   let healthy=false;
+   try{
+    const source=await safePinnedPath(root,asset);
+    const clip=await probeMp4(source,{ffprobe,signal});
+    healthy=!!clip.videoCodec&&Number.isFinite(clip.durationSeconds)&&
+      clip.durationSeconds>0&&Number.isInteger(clip.width)&&clip.width>=64&&
+      Number.isInteger(clip.height)&&clip.height>=64;
+   }catch{/* Invalid source codec/file or inaccessible pinned media: fail closed. */}
+   sourceProbes.set(asset.sha256,healthy);
+  }
+  if(sourceProbes.get(asset.sha256)!==true)videoInputsProbed=false;
+ }
+ report.fileChecks.videoInputsProbed=videoInputsProbed&&sourceProbes.size>0;
  let metadata=null;
  try{metadata=await probeMp4(candidate,{ffprobe,signal});}catch{/* Record blocker below. */}
  report.metadata=metadata&&{videoCodec:metadata.videoCodec,audioCodec:metadata.audioCodec,
@@ -81,6 +105,7 @@ export async function verifyHybridArtifacts({composition,dataRoot,renderPath,exp
  if(!report.fileChecks.ffprobeQa)automated.push('R3VID03_FFPROBE_MISMATCH');
  if(!report.fileChecks.verifiedLocalAssets)automated.push('R3VID03_PINNED_FILES_INVALID');
  if(!report.fileChecks.mediaKindsMatch)automated.push('R3VID03_MEDIA_KIND_MISMATCH');
+ if(!report.fileChecks.videoInputsProbed)automated.push('R3VID03_REAL_VIDEO_INPUTS_UNVERIFIED');
  return {...report,accepted:gate.accepted&&automated.length===0,
    status:gate.accepted&&automated.length===0?'OPERATOR_ATTESTED_ACCEPTANCE':'NOT_READY',
    blockers:[...new Set([...automated,...gate.blockers])],
