@@ -23,7 +23,7 @@
     "existingFI02": 42,
     "aiVideo": 14,
     "fi04": 10,
-    "windowsAcceptance": 3
+    "localRuntimeAcceptance": 3
   },
   "tasks": [
     {
