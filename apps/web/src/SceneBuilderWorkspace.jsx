@@ -6,6 +6,7 @@
 import React,{useEffect,useState} from 'react';
 import {api} from './api.js';
 import {useStudio} from './store.js';
+import {sceneDraftUnsaved} from './production-flow.mjs';
 import {moveDraft,splitDraft,mergeDraft,applyVisualPrompts} from './scene-editor.mjs';
 import {BatchVideoClipsR2VID} from './BatchVideoClipsR2VID.jsx';
 
@@ -18,7 +19,7 @@ export function SceneBuilderWorkspace({video,onNext}){
   const [visualModels,setVisualModels]=useState([]),[visualModelId,setVisualModelId]=useState('');
   const [visualRun,setVisualRun]=useState(null),[visualBusy,setVisualBusy]=useState(false);
   // A new auto-split proposal is also unsaved, even before manual edits.
-  const unsaved=changed||previewPending;
+  const unsaved=sceneDraftUnsaved({changed,previewPending});
   useEffect(()=>{useStudio.setState({sceneBuilderDirty:unsaved});return()=>useStudio.setState({sceneBuilderDirty:false})},[unsaved]);
   // Registered local model metadata is NOT proof that Ollama is currently online.
   useEffect(()=>{let active=true;api('/provider-models').then(x=>{if(!active)return;
