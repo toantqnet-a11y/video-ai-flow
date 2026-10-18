@@ -134,7 +134,11 @@ export function TimelineRenderWorkspace(){
   try{const a=document.createElement('a');a.href=url;a.download=`thumbnail-${video.id}.jpg`;a.click();}
   finally{setTimeout(()=>URL.revokeObjectURL(url),1000);}
  });
- const selectScene=(id)=>{if(id===scene?.id)return true;if(inspectorDirty&&!window.confirm('Bỏ những chỉnh sửa scene chưa lưu?'))return false;setSceneId(id);setRevision(null);return true};
+ const selectScene=(id)=>{if(id===scene?.id)return true;if(inspectorDirty&&!window.confirm('Bỏ những chỉnh sửa scene chưa lưu?'))return false;
+  // Selecting another scene is read-only. Only a real saved content/timing
+  // mutation may invalidate the immutable Composition approval; clearing it
+  // here disabled Render after keyboard/playback selection without any edit.
+  setSceneId(id);return true};
  const max=Math.max(1,snapshot?.totalFrames??1);const fps=snapshot?.profile.fps??30;
  return <section className="frame"><header className="frame-title"><div><h2>▤ Timeline & MP4</h2>
   <p>EXT-05/06 · Preview ảnh/giọng thật (nếu đã tạo) · HyperFrames là engine mặc định (local), FFmpeg là fallback thủ công; không dùng AI trả phí.</p></div>
