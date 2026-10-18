@@ -253,6 +253,12 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
     return {buttonFound:!!btn,buttonDisabled:btn?.disabled??null,
       statusCodes:notices.flatMap(x=>x.match(/[A-Z][A-Z0-9_]{4,}/g)??[]).slice(0,12),
       approved:document.body.textContent.includes('Đã phê duyệt Composition'),
+      revisionVisible:root?.textContent?.includes('Nguồn xuất: Composition đã duyệt')??false,
+      missingRevision:root?.textContent?.includes('Cần lưu thay đổi và phê duyệt Composition')??false,
+      checking:root?.textContent?.includes('Đang kiểm tra tài nguyên')??false,
+      ready:root?.textContent?.includes('Preflight đạt')??false,
+      blocked:root?.textContent?.includes('Không thể render:')??false,
+      timelineDirty:document.querySelector('.timeline-render-layout')?.textContent?.includes('chưa lưu')??false,
       styleSaves:[...document.querySelectorAll('button')].filter(x=>x.textContent?.includes('Lưu phiên bản style')).map(x=>x.disabled)};
   })()`);
   console.log('LOCALHOST_E2E_RENDER_PREFLIGHT '+JSON.stringify(uiReadiness));
