@@ -119,7 +119,7 @@ async function runBrowser(cdp,code,repo,store){
  assert(await submit('.modal form'),'channel form submit');
  await until(()=>repo.listChannels().length===1,'CHANNEL_PERSIST');
  mark('channel_browser_sqlite');
- assert(await click('Video','.side button.nav'),'open videos');
+ assert(await until(()=>click('Video','.side button.nav'),'VIDEO_TAB_ENABLED'),'open videos');
  await wait('.video-library','VIDEO_LIBRARY');
  assert(await click('Video mới','.video-library button'),'open video modal');
  await wait('.video-library-modal','VIDEO_MODAL');
