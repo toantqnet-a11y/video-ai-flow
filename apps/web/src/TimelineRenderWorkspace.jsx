@@ -20,8 +20,17 @@ export function TimelineRenderWorkspace(){
  const [styleRevision,setStyleRevision]=useState(null),[styleDirty,setStyleDirty]=useState(true);
  const [engine,setEngine]=useState('hyperframes');
  const [inspectorDirty,setInspectorDirty]=useState(false),[timelineDirty,setTimelineDirty]=useState(false),[timelineRefresh,setTimelineRefresh]=useState(0);
- const [revision,setRevision]=useState(null),[render,setRender]=useState(null),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState('');
+ const [revision,setRevision]=useState(null),[render,setRender]=useState(null),[renderHistory,setRenderHistory]=useState([]),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState('');
  const scene=snapshot?.scenes?.find(s=>s.id===sceneId)??snapshot?.scenes?.[0];
+ // Newly queued/completed jobs refresh the select list without submitting a
+ // second job. Also preserves older successful exports after source changes.
+ useEffect(()=>{if(!video?.id||!render?.id)return;let active=true;
+  api(`/videos/${video.id}/renders?limit=10`).then(result=>{
+   if(active)setRenderHistory(result.items??[]);
+  }).catch(()=>{});
+  return()=>{active=false};
+ },[video?.id,render?.id,render?.status]);
+
  // Dirty scene/timeline edits must be guarded even when leaving via sidebar.
  useEffect(()=>{useStudio.setState({timelineWorkspaceDirty:inspectorDirty||timelineDirty});
   return()=>useStudio.setState({timelineWorkspaceDirty:false});},[inspectorDirty,timelineDirty]);
@@ -39,8 +48,21 @@ export function TimelineRenderWorkspace(){
   // badge immediately after another scene/timeline edit is saved.
   if(render?.id)try{setRender(await api(`/videos/${video.id}/renders/${render.id}`))}catch{};
  };
- useEffect(()=>{let live=true;setSnapshot(null);setSceneId(null);setRender(null);
-  if(video)refresh().catch(e=>{if(live)setError(e.code??e.message)});
+ useEffect(()=>{let live=true;setSnapshot(null);setSceneId(null);setRender(null);setRenderHistory([]);
+  if(video){
+   // Browser refresh and re-pair lose UI memory, not SQLite/SP-04 results.
+   // Restore read-only history; NEVER enqueue or retry an existing render.
+   void Promise.allSettled([refresh(),api(`/videos/${video.id}/renders?limit=10`)])
+    .then(([timeline,history])=>{
+      if(!live)return;
+      if(timeline.status==='rejected')setError(timeline.reason?.code??'TIMELINE_REFRESH_FAILED');
+      if(history.status==='fulfilled'){
+       const items=history.value.items??[];
+       setRenderHistory(items);
+       setRender(items[0]??null);
+      }else setError(history.reason?.code??'RENDER_HISTORY_FAILED');
+    });
+  }
   return()=>{live=false};
  },[video?.id]);
  useEffect(()=>{if(!scene)return;const cue=scene.captions.cues[0],fps=snapshot.profile.fps;
@@ -149,6 +171,26 @@ export function TimelineRenderWorkspace(){
     <SubtitleDraftPanelR405 key={`${video.id}:${revision}:${scene?.id}`} videoId={video.id} compositionRevision={revision} sceneId={scene?.id}/>
     <VisualConsistencyPanelR407 videoId={video.id}/>
     <div ref={renderSectionRef} id="render-export" className="production-render-section" aria-label="Xuất MP4 local">
+    <div className="actions">
+      <label>Render đã lưu (SQLite · không tự chạy lại)
+       <select aria-label="Lịch sử xuất MP4" value={render?.id??''}
+        onChange={e=>{
+         const selected=renderHistory.find(item=>item.id===e.target.value);
+         if(selected)setRender(selected);
+        }}>
+        <option value="">Chưa có bản xuất</option>
+        {renderHistory.map(item=><option key={item.id} value={item.id}>
+          {item.status==='succeeded'?'✓ ':item.status==='failed'?'! ':'… '}
+          #{item.revision??'?'} · {item.status} · {item.id.slice(0,8)}
+        </option>)}
+       </select>
+      </label>
+      <button type="button" className="btn secondary" disabled={busy} onClick={()=>act(async()=>{
+       const result=await api(`/videos/${video.id}/renders?limit=10`);
+       setRenderHistory(result.items??[]);
+       setRender(old=>(result.items??[]).find(x=>x.id===old?.id)??result.items?.[0]??null);
+      })}>↻ Cập nhật bản xuất</button>
+    </div>
     <RenderDrawerR312 videoId={video.id} revision={revision} styleRevision={styleRevision} styleDirty={styleDirty}
       editorDirty={inspectorDirty||timelineDirty} engine={engine} setEngine={setEngine} busy={busy}
       render={render} setRender={setRender} onMessage={setNotice} onError={setError}/>
