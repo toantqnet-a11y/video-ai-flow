@@ -985,3 +985,7 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
 - Hybrid long-film evidence gate now FFprobes EVERY unique SHA-pinned AI/import video source in addition to H264/AAC output and native operator witnesses, so renamed PNG/text cannot pass via kind='video'. Prompt/path stay private.
 - R3-08 cache regression now runs a third composition with changed narration in one scene, verifying 1 real FFmpeg segment rerender + 1 cache reuse. It remains separate from real installed HyperFrames/Windows testing.
 - Release NOT_READY until real 35min Windows GPU/HyperFrames/output visual/audio, restart/lease and model-license evidence.
+
+## 2026-10-18 — Canonical video roadmap notes reconciled after PR #11
+- Earlier R2-VID-02 and R3-VID-03 status changes were written to the extension backlog, but FI-04 canonical video tasks are generated from the **notes** map in tools/fi04-backlog.mjs. Reconciled the correct authoritative entries and their evidence/test paths, without changing release gate from NOT_READY.
+- Native Windows ComfyUI GPU and HyperFrames 35–40 minute real render remain pending; offline tests cannot substitute hardware proof.

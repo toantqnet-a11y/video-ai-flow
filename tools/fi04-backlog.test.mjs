@@ -7,6 +7,9 @@ test('FI-04 backlog: roadmap has 14 unambiguous AI video tasks with dependencies
  assert.equal(tasks.length,14);assert.deepEqual(tasks.map(x=>x.id),expectedVideoIds);
  assert.equal(tasks.find(x=>x.id==='R0-VID-01').status,'CODE_COMPLETE_TESTED_OFFLINE__PROVIDER_REAL_BLOCKED');
  assert.ok(tasks.find(x=>x.id==='R2-VID-04').dependsOn.includes('R2-VID-02'));
+ assert.ok(tasks.find(x=>x.id==='R2-VID-02').evidence.some(e=>e.includes('native-video-diagnostics')));
+ assert.ok(tasks.find(x=>x.id==='R3-VID-03').evidence.some(e=>e.includes('hybrid-evidence')));
+ assert.ok(tasks.find(x=>x.id==='R3-VID-03').status.includes('PENDING'));
  assert.ok(tasks.find(x=>x.id==='R3-VID-03').dependsOn.includes('R3-14'));
  assert.ok(tasks.find(x=>x.id==='R4-VID-02').status.includes('PAID_OFF'));
 });
