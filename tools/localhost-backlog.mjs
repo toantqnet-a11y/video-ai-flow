@@ -36,8 +36,12 @@ export function normalizeLocalhostBacklog(legacy,policy){
    throw new Error('LOCALHOST_OS_SPECIFIC_RELEASE_GATE: '+task.id);
  }
  const constraints=[...new Set([...(legacy.constraints||[]).filter(c=>!policy.constraintsRemove.includes(c)),...policy.constraintsAdd])];
+ // WI IDs are retained for history, but they now represent local-web runtime
+ // acceptance rather than Windows-specific release requirements.
+ const {windowsAcceptance,...existingGroups}=legacy.groups;
+ const groups={...existingGroups,localRuntimeAcceptance:windowsAcceptance};
  return {...legacy,version:policy.version,status:policy.status,
-  constraints,scope:policy.scope,milestones:policy.milestones,
+  groups,constraints,scope:policy.scope,milestones:policy.milestones,
   taskCount:tasks.length,tasks,
   // Provenance is intentionally preserved: an old Windows CI success is not
   // proof of authenticated end-user browser acceptance on the local host.
