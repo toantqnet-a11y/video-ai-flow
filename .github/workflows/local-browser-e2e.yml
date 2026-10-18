@@ -1,0 +1,48 @@
+# Real browser + Fastify + SQLite on the *same* runner localhost.
+# No mock route injection, provider API keys, remote inference, paid models or screenshots.
+name: Localhost Browser E2E
+on:
+  pull_request:
+    # Avoid spending browser runner minutes on documentation-only changes.
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+      - 'tools/localhost-browser-e2e.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/local-browser-e2e.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: local-browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-localhost:
+    name: Authenticated production UI & API
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verified exact lock and dependencies
+        run: |
+          node tools/ci-github-lock.mjs
+          npm ci --ignore-scripts --no-audit --no-fund
+      - name: Check browser is available
+        run: |
+          command -v google-chrome || command -v google-chrome-stable || command -v chromium
+      - name: Build actual Vite production app
+        run: npm run build:web
+      - name: Exercise real localhost browser, API and private SQLite
+        timeout-minutes: 12
+        env:
+          CONTENTSTUDIO_REMOTE_LLM_CONSENT: '0'
+          CONTENTSTUDIO_CONFIRMED_NO_BILLING_MODEL_IDS: ''
+          NODE_ENV: production
+        run: node tools/localhost-browser-e2e.mjs
