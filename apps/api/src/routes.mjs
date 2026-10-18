@@ -65,6 +65,7 @@ export function registerStudioRoutes(app,{controllers,store,diagnostics}) {
     use((req,reply)=>reply.code(201).send(controllers.musicImportStream(req.params.id,req.body,req.headers['x-contentstudio-extension']))));
   app.post('/api/videos/:id/renders/preflight',use(req=>controllers.renderPreflight(req.params.id,req.body)));
   app.post('/api/videos/:id/renders',use((req,reply)=>reply.code(202).send(controllers.renderQueue(req.params.id,req.body))));
+  app.get('/api/videos/:id/renders',use(req=>controllers.renderHistory(req.params.id,req.query??{})));
   app.get('/api/videos/:id/renders/:jobId',use(req=>controllers.renderJob(req.params.id,req.params.jobId)));
   // R3-11: authenticated ZIP64 project bundle; delete private staging bytes
   // after download completes or disconnects. Nothing is persisted to the DB.
