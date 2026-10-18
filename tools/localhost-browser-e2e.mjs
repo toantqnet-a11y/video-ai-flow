@@ -245,6 +245,17 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
   await until(()=>expectText('.timeline-render-layout','Timing Lock'),'RENDER_TIMELINE_LOADED');
   await until(()=>expectText('.frame','Đã phê duyệt Composition'), 'RENDER_TIMING_COMMITTED');
   mark('real_media_timing_approved_from_browser');
+  // Diagnostic is limited to test-only booleans and known preflight codes.
+  const uiReadiness=await ev(`(()=>{
+    const root=document.querySelector('.render-drawer-r312');
+    const btn=[...(root?.querySelectorAll('button')??[])].find(x=>x.textContent.includes('Render MP4 local'));
+    const notices=[...(root?.querySelectorAll('[role=status],.warn')??[])].map(x=>x.textContent?.trim()??'');
+    return {buttonFound:!!btn,buttonDisabled:btn?.disabled??null,
+      statusCodes:notices.flatMap(x=>x.match(/[A-Z][A-Z0-9_]{4,}/g)??[]).slice(0,12),
+      approved:document.body.textContent.includes('Đã phê duyệt Composition'),
+      styleSaves:[...document.querySelectorAll('button')].filter(x=>x.textContent?.includes('Lưu phiên bản style')).map(x=>x.disabled)};
+  })()`);
+  console.log('LOCALHOST_E2E_RENDER_PREFLIGHT '+JSON.stringify(uiReadiness));
   assert(await until(()=>ev(`(()=>{
     const b=[...document.querySelectorAll('.render-drawer-r312 button')].find(x=>x.textContent.includes('Render MP4 local'));
     if(!b||b.disabled)return false;b.click();return true;
