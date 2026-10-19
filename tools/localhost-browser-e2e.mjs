@@ -237,13 +237,23 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
    repo.db.prepare('INSERT INTO scene_image_manual_selections(scene_id,asset_id,selected_at) VALUES(?,?,?)')
     .run(sc.id,image.id,Date.now());
   }
+  // The exact backend timed preview, not static UI text, is the oracle for
+  // fixture readiness. Never bypass a blocker to turn an E2E red into green.
+  const {TimedCompositionRepository,CompositionRepository}=await import('../packages/core/src/index.mjs');
+  const timedFixture=new TimedCompositionRepository({compositions:new CompositionRepository({repo,manifest}),manifest});
+  const fixturePreview=await timedFixture.preview(v.id,{tailPaddingMs:250});
+  console.log('LOCALHOST_E2E_FIXTURE_READINESS '+JSON.stringify({
+    ready:fixturePreview.readiness.ready,sceneCount:fixturePreview.scenes.length,
+    blockerCodes:fixturePreview.readiness.blockers.map(x=>x.code).slice(0,15)}));
+  assert.equal(fixturePreview.readiness.ready,true,'real browser fixture must be ready before approval');
   // The operator explicitly presses Refresh to re-evaluate current pins,
   // then Approve; importing test WAVs never auto-submits a render.
   assert(await until(()=>click('Cập nhật','.frame-title button'),'RENDER_MEDIA_REFRESH'),'refresh media readiness');
   await wait('.timeline-render-layout','RENDER_FIXTURE_TIMELINE');
   assert(await until(()=>click('Phê duyệt timing','.timeline-render-layout ~ .actions button'),'RENDER_TIMING_APPROVAL'), 'user approval');
   await until(()=>expectText('.timeline-render-layout','Timing Lock'),'RENDER_TIMELINE_LOADED');
-  await until(()=>expectText('.frame','Đã phê duyệt Composition'), 'RENDER_TIMING_COMMITTED');
+  await until(()=>repo.db.prepare("SELECT revision FROM composition_revisions WHERE video_id=? ORDER BY revision DESC LIMIT 1").get(v.id)?.revision>=1,'RENDER_TIMING_COMMITTED');
+  await until(()=>expectText('.frame','Đã phê duyệt Composition v2 #'),'RENDER_TIMING_UI_COMMITTED');
   mark('real_media_timing_approved_from_browser');
   // Diagnostic is limited to test-only booleans and known preflight codes.
   const uiReadiness=await ev(`(()=>{
