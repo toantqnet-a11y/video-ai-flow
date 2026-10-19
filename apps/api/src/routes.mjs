@@ -45,9 +45,12 @@ export function registerStudioRoutes(app,{controllers,store,diagnostics}) {
   // requires a matching digest and exact editor rowVersion (no AI/render).
   // EXT-02 opt-in v2 measured timing. V1 endpoints continue to produce v1.
   app.post('/api/videos/:id/composition/timing/preview',use(req=>controllers.previewTimedComposition(req.params.id,req.body??{})));
-  app.post('/api/videos/:id/composition/timing/revisions',use((req,reply)=>reply.code(201).send(controllers.publishTimedComposition(req.params.id,req.body))));
+  // Resolve the async publish result BEFORE reply.send. Sending an unresolved
+  // Promise can serialize as {}, creating a real SQLite revision but leaving
+  // the browser without its revision number, so Render stays disabled.
+  app.post('/api/videos/:id/composition/timing/revisions',use(async(req,reply)=>reply.code(201).send(await controllers.publishTimedComposition(req.params.id,req.body))));
   app.post('/api/videos/:id/composition/preview',use(req=>controllers.previewComposition(req.params.id,req.body??{})));
-  app.post('/api/videos/:id/composition/revisions',use((req,reply)=>reply.code(201).send(controllers.publishComposition(req.params.id,req.body))));
+  app.post('/api/videos/:id/composition/revisions',use(async(req,reply)=>reply.code(201).send(await controllers.publishComposition(req.params.id,req.body))));
   app.get('/api/videos/:id/composition/revisions',use(req=>controllers.compositionHistory(req.params.id)));
   app.get('/api/videos/:id/composition/revisions/:revision',use(req=>controllers.compositionRevision(req.params.id,req.params.revision)));
   app.post('/api/videos/:id/visual-route/preview',use(req=>controllers.visualRoutePreview(req.params.id,req.body??{})));
