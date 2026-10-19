@@ -75,6 +75,25 @@ test('R0-12 resume step validates persisted script and scenes',()=>{
  }finally{f.close()}
 });
 
+test('LOCALHOST-05 UI resume step never changes the approved video content row version',()=>{
+ const f=fixture();try{
+  let v=f.repo.createVideo(f.a.id,{title:'Render stable'});
+  v=f.repo.updateScript(v.id,{rowVersion:v.rowVersion,masterScript:'Nội dung đã duyệt.'});
+  f.repo.replaceScenes(v.id,{rowVersion:v.rowVersion,scenes:[{text:'Nội dung đã duyệt.',durationMs:4000}]});
+  const before=f.repo.getVideo(v.id);
+  const atTimeline=f.repo.updateVideoStep(v.id,{rowVersion:before.rowVersion,step:'timeline'});
+  assert.equal(atTimeline.lastActiveStep,'timeline');
+  assert.equal(atTimeline.rowVersion,before.rowVersion,'navigation is NOT a content change');
+  const atScenes=f.repo.updateVideoStep(v.id,{rowVersion:atTimeline.rowVersion,step:'scenes'});
+  assert.equal(atScenes.rowVersion,before.rowVersion);
+  assert.equal(f.repo.getVideo(v.id).masterScript,before.masterScript);
+  // A normal concurrent script edit must still advance optimistic rowVersion.
+  const after=f.repo.updateScript(v.id,{rowVersion:before.rowVersion,masterScript:'Nội dung đã sửa.'});
+  assert.equal(after.rowVersion,before.rowVersion+1);
+  bad(()=>f.repo.updateVideoStep(v.id,{rowVersion:before.rowVersion,step:'timeline'}),'VERSION_CONFLICT');
+ }finally{f.close()}
+});
+
 test('R0-12 rename and soft delete enforce version and restore data',()=>{
  const f=fixture();try{
   const v=f.repo.createVideo(f.a.id,{title:'Original'});
