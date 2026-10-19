@@ -87,8 +87,9 @@ test('LOCALHOST-05 UI resume step never changes the approved video content row v
   const atScenes=f.repo.updateVideoStep(v.id,{rowVersion:atTimeline.rowVersion,step:'scenes'});
   assert.equal(atScenes.rowVersion,before.rowVersion);
   assert.equal(f.repo.getVideo(v.id).masterScript,before.masterScript);
-  // A normal concurrent script edit must still advance optimistic rowVersion.
-  const after=f.repo.updateScript(v.id,{rowVersion:before.rowVersion,masterScript:'Nội dung đã sửa.'});
+  // A real metadata mutation must still advance optimistic concurrency.
+  // Once scenes exist, replacing the Master Script is correctly forbidden.
+  const after=f.repo.renameVideo(v.id,{rowVersion:before.rowVersion,title:'Render renamed'});
   assert.equal(after.rowVersion,before.rowVersion+1);
   bad(()=>f.repo.updateVideoStep(v.id,{rowVersion:before.rowVersion,step:'timeline'}),'VERSION_CONFLICT');
  }finally{f.close()}
