@@ -8,12 +8,12 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
-import {spawn,spawnSync} from 'node:child_process';
+import {spawn} from 'node:child_process';
 import {createServer} from 'node:net';
 import {mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
-import {existsSync} from 'node:fs';
+import {existsSync,accessSync,constants} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const pause=ms=>new Promise(ok=>setTimeout(ok,ms));
@@ -29,10 +29,16 @@ async function until(check,label,ms=18000){
  throw Error('LOCALHOST_E2E_TIMEOUT_'+label+(last?.message?.startsWith('E2E_')?'_'+last.message:''));
 }
 function findChrome(){
- const list=[process.env.CHROME_BIN,'google-chrome','google-chrome-stable','chromium','chromium-browser'].filter(Boolean);
- for(const cmd of list){
-  const r=spawnSync(cmd,['--version'],{encoding:'utf8',timeout:2500,stdio:'ignore'});
-  if(r.status===0)return cmd;
+ // A hosted runner under media encode load may take >2.5s just to run
+ // chrome --version. Check the executable path, then prove Chrome by CDP,
+ // instead of falsely classifying a slow but installed browser as missing.
+ const names=[process.env.CHROME_BIN,'google-chrome','google-chrome-stable','chromium','chromium-browser'].filter(Boolean);
+ const dirs=(process.env.PATH??'').split(':').filter(Boolean);
+ for(const name of names){
+  const paths=name.includes('/')?[name]:dirs.map(dir=>join(dir,name));
+  for(const path of paths){
+   try{accessSync(path,constants.X_OK);return path}catch{}
+  }
  }
  throw Error('LOCALHOST_E2E_BROWSER_MISSING');
 }
