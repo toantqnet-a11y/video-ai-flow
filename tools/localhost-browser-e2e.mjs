@@ -382,7 +382,7 @@ async function main(){
   // never query values, credentials, raw media, or binary HTTP data.
   runtime.app.addHook('onResponse',async(request,reply)=>{
    const path=String(request.raw.url??'').split('?')[0];
-   if(request.method==='GET'&&new RegExp('^/api/videos/[a-zA-Z0-9-]+/renders/[a-zA-Z0-9-]+/mp4
+   if(request.method==='GET'&&new RegExp('^/api/videos/[a-zA-Z0-9-]+/renders/[a-zA-Z0-9-]+/mp4$').test(path))
     downloads.push({path,status:reply.statusCode,mime:String(reply.getHeader('content-type')??'')});
   });
   await runtime.app.listen({host:'127.0.0.1',port:apiPort});
