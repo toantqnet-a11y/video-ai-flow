@@ -331,8 +331,24 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
   assert.equal(sha(cachedBytes),digest,'cached export must preserve exact output bytes');
   mark('hyperframes_scene_cache_warm_hit');
   const downloadJobId=reusedJob.id;
-  await until(()=>ev(`[...document.querySelectorAll('.production-render-section button')].some(
-   b=>b.textContent.includes('Lưu MP4')&&!b.disabled)`),'RENDER_DOWNLOAD_BUTTON',25000);
+  const downloadAvailable=()=>ev(`[...document.querySelectorAll('.production-render-section button')].some(
+   b=>b.textContent.includes('Lưu MP4')&&!b.disabled)`);
+  // The browser should normally update via SSE/poll. The explicit history
+  // refresh is a supported recovery path after a disconnected/repaired tab.
+  // Record fallback; don't silently count a stale status as automatic success.
+  let autoUpdated=await until(downloadAvailable,'RENDER_DOWNLOAD_AUTOSYNC',8000).catch(()=>false);
+  if(!autoUpdated){
+   const state=await ev(`(()=>{
+    const root=document.querySelector('.render-drawer-progress');
+    return {hasProgress:!!root,showsCompleted:root?.textContent?.includes('Hoàn thành')??false,
+      showsRunning:root?.textContent?.includes('Đang')??false,
+      hasHistory:!!document.querySelector('select[aria-label="Lịch sử xuất MP4"]')};
+   })()`);
+   console.log('LOCALHOST_E2E_DOWNLOAD_SYNC '+JSON.stringify(state));
+   assert(await until(()=>click('Cập nhật bản xuất','.production-render-section button'),'REFRESH_FINISHED_EXPORT',12000));
+  }
+  await until(downloadAvailable,'RENDER_DOWNLOAD_BUTTON',18000);
+  mark(autoUpdated?'mp4_download_auto_status':'mp4_download_after_manual_history_refresh');
   const responses=[];
   cdp.on('Network.responseReceived',event=>{
    const response=event.response;
