@@ -65,6 +65,8 @@ export function MasterScriptWorkspace({video,onBack,onApproved,onOpenSceneBuilde
     setApprovedWarnings(false);
   }
   useEffect(()=>{let active=true;load().catch(e=>{if(active)setError(errorMessage(e))});return()=>{active=false}},[id]);
+  // Server load fills mode/text from persisted state. Do not allow typing
+  // before it resolves or a delayed response can overwrite real draft edits.
   const choices=(outline?.outline.chapters??[]).map((chapter,index)=>({chapter,index,
     options:variants.filter(v=>v.chapterIndex===index)}));
   const selection=()=>choices.map(x=>({chapterIndex:x.index,variantId:selected[x.index]}));
@@ -124,8 +126,8 @@ export function MasterScriptWorkspace({video,onBack,onApproved,onOpenSceneBuilde
     <div className="master-stats"><span>Dàn ý v{outline?.revision??'–'}</span><span>Ứng viên v{status?.revision??0}</span>
       <span>{status?.approvedRevision?`✓ Đã duyệt v${status.approvedRevision}`:'Chưa duyệt'}</span>
       <span>{text.trim().split(/\s+/).filter(Boolean).length.toLocaleString('vi-VN')} từ</span></div>
-    <div className="master-mode"><button className={mode==='ai'?'selected':''} onClick={()=>changeMode('ai')}>Từ các bản thảo AI</button>
-      <button className={mode==='manual'?'selected':''} onClick={()=>changeMode('manual')}>Nhập kịch bản thủ công</button></div>
+    <div className="master-mode"><button className={mode==='ai'?'selected':''} disabled={busy||!outline||!status} onClick={()=>changeMode('ai')}>Từ các bản thảo AI</button>
+      <button className={mode==='manual'?'selected':''} disabled={busy||!outline||!status} onClick={()=>changeMode('manual')}>Nhập kịch bản thủ công</button></div>
     <div className="master-columns"><div className="content-brief-panel"><h3>{mode==='manual'?'Kịch bản nhập tay':'Chọn bản thảo cho từng chương'}</h3>
       {mode==='manual'&&<p className="muted">Dán nội dung bên phải. Kịch bản thủ công cũng phải lưu phiên bản và bấm duyệt rõ ràng trước khi tạo scene.</p>}
       {mode==='ai'&&<>
@@ -136,14 +138,14 @@ export function MasterScriptWorkspace({video,onBack,onApproved,onOpenSceneBuilde
             {x.label} · {x.wordCount} từ</option>)}
         </select>{!options.length&&<small>Chưa có bản thành công trong phiên bản dàn ý này.</small>}</label>)}
       </>}
-      <button className="btn secondary" disabled={busy||!ready} onClick={preview}>
+      <button className="btn secondary" disabled={busy||!outline||!status||!ready} onClick={preview}>
         {mode==='manual'?'Kiểm tra kịch bản':'Ghép & xem trước'}</button>
       {mode==='ai'&&<small>Mỗi bản thảo gắn với video, chương và phiên bản dàn ý; không dùng lẫn nội dung.</small>}
       <h3>Lịch sử Bản chuẩn</h3><div className="master-history">{history.map(h=><button key={h.revision} onClick={()=>openVersion(h.revision)}>
         v{h.revision} · {h.wordCount} từ {h.approved?'✓ Đã duyệt':''}</button>)}
         {!history.length&&<p>Chưa có phiên bản.</p>}</div>
     </div><div className="content-brief-panel"><h3>Biên tập kịch bản cuối cùng</h3>
-      <textarea className="master-text" aria-label="Nội dung Master Script" value={text} disabled={busy}
+      <textarea className="master-text" aria-label="Nội dung Master Script" value={text} disabled={busy||!outline||!status}
         onChange={e=>{setText(e.target.value);setDirty(true);setApprovedWarnings(false)}}
         placeholder={mode==='manual'?'Dán hoặc soạn toàn bộ kịch bản tại đây.':'Bấm Ghép & xem trước để chọn nội dung từ từng chương.'}/>
       {!!candidate?.warnings?.length&&<div className="master-warning">Cảnh báo:
