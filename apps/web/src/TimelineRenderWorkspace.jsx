@@ -10,7 +10,7 @@ import {VisualCostMotionPanel} from './VisualCostMotionPanel.jsx';
 import {SceneInspectorR301} from './SceneInspectorR301.jsx';
 import {TimelineEditorR302} from './TimelineEditorR302.jsx';
 import {RenderDrawerR312} from './RenderDrawerR312.jsx';
-import {keepCurrentRenderJob,hydrateRenderHistory} from './render-job-sync.mjs';
+import {keepCurrentRenderJob,hydrateRenderHistory,reconcileRenderHistory} from './render-job-sync.mjs';
 import {SubtitleDraftPanelR405,VisualConsistencyPanelR407} from './SubtitleAndStyleR4.jsx';
 const seconds=n=>(n/1000).toFixed(2);
 export function TimelineRenderWorkspace(){
@@ -24,14 +24,36 @@ export function TimelineRenderWorkspace(){
  const [revision,setRevision]=useState(null),[durableRevision,setDurableRevision]=useState(null),[render,setRender]=useState(null),[renderHistory,setRenderHistory]=useState([]),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState('');
  const scene=snapshot?.scenes?.find(s=>s.id===sceneId)??snapshot?.scenes?.[0];
  const approvedRevision=revision??durableRevision;
- // Newly queued/completed jobs refresh the select list without submitting a
- // second job. Also preserves older successful exports after source changes.
- useEffect(()=>{if(!video?.id||!render?.id)return;let active=true;
-  api(`/videos/${video.id}/renders?limit=10`).then(result=>{
-   if(active)setRenderHistory(result.items??[]);
-  }).catch(()=>{});
-  return()=>{active=false};
- },[video?.id,render?.id,render?.status]);
+ // LOCALHOST-06: authenticated read-only SQLite polling repairs missing SSE
+ // and stale browser state. Never enqueue, retry, or switch older MP4 selected
+ // by the operator to another job merely because it completed later.
+ useEffect(()=>{
+  if(!video?.id)return;
+  let live=true,reading=false;
+  const sync=async()=>{
+   if(!live||reading||document.visibilityState==='hidden')return;
+   reading=true;
+   try{
+    const out=await api(`/videos/${video.id}/renders?limit=10`);
+    if(live){
+     const items=out.items??[];
+     setRenderHistory(items);
+     setRender(current=>reconcileRenderHistory(current,items));
+    }
+   }catch{/* Manual refresh explicitly surfaces backend errors. */}
+   finally{reading=false}
+  };
+  const timer=setInterval(sync,2500);
+  const onFocus=()=>{if(document.visibilityState==='visible')void sync()};
+  document.addEventListener('visibilitychange',onFocus);
+  window.addEventListener('focus',onFocus);
+  void sync();
+  return()=>{
+   live=false;clearInterval(timer);
+   document.removeEventListener('visibilitychange',onFocus);
+   window.removeEventListener('focus',onFocus);
+  };
+ },[video?.id]);
 
  // Dirty scene/timeline edits must be guarded even when leaving via sidebar.
  useEffect(()=>{useStudio.setState({timelineWorkspaceDirty:inspectorDirty||timelineDirty});
