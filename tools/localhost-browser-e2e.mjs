@@ -261,6 +261,20 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
       timelineDirty:document.querySelector('.timeline-render-layout')?.textContent?.includes('chưa lưu')??false,
       styleSaves:[...document.querySelectorAll('button')].filter(x=>x.textContent?.includes('Lưu phiên bản style')).map(x=>x.disabled)};
   })()`);
+  const approvedRows=repo.db.prepare("SELECT revision,digest FROM composition_revisions WHERE video_id=? ORDER BY revision DESC LIMIT 5").all(v.id);
+  const probe=await ev(`(()=>{
+   const root=document.querySelector('.render-drawer-r312');
+   const alert=document.querySelector('.timeline-render-layout')?.closest('section.frame')?.querySelector('div.info')?.textContent??'';
+   const state=root?.querySelector('[role=status]')?.textContent??'';
+   return {noticeApproved:alert.includes('Đã phê duyệt Composition'),
+    noticeHasRevision:/Composition v2 #[1-9]/.test(alert),
+    revisionInfo:root?.textContent?.includes('Nguồn xuất:')??false,
+    isPending:state.includes('Đang kiểm tra'),isReady:state.includes('Preflight đạt'),
+    isBlocked:state.includes('Không thể render:')};
+  })()`);
+  console.log('LOCALHOST_E2E_APPROVAL_DB '+JSON.stringify({
+   count:approvedRows.length,latest:approvedRows[0]?.revision??0,
+   schema:approvedRows.map(x=>x.revision),probe})); 
   console.log('LOCALHOST_E2E_RENDER_PREFLIGHT '+JSON.stringify(uiReadiness));
   assert(await until(()=>ev(`(()=>{
     const b=[...document.querySelectorAll('.render-drawer-r312 button')].find(x=>x.textContent.includes('Render MP4 local'));
