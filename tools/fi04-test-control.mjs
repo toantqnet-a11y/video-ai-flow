@@ -61,6 +61,12 @@ export async function runTestGroup(files,{cwd,concurrency=2,timeoutMs=600000,per
    if(!result.ok){
     // Diagnostic is test-only; avoid copying all TAP output or any environment vars into reports.
     result.lastSubtest=[...stdout.matchAll(/^# Subtest: (.{1,200})$/gm)].at(-1)?.[1]??null;
+    // A final subtest is not necessarily the failed one. Capture *only* TAP
+    // failure titles/codes; never publish full test output or secrets.
+    result.failedSubtests=[...stdout.matchAll(/^\s*not ok \d+ - (.{1,160})$/gm)]
+      .map(match=>match[1]).slice(0,8);
+    result.failureCodes=[...stdout.matchAll(/^\s*(?:code|failureType): ['"]?([A-Z][A-Z0-9_]{1,80})/gm)]
+      .map(match=>match[1]).slice(0,8);
     result.stderrTail=stderr.slice(-600);
    }
    resolve(result);
