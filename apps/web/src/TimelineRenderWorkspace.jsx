@@ -41,9 +41,13 @@ export function TimelineRenderWorkspace(){
   return()=>cancelAnimationFrame(raf);
  },[renderFocusToken,!!snapshot,video?.id]);
 
- const refresh=async()=>{
+ // A read-only refresh must never discard approved Composition. Actual
+ // scene/timing saves invalidate it; server preflight independently rejects
+ // stale sources or pins, including edits made in other browser tabs.
+ const refresh=async({invalidateApproval=false}={})=>{
   const [t,s]=await Promise.all([api(`/videos/${video.id}/timeline`),api(`/videos/${video.id}/composition/timing/preview`,{method:'POST',body:{tailPaddingMs:250}})]);
-  setTimeline(t);setSnapshot(s);setRevision(null);setTimelineRefresh(k=>k+1);if(!s.scenes.some(x=>x.id===sceneId))setSceneId(s.scenes[0]?.id??null);
+  setTimeline(t);setSnapshot(s);if(invalidateApproval)setRevision(null);
+  setTimelineRefresh(k=>k+1);if(!s.scenes.some(x=>x.id===sceneId))setSceneId(s.scenes[0]?.id??null);
   // A completed output remains downloadable but must show a stale revision
   // badge immediately after another scene/timeline edit is saved.
   if(render?.id)try{setRender(await api(`/videos/${video.id}/renders/${render.id}`))}catch{};
@@ -65,6 +69,20 @@ export function TimelineRenderWorkspace(){
   }
   return()=>{live=false};
  },[video?.id]);
+ // Approval is persisted server-side. Recover only an EXACT healthy v2 digest
+ // after reload/re-pair; stale edits never become authorized render sources.
+ useEffect(()=>{if(!video?.id||!snapshot?.digest||!snapshot.readiness?.ready||revision)return;
+  let active=true;
+  api(`/videos/${video.id}/composition/revisions`).then(out=>{
+   const same=(out.items??[]).find(item=>item.digest===snapshot.digest);
+   if(!same)return;
+   return api(`/videos/${video.id}/composition/revisions/${same.revision}`).then(detail=>{
+    if(active&&detail?.composition?.schemaVersion===2&&detail.composition.digest===snapshot.digest)
+     setRevision(existing=>existing??same.revision);
+   });
+  }).catch(()=>{});
+  return()=>{active=false};
+ },[video?.id,snapshot?.digest,snapshot?.readiness?.ready,revision]);
  useEffect(()=>{if(!scene)return;const cue=scene.captions.cues[0],fps=snapshot.profile.fps;
   setDuration(scene.durationMs);setCapStart(Math.round(cue.startFrame*1000/fps));setCapEnd(Math.round(cue.endFrame*1000/fps));
  },[scene?.id,snapshot?.digest]);
@@ -83,7 +101,7 @@ export function TimelineRenderWorkspace(){
   // Preserve all other user-created tracks/clips; one selected scene changes.
   const saved=await api(`/videos/${video.id}/timeline`,{method:'PUT',body:{rowVersion:timeline.rowVersion,
     document:{...timeline.document,tracks:timeline.document?.tracks??['media','text','voice','music'],clips}}});
-  setTimeline(saved);await refresh();setNotice('Đã lưu khóa thời gian. Kiểm tra lại readiness trước khi xuất.');
+  setTimeline(saved);await refresh({invalidateApproval:true});setNotice('Đã lưu khóa thời gian. Kiểm tra lại readiness trước khi xuất.');
  });
  const approve=()=>act(async()=>{
   const snap=await api(`/videos/${video.id}/composition/timing/preview`,{method:'POST',body:{tailPaddingMs:250}});
@@ -153,7 +171,7 @@ export function TimelineRenderWorkspace(){
    {snapshot.readiness.blockers.length>0&&<div className="warn">{snapshot.readiness.blockers.slice(0,12).map((b,i)=><p key={i}>{b.sceneId}: {b.code}</p>)}
     {snapshot.readiness.blockers.length>12&&<p>… còn {snapshot.readiness.blockers.length-12} blocker</p>}</div>}
    <TimelineEditorR302 videoId={video.id} selectedSceneId={scene?.id} reloadKey={timelineRefresh} locked={inspectorDirty}
-      onDirtyChange={setTimelineDirty} onSelect={selectScene} onSaved={refresh}/>
+      onDirtyChange={setTimelineDirty} onSelect={selectScene} onSaved={()=>refresh({invalidateApproval:true})}/>
    <VisualCostMotionPanel key={video.id} videoId={video.id} sceneId={scene?.id} onStyleChange={(rev,dirty)=>{setStyleRevision(rev);setStyleDirty(dirty)}}/>
    <div className="timeline-render-layout"><div className="scene-nav"><h3>SCENES</h3>
     {snapshot.scenes.filter(s=>Math.abs(s.index-(scene?.index??0))<9).map((s)=><button key={s.id} className={s.id===scene?.id?'scene-nav-item active':'scene-nav-item'}
@@ -169,7 +187,7 @@ export function TimelineRenderWorkspace(){
       <small>Đổi thứ tự trình chiếu bằng track Media. Master Script giữ nguyên thứ tự nguồn. Voice dài hơn scene hoặc khoảng visual vượt thời lượng đo thực tế sẽ chặn xuất.</small>
     </div>
     <SceneInspectorR301 key={`${video.id}:${scene?.id}`} videoId={video.id} sceneId={scene?.id}
-     onDirtyChange={setInspectorDirty} onSaved={refresh}/>
+     onDirtyChange={setInspectorDirty} onSaved={()=>refresh({invalidateApproval:true})}/>
     </div></div>
     <div className="actions"><button className="btn" disabled={!snapshot.readiness.ready||busy||inspectorDirty||timelineDirty} onClick={approve}>✓ Phê duyệt timing</button></div>
     <SubtitleDraftPanelR405 key={`${video.id}:${revision}:${scene?.id}`} videoId={video.id} compositionRevision={revision} sceneId={scene?.id}/>
