@@ -10,6 +10,7 @@ import {VisualCostMotionPanel} from './VisualCostMotionPanel.jsx';
 import {SceneInspectorR301} from './SceneInspectorR301.jsx';
 import {TimelineEditorR302} from './TimelineEditorR302.jsx';
 import {RenderDrawerR312} from './RenderDrawerR312.jsx';
+import {keepCurrentRenderJob,hydrateRenderHistory} from './render-job-sync.mjs';
 import {SubtitleDraftPanelR405,VisualConsistencyPanelR407} from './SubtitleAndStyleR4.jsx';
 const seconds=n=>(n/1000).toFixed(2);
 export function TimelineRenderWorkspace(){
@@ -51,7 +52,10 @@ export function TimelineRenderWorkspace(){
   setTimelineRefresh(k=>k+1);if(!s.scenes.some(x=>x.id===sceneId))setSceneId(s.scenes[0]?.id??null);
   // A completed output remains downloadable but must show a stale revision
   // badge immediately after another scene/timeline edit is saved.
-  if(render?.id)try{setRender(await api(`/videos/${video.id}/renders/${render.id}`))}catch{};
+  if(render?.id)try{
+    const updated=await api(`/videos/${video.id}/renders/${render.id}`);
+    setRender(current=>keepCurrentRenderJob(current,updated,render.id));
+   }catch{};
  };
  useEffect(()=>{let live=true;setSnapshot(null);setSceneId(null);setRender(null);setRenderHistory([]);setDurableRevision(null);
   if(video){
@@ -64,7 +68,7 @@ export function TimelineRenderWorkspace(){
       if(history.status==='fulfilled'){
        const items=history.value.items??[];
        setRenderHistory(items);
-       setRender(items[0]??null);
+       setRender(current=>hydrateRenderHistory(current,items));
       }else setError(history.reason?.code??'RENDER_HISTORY_FAILED');
     });
   }
@@ -87,9 +91,29 @@ export function TimelineRenderWorkspace(){
  useEffect(()=>{if(!scene)return;const cue=scene.captions.cues[0],fps=snapshot.profile.fps;
   setDuration(scene.durationMs);setCapStart(Math.round(cue.startFrame*1000/fps));setCapEnd(Math.round(cue.endFrame*1000/fps));
  },[scene?.id,snapshot?.digest]);
- useEffect(()=>{if(!render||['succeeded','failed','cancelled'].includes(render.status))return;
-  const timer=setInterval(()=>api(`/videos/${video.id}/renders/${render.id}`).then(setRender).catch(e=>setError(e.code??e.message)),1700);
-  return()=>clearInterval(timer);
+ useEffect(()=>{
+  if(!video?.id||!render?.id||['succeeded','failed','cancelled'].includes(render.status))return;
+  let active=true;
+  const watchedId=render.id;
+  const abort=new AbortController();
+  const poll=async()=>{
+   try{
+    const out=await api(`/videos/${video.id}/renders/${watchedId}`,{signal:abort.signal});
+    if(active)setRender(current=>keepCurrentRenderJob(current,out,watchedId));
+   }catch(e){if(active&&e?.name!=='AbortError')setError(e.code??e.message)}
+  };
+  // Browser background tabs throttle timers; refresh immediately when the
+  // user comes back instead of requiring an extra manual history click.
+  const onVisible=()=>{if(document.visibilityState==='visible')void poll()};
+  const timer=setInterval(poll,1700);
+  document.addEventListener('visibilitychange',onVisible);
+  window.addEventListener('focus',onVisible);
+  void poll();
+  return()=>{
+   active=false;abort.abort();clearInterval(timer);
+   document.removeEventListener('visibilitychange',onVisible);
+   window.removeEventListener('focus',onVisible);
+  };
  },[render?.id,render?.status,video?.id]);
  const act=async(fn)=>{setBusy(true);setError('');setNotice('');try{await fn()}catch(e){setError(e.code??e.message)}finally{setBusy(false)}};
  const save=()=>act(async()=>{
