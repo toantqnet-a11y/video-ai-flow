@@ -13,3 +13,11 @@ export function hydrateRenderHistory(current,items){
  // selection created since the request started.
  return current??items?.[0]??null;
 }
+
+export function reconcileRenderHistory(current,items){
+ if(!current)return items?.[0]??null;
+ // Selecting a historical completed render is deliberate. Never jump to a
+ // newer job just because it finished, and never take a stale status snapshot.
+ const updated=items?.find(x=>x.id===current.id);
+ return updated?keepCurrentRenderJob(current,updated,current.id):current;
+}
