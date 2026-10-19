@@ -346,7 +346,9 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
   // The browser should normally update via SSE/poll. The explicit history
   // refresh is a supported recovery path after a disconnected/repaired tab.
   // Record fallback; don't silently count a stale status as automatic success.
-  let autoUpdated=await until(downloadAvailable,'RENDER_DOWNLOAD_AUTOSYNC',8000).catch(()=>false);
+  const autoUpdated=await until(downloadAvailable,'RENDER_DOWNLOAD_AUTOSYNC',15000).catch(()=>false);
+  if(!autoUpdated&&process.argv.includes('--require-auto-render-status'))
+   throw Error('E2E_RENDER_STATUS_AUTO_REFRESH_MISSING');
   if(!autoUpdated){
    const state=await ev(`(()=>{
     const root=document.querySelector('.render-drawer-progress');
