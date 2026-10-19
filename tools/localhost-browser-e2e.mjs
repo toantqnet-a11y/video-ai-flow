@@ -80,6 +80,12 @@ async function browserConnect(port,debugPort,profile){
  const wsUrl=new URL(page.webSocketDebuggerUrl);wsUrl.hostname='127.0.0.1';
  const cdp=cdpConnect(wsUrl.toString());await cdp.call('Runtime.enable');
  await cdp.call('Page.enable');
+ // Browser UI must follow the standard authenticated Blob-download branch,
+ // not open a native picker in headless CI. Register once before the hard
+ // refresh performed by the end-to-end scenario (no mid-download CDP eval).
+ await cdp.call('Page.addScriptToEvaluateOnNewDocument',{
+  source:"Object.defineProperty(window,'showSaveFilePicker',{value:undefined,configurable:true})"
+ });
  return {child,cdp};
 }
 async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixture=false,downloads=[]){
@@ -356,7 +362,7 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
   // Fastify onResponse is authoritative for actual HTTP completion. CDP's
   // optional Network domain is unreliable on some hosted Chromium targets.
   // Never extract the session bearer or invent a successful downloaded file.
-  await ev(`Object.defineProperty(window,'showSaveFilePicker',{value:undefined,configurable:true})`);
+  // The picker override was registered before the browser's hard refresh.
   // Chromium can abort Runtime.evaluate at the instant an anchor starts a
   // browser download. Never treat a CDP acknowledgement as media proof:
   // success requires Fastify to observe the exact authenticated MP4 200.
