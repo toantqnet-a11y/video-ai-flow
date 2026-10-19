@@ -635,6 +635,9 @@ export type RenderExportStatus = {
     totalScenes: number;
   } | null;
 };
+export type RenderHistoryResult = {
+  items: Array<RenderExportStatus>;
+};
 export type CompositionRevision = {
   revision: number;
   createdAt: number;
@@ -1926,6 +1929,9 @@ export interface OperationMap {
   importLocalVideoMusicR406: { args: { id: string; body: MusicImportInputR406 }; result: MusicImportResultR406; };
   previewLocalVideoRender: { args: { id: string; body: RenderPreflightInput }; result: RenderPreflightResult; };
   enqueueLocalVideoRender: { args: { id: string; body: RenderExportInput }; result: RenderExportQueueResult; };
+  listVideoRenderHistory: { args: { id: string; query?: {
+  limit?: "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | "15" | "16" | "17" | "18" | "19" | "20";
+} }; result: RenderHistoryResult; };
   getLocalVideoRender: { args: { id: string; jobId: string }; result: RenderExportStatus; };
   downloadLocalVideoThumbnail: { args: { id: string; jobId: string }; result: string; };
   downloadLocalVideoRender: { args: { id: string; jobId: string }; result: string; };

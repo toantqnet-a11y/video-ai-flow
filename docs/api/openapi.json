@@ -3,7 +3,7 @@
   "info": {
     "title": "ContentStudio Local API",
     "version": "0.6.0",
-    "description": "Local-first Windows desktop companion. Secret values are write-only; paid AI never starts without approval."
+    "description": "Localhost browser web application with local Fastify and SQLite. Secret values are write-only; paid AI never starts without approval."
   },
   "servers": [
     {
@@ -3194,6 +3194,21 @@
           "status",
           "output",
           "progress"
+        ],
+        "additionalProperties": false
+      },
+      "RenderHistoryResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RenderExportStatus"
+            }
+          }
+        },
+        "required": [
+          "items"
         ],
         "additionalProperties": false
       },
@@ -14189,6 +14204,122 @@
           }
         },
         "description": "Requires Bearer authorization and x-contentstudio-csrf (CSRF) header; no auth query parameters."
+      },
+      "get": {
+        "operationId": "listVideoRenderHistory",
+        "summary": "List only this video’s bounded persisted render jobs (no auto-retry)",
+        "tags": [
+          "videos"
+        ],
+        "security": [
+          {
+            "SessionBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RenderHistoryResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Pairing or bearer required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "CSRF, remote consent, or policy denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Version/idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Sanitized internal failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12",
+                "13",
+                "14",
+                "15",
+                "16",
+                "17",
+                "18",
+                "19",
+                "20"
+              ]
+            }
+          }
+        ]
       }
     },
     "/api/videos/{id}/renders/{jobId}": {

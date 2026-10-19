@@ -415,7 +415,10 @@ export class StudioRepository {
     if(['scenes','timeline'].includes(step)&&!v.masterScript)fail('VIDEO_STEP_NOT_READY',409);
     if(step==='timeline'&&!this.db.prepare('SELECT 1 FROM scenes WHERE video_id=?').get(videoId))fail('VIDEO_STEP_NOT_READY',409);
     if(v.lastActiveStep===step)return v;
-    this.db.prepare('UPDATE videos SET last_active_step=?,row_version=row_version+1,updated_at=? WHERE id=?')
+    // UI navigation is NOT a source-content mutation. Preserve video
+    // row_version so a background step-save cannot silently stale a previously
+    // approved Composition while the user is opening Timeline/Render.
+    this.db.prepare('UPDATE videos SET last_active_step=?,updated_at=? WHERE id=?')
       .run(step,this.clock(),videoId);
     this.event('video',videoId,'video.step_changed',{step});
     return this.getVideo(videoId);

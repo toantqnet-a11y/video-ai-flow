@@ -110,6 +110,7 @@ export const schemas={
   RenderExportQueueResult:obj({job:ref('Job'),reused:bool},['job','reused']),
   RenderExportSummary:obj({qa:freeObject,bytes:int(),downloadUrl:str(250),thumbnailUrl:{type:['string','null']},subtitleUrl:{type:['string','null']},subtitleDraftRevision:{type:['integer','null']},musicEnabled:bool,segmentCache:{anyOf:[obj({reused:int(),encoded:int(),total:int()},['reused','encoded','total']),{type:'null'}]},engine:enumOf('hyperframes','ffmpeg-fastpath')},['qa','bytes','downloadUrl','engine']),
   RenderExportStatus:obj({revision:{type:['integer','null']},resolution:enumOf('source','720p','1080p'),sourceCurrent:bool,drawer:freeObject,id:str(150),kind:str(80),status:str(30),priority:int(),attempt:int(),maxAttempts:int(),createdAt:int(),updatedAt:int(),availableAt:int(),lastError:{type:['string','null']},projectId:{type:['string','null']},sceneId:{type:['string','null']},output:{anyOf:[ref('RenderExportSummary'),{type:'null'}]},progress:{anyOf:[obj({completedScenes:int(),totalScenes:int()},['completedScenes','totalScenes']),{type:'null'}]}},['id','kind','status','output','progress']),
+  RenderHistoryResult:obj({items:arr(ref('RenderExportStatus'))},['items']),
   CompositionRevision:obj({revision:int(1),createdAt:int(),composition:{anyOf:[ref('CompositionDocument'),ref('TimedCompositionDocument')]}},['revision','createdAt','composition']),
   // R1-01 is a saved content brief, NOT an LLM execution or finalized script.
   ContentTarget:obj({mode:enumOf('duration','words'),durationMinutes:int(1),wordCount:int(200),wpm:int(100),chapterTargetWords:int(500)},['mode','durationMinutes','wordCount','wpm','chapterTargetWords']),
@@ -400,6 +401,7 @@ export const operations=[
   post('importLocalVideoMusicR406','/api/videos/:id/music/import','Import a bounded local MP3/WAV/M4A music file; explicit user action, no paid provider',ref('MusicImportResultR406'),ref('MusicImportInputR406')),
   post('previewLocalVideoRender','/api/videos/:id/renders/preflight','Read-only pinned-asset, revision and resolution checks for render drawer',ref('RenderPreflightResult'),ref('RenderPreflightInput')),
   post('enqueueLocalVideoRender','/api/videos/:id/renders','Enqueue local video render (HyperFrames default, explicit FFmpeg fallback)',ref('RenderExportQueueResult'),ref('RenderExportInput')),
+  get('listVideoRenderHistory','/api/videos/:id/renders','List only this video’s bounded persisted render jobs (no auto-retry)',ref('RenderHistoryResult'),{query:{limit:enumOf(...Array.from({length:20},(_,i)=>String(i+1)))}}),
   get('getLocalVideoRender','/api/videos/:id/renders/:jobId','Read status and QA result of an export',ref('RenderExportStatus')),
   get('downloadLocalVideoThumbnail','/api/videos/:id/renders/:jobId/thumbnail','Download authenticated generated JPEG thumbnail',{type:'string',format:'binary'},{binaryImage:true}),
   get('downloadLocalVideoRender','/api/videos/:id/renders/:jobId/mp4','Download authenticated H264/AAC output',{type:'string',format:'binary'},{binaryVideo:true}),

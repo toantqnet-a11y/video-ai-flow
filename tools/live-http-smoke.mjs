@@ -31,6 +31,16 @@ try{
   const created=await app.inject({method:'POST',url:'/api/channels',headers:authorized,payload:{name:'CI Smoke Channel'}});
   assert.equal(created.statusCode,201,`create channel HTTP ${created.statusCode}`);
   const ch=created.json();
+  const video=runtime.repo.createVideo(ch.id,{title:'Empty real-render-history'});
+  const noAuthHistory=await app.inject({method:'GET',url:`/api/videos/${video.id}/renders`,headers});
+  assert.equal(noAuthHistory.statusCode,401,'history must require browser authentication');
+  const history=await app.inject({method:'GET',url:`/api/videos/${video.id}/renders?limit=5`,headers:authorized});
+  assert.equal(history.statusCode,200);
+  assert.deepEqual(history.json(),{items:[]},'fresh video should have zero render jobs');
+  const wrongQuery=await app.inject({method:'GET',url:`/api/videos/${video.id}/renders?limit=100`,headers:authorized});
+  assert.equal(wrongQuery.statusCode,400,'unbounded history reads forbidden');
+  const unknownQuery=await app.inject({method:'GET',url:`/api/videos/${video.id}/renders?other=1`,headers:authorized});
+  assert.equal(unknownQuery.statusCode,403,'request policy must reject unsupported query keys');
   const upload=await app.inject({method:'PUT',url:`/api/channels/${ch.id}/avatar`,headers:authorized,
     payload:{rowVersion:ch.rowVersion,mimeType:'image/png',dataBase64:png}});
   assert.equal(upload.statusCode,200,`upload HTTP ${upload.statusCode}`);

@@ -6,6 +6,9 @@ on:
     paths:
       - '.github/workflows/local-hyperframes-proof.yml'
       - 'tools/fi04-hyperframes-acceptance.mjs'
+      - 'tools/localhost-browser-e2e.mjs'
+      - 'apps/api/src/render-export-r2ext0406.mjs'
+      - 'apps/api/src/routes.mjs'
       - 'packages/core/src/render-hyperframes.mjs'
       - 'apps/api/src/render-export-r2ext0406.mjs'
       - 'package.json'
@@ -47,6 +50,15 @@ jobs:
           ffmpeg -version | head -n 1
           ffprobe -version | head -n 1
           node tools/fi04-hyperframes-acceptance.mjs --inspect
+      - name: Build production browser for actual HTTP render acceptance
+        run: npm run build:web
+      - name: Click actual HyperFrames Render in authenticated localhost browser and download MP4
+        timeout-minutes: 6
+        env:
+          CONTENTSTUDIO_REMOTE_LLM_CONSENT: '0'
+          CONTENTSTUDIO_CONFIRMED_NO_BILLING_MODEL_IDS: ''
+          NODE_ENV: production
+        run: node tools/localhost-browser-e2e.mjs --render-fixture
       - name: Run 5-scene real media through production SP-04 queue
         timeout-minutes: 9
         env:

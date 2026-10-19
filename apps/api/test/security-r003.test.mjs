@@ -170,3 +170,12 @@ test('terminal session rotation is not reachable from any unauthenticated HTTP r
   assert.equal((await send(f,'GET','/api/channels',{headers:{authorization:`Bearer ${first.body.bearer}`}})).status,401);
   assert.equal((await send(f,'POST','/api/session/rearm',{headers:{authorization:`Bearer ${first.body.bearer}`},body:{}})).status,401);
 });
+
+test('video render history query is limited to safe limit key and scoped route',()=>{
+ const id='abc123';
+ assert.equal(guard(wire(`/api/videos/${id}/renders?limit=10`)),null);
+ assert.equal(guard(wire(`/api/videos/${id}/renders?limit=20`)),null);
+ assert.equal(guard(wire(`/api/videos/${id}/renders?cursor=20`)),'QUERY_NOT_ALLOWED');
+ assert.equal(guard(wire(`/api/videos/${id}/renders?secret=abc`)),'SECRET_IN_QUERY_FORBIDDEN');
+ assert.equal(guard(wire(`/api/videos/${id}/renders/xx?limit=10`)),'QUERY_NOT_ALLOWED');
+});

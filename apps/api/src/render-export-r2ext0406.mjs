@@ -162,6 +162,26 @@ export class RenderExportService{
    existing?.payload?.musicDigest!==(music?createHash('sha256').update(JSON.stringify(music)).digest('hex'):null))fail('RENDER_IDEMPOTENCY_CONFLICT');
   return {job:publicJob(queued.job),reused:queued.reused};
  }
+ /** Read-only, video-scoped render history for refresh/reconnect. Never
+  * expose raw job payload, filesystem paths or another video's outputs.
+  * Immutable render_snapshots prove ownership; bounded by LIMIT.
+  */
+ list(videoId,query={}){
+  if(!this.repo.getVideo(videoId))fail('RENDER_VIDEO_NOT_FOUND',404);
+  if(!query||typeof query!=='object'||Array.isArray(query)||
+     Object.keys(query).some(k=>k!=='limit'))fail('RENDER_INVALID_HISTORY_QUERY',400);
+  const raw=query.limit??'5';
+  if(!/^(?:[1-9]|1[0-9]|20)$/.test(String(raw)))fail('RENDER_INVALID_HISTORY_LIMIT',400);
+  const limit=Number(raw);
+  const rows=this.store.db.prepare(`
+    SELECT j.id
+      FROM render_snapshots AS r
+      INNER JOIN jobs AS j ON j.id=r.job_id
+     WHERE r.video_id=? AND j.kind IN ('render:hyperframes','render:ffmpeg')
+     ORDER BY j.created_at DESC,j.id DESC
+     LIMIT ?`).all(videoId,limit);
+  return {items:rows.map(row=>this.job(videoId,row.id))};
+ }
  job(videoId,jobId){
   if(!safeId(jobId)||!this.repo.getVideo(videoId))fail('RENDER_JOB_NOT_FOUND',404);
   const job=this.store.get(jobId);

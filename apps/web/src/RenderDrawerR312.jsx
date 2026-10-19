@@ -113,6 +113,12 @@ export function RenderDrawerR312({videoId,revision,styleRevision,styleDirty,edit
    {render.status==='running'&&sceneFraction===null&&<small>Đang xử lý. Engine chưa cung cấp tỷ lệ scene đo được.</small>}
    {render.status==='failed'&&<p role="alert" className="warn">Job thất bại: {render.lastError??'WORKER_ERROR'}; không tự đổi engine hay retry.</p>}
    {render.status==='succeeded'&&<p className="info">Đã hoàn thành kiểm tra QA: {render.output?.qa?.passed?'PASS':'Chưa xác minh'}; giữ bản MP4 này ngay cả khi Timeline thay đổi.</p>}
+   {render.output?.segmentCache&&<p className="muted" data-testid="render-scene-cache">
+    Scene Cache thực tế: dùng lại <strong>{render.output.segmentCache.reused}</strong>,
+    mã hóa mới <strong>{render.output.segmentCache.encoded}</strong>
+    / {render.output.segmentCache.total} scene.
+    Đây là số đo của job đã hoàn thành, không phải dự đoán tốc độ.
+   </p>}
   </div>}
  </div>;
 }

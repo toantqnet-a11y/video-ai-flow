@@ -17,6 +17,7 @@ const sceneWaveformPath = /^GET \/api\/scenes\/[a-zA-Z0-9-]{1,80}\/voice\/wavefo
 const videosPath = /^GET \/api\/channels\/[a-zA-Z0-9-]{1,80}\/videos$/;
 const readinessPath = /^GET \/api\/provider-accounts\/[a-zA-Z0-9-]{1,80}\/readiness$/;
 const projectZipPath = /^GET \/api\/videos\/[a-zA-Z0-9-]{1,80}\/exports\/project\.zip$/;
+const videoRenderHistoryPath = /^GET \/api\/videos\/[a-zA-Z0-9-]{1,80}\/renders$/;
 const securityHeaders = new Set(['host','origin','authorization','x-contentstudio-csrf','content-length','transfer-encoding']);
 
 /** @returns {string|null} Safe public rejection code, or null when transport is valid. */
@@ -62,7 +63,8 @@ export function inspectIncomingRequest(raw, {port,gate}={}) {
        sceneWaveformPath.test(`${raw.method} ${pathname}`)?new Set(['bins']):
        readinessPath.test(`${raw.method} ${pathname}`)?new Set(['probe']):
        videosPath.test(`${raw.method} ${pathname}`)?new Set(['search','status','limit','cursor','deleted']):
-       projectZipPath.test(`${raw.method} ${pathname}`)?new Set(['revision']):new Set());
+       projectZipPath.test(`${raw.method} ${pathname}`)?new Set(['revision']):
+       videoRenderHistoryPath.test(`${raw.method} ${pathname}`)?new Set(['limit']):new Set());
     for (const [key] of search) {
       if (sensitiveQuery.test(key)) return 'SECRET_IN_QUERY_FORBIDDEN';
       if (!permitted.has(key)) return 'QUERY_NOT_ALLOWED';

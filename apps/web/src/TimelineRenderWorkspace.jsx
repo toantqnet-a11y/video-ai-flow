@@ -20,8 +20,18 @@ export function TimelineRenderWorkspace(){
  const [styleRevision,setStyleRevision]=useState(null),[styleDirty,setStyleDirty]=useState(true);
  const [engine,setEngine]=useState('hyperframes');
  const [inspectorDirty,setInspectorDirty]=useState(false),[timelineDirty,setTimelineDirty]=useState(false),[timelineRefresh,setTimelineRefresh]=useState(0);
- const [revision,setRevision]=useState(null),[render,setRender]=useState(null),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState('');
+ const [revision,setRevision]=useState(null),[durableRevision,setDurableRevision]=useState(null),[render,setRender]=useState(null),[renderHistory,setRenderHistory]=useState([]),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState('');
  const scene=snapshot?.scenes?.find(s=>s.id===sceneId)??snapshot?.scenes?.[0];
+ const approvedRevision=revision??durableRevision;
+ // Newly queued/completed jobs refresh the select list without submitting a
+ // second job. Also preserves older successful exports after source changes.
+ useEffect(()=>{if(!video?.id||!render?.id)return;let active=true;
+  api(`/videos/${video.id}/renders?limit=10`).then(result=>{
+   if(active)setRenderHistory(result.items??[]);
+  }).catch(()=>{});
+  return()=>{active=false};
+ },[video?.id,render?.id,render?.status]);
+
  // Dirty scene/timeline edits must be guarded even when leaving via sidebar.
  useEffect(()=>{useStudio.setState({timelineWorkspaceDirty:inspectorDirty||timelineDirty});
   return()=>useStudio.setState({timelineWorkspaceDirty:false});},[inspectorDirty,timelineDirty]);
@@ -32,17 +42,48 @@ export function TimelineRenderWorkspace(){
   return()=>cancelAnimationFrame(raf);
  },[renderFocusToken,!!snapshot,video?.id]);
 
- const refresh=async()=>{
+ // A read-only refresh must never discard approved Composition. Actual
+ // scene/timing saves invalidate it; server preflight independently rejects
+ // stale sources or pins, including edits made in other browser tabs.
+ const refresh=async({invalidateApproval=false}={})=>{
   const [t,s]=await Promise.all([api(`/videos/${video.id}/timeline`),api(`/videos/${video.id}/composition/timing/preview`,{method:'POST',body:{tailPaddingMs:250}})]);
-  setTimeline(t);setSnapshot(s);setRevision(null);setTimelineRefresh(k=>k+1);if(!s.scenes.some(x=>x.id===sceneId))setSceneId(s.scenes[0]?.id??null);
+  setTimeline(t);setSnapshot(s);if(invalidateApproval){setRevision(null);setDurableRevision(null);}
+  setTimelineRefresh(k=>k+1);if(!s.scenes.some(x=>x.id===sceneId))setSceneId(s.scenes[0]?.id??null);
   // A completed output remains downloadable but must show a stale revision
   // badge immediately after another scene/timeline edit is saved.
   if(render?.id)try{setRender(await api(`/videos/${video.id}/renders/${render.id}`))}catch{};
  };
- useEffect(()=>{let live=true;setSnapshot(null);setSceneId(null);setRender(null);
-  if(video)refresh().catch(e=>{if(live)setError(e.code??e.message)});
+ useEffect(()=>{let live=true;setSnapshot(null);setSceneId(null);setRender(null);setRenderHistory([]);setDurableRevision(null);
+  if(video){
+   // Browser refresh and re-pair lose UI memory, not SQLite/SP-04 results.
+   // Restore read-only history; NEVER enqueue or retry an existing render.
+   void Promise.allSettled([refresh(),api(`/videos/${video.id}/renders?limit=10`)])
+    .then(([timeline,history])=>{
+      if(!live)return;
+      if(timeline.status==='rejected')setError(timeline.reason?.code??'TIMELINE_REFRESH_FAILED');
+      if(history.status==='fulfilled'){
+       const items=history.value.items??[];
+       setRenderHistory(items);
+       setRender(items[0]??null);
+      }else setError(history.reason?.code??'RENDER_HISTORY_FAILED');
+    });
+  }
   return()=>{live=false};
  },[video?.id]);
+ // Approval is persisted server-side. Recover only an EXACT healthy v2 digest
+ // after reload/re-pair; stale edits never become authorized render sources.
+ useEffect(()=>{if(!video?.id||!snapshot?.digest||!snapshot.readiness?.ready||approvedRevision)return;
+  let active=true;
+  api(`/videos/${video.id}/composition/revisions`).then(out=>{
+   const same=(out.items??[]).find(item=>item.digest===snapshot.digest);
+   if(!same)return;
+   return api(`/videos/${video.id}/composition/revisions/${same.revision}`).then(detail=>{
+    if(active&&detail?.composition?.schemaVersion===2&&detail.composition.digest===snapshot.digest)
+     setDurableRevision(existing=>existing??same.revision);
+   });
+  }).catch(()=>{});
+  return()=>{active=false};
+ },[video?.id,snapshot?.digest,snapshot?.readiness?.ready,approvedRevision]);
  useEffect(()=>{if(!scene)return;const cue=scene.captions.cues[0],fps=snapshot.profile.fps;
   setDuration(scene.durationMs);setCapStart(Math.round(cue.startFrame*1000/fps));setCapEnd(Math.round(cue.endFrame*1000/fps));
  },[scene?.id,snapshot?.digest]);
@@ -61,7 +102,7 @@ export function TimelineRenderWorkspace(){
   // Preserve all other user-created tracks/clips; one selected scene changes.
   const saved=await api(`/videos/${video.id}/timeline`,{method:'PUT',body:{rowVersion:timeline.rowVersion,
     document:{...timeline.document,tracks:timeline.document?.tracks??['media','text','voice','music'],clips}}});
-  setTimeline(saved);await refresh();setNotice('Đã lưu khóa thời gian. Kiểm tra lại readiness trước khi xuất.');
+  setTimeline(saved);await refresh({invalidateApproval:true});setNotice('Đã lưu khóa thời gian. Kiểm tra lại readiness trước khi xuất.');
  });
  const approve=()=>act(async()=>{
   const snap=await api(`/videos/${video.id}/composition/timing/preview`,{method:'POST',body:{tailPaddingMs:250}});
@@ -69,7 +110,8 @@ export function TimelineRenderWorkspace(){
   if(!snap.readiness.ready)throw Error('ASSET_OR_TIMING_BLOCKED');
   const out=await api(`/videos/${video.id}/composition/timing/revisions`,{method:'POST',body:{expectedDigest:snap.digest,
     expectedVideoRowVersion:snap.source.videoRowVersion,tailPaddingMs:250}});
-  setRevision(out.revision);setNotice(`Đã phê duyệt Composition v2 #${out.revision}.`);
+  setRevision(out.revision);setDurableRevision(out.revision);
+  setNotice(`Đã phê duyệt Composition v2 #${out.revision}.`);
  });
  const download=()=>act(async()=>{
   if(render.status!=='succeeded')return;
@@ -84,17 +126,17 @@ export function TimelineRenderWorkspace(){
   finally{setTimeout(()=>URL.revokeObjectURL(url),1000);}
  });
  const projectExport=()=>act(async()=>{
-  if(!revision)throw Error('PUBLISH_TIMING_FIRST');
+  if(!approvedRevision)throw Error('PUBLISH_TIMING_FIRST');
   if(inspectorDirty||timelineDirty)throw Error('SAVE_TIMELINE_FIRST');
   if(typeof window.showSaveFilePicker==='function'){
-    const handle=await window.showSaveFilePicker({suggestedName:`ContentStudio-${video.id}-r${revision}.zip`,
+    const handle=await window.showSaveFilePicker({suggestedName:`ContentStudio-${video.id}-r${approvedRevision}.zip`,
       types:[{description:'ZIP project archive',accept:{'application/zip':['.zip']}}]});
-    const saved=await saveProjectZip(video.id,revision,handle);
+    const saved=await saveProjectZip(video.id,approvedRevision,handle);
     setNotice(`Đã lưu project ZIP (${saved.bytes} bytes), gồm media, SRT và timeline.json.`);return;
   }
-  const blob=await downloadProjectZip(video.id,revision);
+  const blob=await downloadProjectZip(video.id,approvedRevision);
   const url=URL.createObjectURL(blob);
-  try{const a=document.createElement('a');a.href=url;a.download=`ContentStudio-${video.id}-r${revision}.zip`;a.click();}
+  try{const a=document.createElement('a');a.href=url;a.download=`ContentStudio-${video.id}-r${approvedRevision}.zip`;a.click();}
   finally{setTimeout(()=>URL.revokeObjectURL(url),1000);}
   setNotice('Đã tải ZIP dự án; trình duyệt này giới hạn file 100MB.');
  });
@@ -112,11 +154,15 @@ export function TimelineRenderWorkspace(){
   try{const a=document.createElement('a');a.href=url;a.download=`thumbnail-${video.id}.jpg`;a.click();}
   finally{setTimeout(()=>URL.revokeObjectURL(url),1000);}
  });
- const selectScene=(id)=>{if(id===scene?.id)return true;if(inspectorDirty&&!window.confirm('Bỏ những chỉnh sửa scene chưa lưu?'))return false;setSceneId(id);setRevision(null);return true};
+ const selectScene=(id)=>{if(id===scene?.id)return true;if(inspectorDirty&&!window.confirm('Bỏ những chỉnh sửa scene chưa lưu?'))return false;
+  // Selecting another scene is read-only. Only a real saved content/timing
+  // mutation may invalidate the immutable Composition approval; clearing it
+  // here disabled Render after keyboard/playback selection without any edit.
+  setSceneId(id);return true};
  const max=Math.max(1,snapshot?.totalFrames??1);const fps=snapshot?.profile.fps??30;
  return <section className="frame"><header className="frame-title"><div><h2>▤ Timeline & MP4</h2>
   <p>EXT-05/06 · Preview ảnh/giọng thật (nếu đã tạo) · HyperFrames là engine mặc định (local), FFmpeg là fallback thủ công; không dùng AI trả phí.</p></div>
-  <button className="btn secondary" disabled={busy||!revision||inspectorDirty||timelineDirty} onClick={projectExport}>↓ Export Project ZIP</button>
+  <button className="btn secondary" disabled={busy||!approvedRevision||inspectorDirty||timelineDirty} onClick={projectExport}>↓ Export Project ZIP</button>
   <button className="btn secondary" disabled={busy||timelineDirty} onClick={()=>{if(inspectorDirty&&!window.confirm('Bỏ chỉnh sửa chưa lưu và cập nhật?'))return;act(refresh)}}>↻ Cập nhật</button></header>
   {error&&<div role="alert" className="error">{error}</div>}{notice&&<div className="info">{notice}</div>}
   {!snapshot?<p>Đang lấy timeline…</p>:<>
@@ -127,7 +173,7 @@ export function TimelineRenderWorkspace(){
    {snapshot.readiness.blockers.length>0&&<div className="warn">{snapshot.readiness.blockers.slice(0,12).map((b,i)=><p key={i}>{b.sceneId}: {b.code}</p>)}
     {snapshot.readiness.blockers.length>12&&<p>… còn {snapshot.readiness.blockers.length-12} blocker</p>}</div>}
    <TimelineEditorR302 videoId={video.id} selectedSceneId={scene?.id} reloadKey={timelineRefresh} locked={inspectorDirty}
-      onDirtyChange={setTimelineDirty} onSelect={selectScene} onSaved={refresh}/>
+      onDirtyChange={setTimelineDirty} onSelect={selectScene} onSaved={()=>refresh({invalidateApproval:true})}/>
    <VisualCostMotionPanel key={video.id} videoId={video.id} sceneId={scene?.id} onStyleChange={(rev,dirty)=>{setStyleRevision(rev);setStyleDirty(dirty)}}/>
    <div className="timeline-render-layout"><div className="scene-nav"><h3>SCENES</h3>
     {snapshot.scenes.filter(s=>Math.abs(s.index-(scene?.index??0))<9).map((s)=><button key={s.id} className={s.id===scene?.id?'scene-nav-item active':'scene-nav-item'}
@@ -143,13 +189,33 @@ export function TimelineRenderWorkspace(){
       <small>Đổi thứ tự trình chiếu bằng track Media. Master Script giữ nguyên thứ tự nguồn. Voice dài hơn scene hoặc khoảng visual vượt thời lượng đo thực tế sẽ chặn xuất.</small>
     </div>
     <SceneInspectorR301 key={`${video.id}:${scene?.id}`} videoId={video.id} sceneId={scene?.id}
-     onDirtyChange={setInspectorDirty} onSaved={refresh}/>
+     onDirtyChange={setInspectorDirty} onSaved={()=>refresh({invalidateApproval:true})}/>
     </div></div>
     <div className="actions"><button className="btn" disabled={!snapshot.readiness.ready||busy||inspectorDirty||timelineDirty} onClick={approve}>✓ Phê duyệt timing</button></div>
-    <SubtitleDraftPanelR405 key={`${video.id}:${revision}:${scene?.id}`} videoId={video.id} compositionRevision={revision} sceneId={scene?.id}/>
+    <SubtitleDraftPanelR405 key={`${video.id}:${approvedRevision}:${scene?.id}`} videoId={video.id} compositionRevision={approvedRevision} sceneId={scene?.id}/>
     <VisualConsistencyPanelR407 videoId={video.id}/>
     <div ref={renderSectionRef} id="render-export" className="production-render-section" aria-label="Xuất MP4 local">
-    <RenderDrawerR312 videoId={video.id} revision={revision} styleRevision={styleRevision} styleDirty={styleDirty}
+    <div className="actions">
+      <label>Render đã lưu (SQLite · không tự chạy lại)
+       <select aria-label="Lịch sử xuất MP4" value={render?.id??''}
+        onChange={e=>{
+         const selected=renderHistory.find(item=>item.id===e.target.value);
+         if(selected)setRender(selected);
+        }}>
+        <option value="">Chưa có bản xuất</option>
+        {renderHistory.map(item=><option key={item.id} value={item.id}>
+          {item.status==='succeeded'?'✓ ':item.status==='failed'?'! ':'… '}
+          #{item.revision??'?'} · {item.status} · {item.id.slice(0,8)}
+        </option>)}
+       </select>
+      </label>
+      <button type="button" className="btn secondary" disabled={busy} onClick={()=>act(async()=>{
+       const result=await api(`/videos/${video.id}/renders?limit=10`);
+       setRenderHistory(result.items??[]);
+       setRender(old=>(result.items??[]).find(x=>x.id===old?.id)??result.items?.[0]??null);
+      })}>↻ Cập nhật bản xuất</button>
+    </div>
+    <RenderDrawerR312 videoId={video.id} revision={approvedRevision} styleRevision={styleRevision} styleDirty={styleDirty}
       editorDirty={inspectorDirty||timelineDirty} engine={engine} setEngine={setEngine} busy={busy}
       render={render} setRender={setRender} onMessage={setNotice} onError={setError}/>
     <div className="actions">
