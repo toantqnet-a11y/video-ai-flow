@@ -407,28 +407,3 @@ async function main(){
  }
 }
 await main();
-).test(path))
-    downloads.push({path,status:reply.statusCode,mime:String(reply.getHeader('content-type')??'')});
-  });
-  await runtime.app.listen({host:'127.0.0.1',port:apiPort});
-  const url='http://127.0.0.1:'+apiPort;
-  const health=await fetch(url+'/health');assert.equal(health.status,200);
-  assert.equal((await fetch(url+'/api/channels')).status,401);
-  chrome=await browserConnect(apiPort,debugPort,join(dir,'chrome-profile'));
-  const evidence=await runBrowser(chrome.cdp,runtime.security.pairingCodeForTerminal(),runtime.repo,runtime.store,runtime.security,runtime.manifest,process.argv.includes('--render-fixture'),downloads);
-  console.log('LOCALHOST_BROWSER_E2E '+JSON.stringify(evidence));
- }catch(e){
-  // Do not print URLs, DOM, SQLite data or pairing code on errors.
-  console.error('LOCALHOST_BROWSER_E2E_FAILED '+lastStage+' '+(/^[A-Z0-9_]{3,120}$/.test(e?.message??'')?e.message:'E2E_ASSERTION_OR_INTEGRATION_FAILED'));
-  process.exitCode=1;
- }finally{
-  chrome?.cdp?.close();
-  if(chrome?.child&&chrome.child.exitCode===null){
-   chrome.child.kill('SIGTERM');await Promise.race([new Promise(ok=>chrome.child.once('exit',ok)),pause(2500)]);
-   if(chrome.child.exitCode===null)chrome.child.kill('SIGKILL');
-  }
-  await runtime?.app?.close().catch(()=>{process.exitCode=1});
-  await rm(dir,{recursive:true,force:true,maxRetries:5,retryDelay:150}).catch(()=>{process.exitCode=1});
- }
-}
-await main();
