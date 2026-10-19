@@ -78,7 +78,7 @@ async function browserConnect(port,debugPort,profile){
  await cdp.call('Page.enable');
  return {child,cdp};
 }
-async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixture=false){
+async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixture=false,downloads=[]){
  const ev=async expr=>{
   const result=await cdp.call('Runtime.evaluate',{expression:expr,returnByValue:true,awaitPromise:true});
   if(result.exceptionDetails)throw Error('E2E_PAGE_EVALUATION');
@@ -349,16 +349,13 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
   }
   await until(downloadAvailable,'RENDER_DOWNLOAD_BUTTON',18000);
   mark(autoUpdated?'mp4_download_auto_status':'mp4_download_after_manual_history_refresh');
-  const responses=[];
-  cdp.on('Network.responseReceived',event=>{
-   const response=event.response;
-   if(response?.url?.endsWith(`/videos/${v.id}/renders/${downloadJobId}/mp4`))
-    responses.push({status:response.status,type:response.mimeType});
-  });
-  await cdp.call('Network.enable');
+  // Fastify onResponse is authoritative for actual HTTP completion. CDP's
+  // optional Network domain is unreliable on some hosted Chromium targets.
+  // Never extract the session bearer or invent a successful downloaded file.
   await ev(`Object.defineProperty(window,'showSaveFilePicker',{value:undefined,configurable:true})`);
   assert(await click('Lưu MP4','.production-render-section button'),'download real local MP4');
-  await until(()=>responses.some(x=>x.status===200&&x.type==='video/mp4'),'BROWSER_AUTHENTICATED_MP4_DOWNLOAD',30000);
+  await until(()=>downloads.some(x=>x.path===`/api/videos/${v.id}/renders/${downloadJobId}/mp4`&&
+    x.status===200&&x.mime.startsWith('video/mp4')),'BROWSER_AUTHENTICATED_MP4_DOWNLOAD',30000);
   assert.equal(store.countByStatus().total,2,'exactly two explicitly clicked local renders, zero AI/paid calls');
   realRender={status:'PASS',engine:'hyperframes',bytes:bytes.length,sha256:digest,
     outputQa:true,sceneCount:savedScenes.length,coldCache:{reused:0,encoded:savedScenes.length},warmCache:{reused:savedScenes.length,encoded:0},source:'LOCAL_TEST_PNG_WAV_ONLY',browserAuthenticatedMp4Http:200};
@@ -380,12 +377,20 @@ async function main(){
  try{
   const {startApi}=await import('../apps/api/src/server.mjs');
   runtime=await startApi({listen:false});
+  const downloads=[];
+  // Only the authenticated localhost MP4 route's status + MIME are recorded,
+  // never query values, credentials, raw media, or binary HTTP data.
+  runtime.app.addHook('onResponse',async(request,reply)=>{
+   const path=String(request.raw.url??'').split('?')[0];
+   if(request.method==='GET'&&/^\\/api\\/videos\\/[a-zA-Z0-9-]+\\/renders\\/[a-zA-Z0-9-]+\\/mp4$/.test(path))
+    downloads.push({path,status:reply.statusCode,mime:String(reply.getHeader('content-type')??'')});
+  });
   await runtime.app.listen({host:'127.0.0.1',port:apiPort});
   const url='http://127.0.0.1:'+apiPort;
   const health=await fetch(url+'/health');assert.equal(health.status,200);
   assert.equal((await fetch(url+'/api/channels')).status,401);
   chrome=await browserConnect(apiPort,debugPort,join(dir,'chrome-profile'));
-  const evidence=await runBrowser(chrome.cdp,runtime.security.pairingCodeForTerminal(),runtime.repo,runtime.store,runtime.security,runtime.manifest,process.argv.includes('--render-fixture'));
+  const evidence=await runBrowser(chrome.cdp,runtime.security.pairingCodeForTerminal(),runtime.repo,runtime.store,runtime.security,runtime.manifest,process.argv.includes('--render-fixture'),downloads);
   console.log('LOCALHOST_BROWSER_E2E '+JSON.stringify(evidence));
  }catch(e){
   // Do not print URLs, DOM, SQLite data or pairing code on errors.
