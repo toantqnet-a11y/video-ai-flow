@@ -261,7 +261,8 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
       timelineDirty:document.querySelector('.timeline-render-layout')?.textContent?.includes('chưa lưu')??false,
       styleSaves:[...document.querySelectorAll('button')].filter(x=>x.textContent?.includes('Lưu phiên bản style')).map(x=>x.disabled)};
   })()`);
-  const approvedRows=repo.db.prepare("SELECT revision,digest FROM composition_revisions WHERE video_id=? ORDER BY revision DESC LIMIT 5").all(v.id);
+  const allApprovalRows=repo.db.prepare("SELECT video_id,revision,digest FROM composition_revisions ORDER BY created_at DESC LIMIT 8").all();
+  const approvedRows=allApprovalRows.filter(x=>x.video_id===v.id);
   const probe=await ev(`(()=>{
    const root=document.querySelector('.render-drawer-r312');
    const alert=document.querySelector('.timeline-render-layout')?.closest('section.frame')?.querySelector('div.info')?.textContent??'';
@@ -273,7 +274,8 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
     isBlocked:state.includes('Không thể render:')};
   })()`);
   console.log('LOCALHOST_E2E_APPROVAL_DB '+JSON.stringify({
-   count:approvedRows.length,latest:approvedRows[0]?.revision??0,
+   count:approvedRows.length,allCount:allApprovalRows.length,foreignRows:allApprovalRows.length-approvedRows.length,
+   latest:approvedRows[0]?.revision??0,
    schema:approvedRows.map(x=>x.revision),probe})); 
   console.log('LOCALHOST_E2E_RENDER_PREFLIGHT '+JSON.stringify(uiReadiness));
   assert(await until(()=>ev(`(()=>{
