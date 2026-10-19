@@ -14,7 +14,7 @@ for(let i=0;i<files.length;i+=size){
  const batch=files.slice(i,i+size);const r=await runTestGroup(batch,{cwd:process.cwd(),concurrency:1,timeoutMs:210000,liveOutput:false});
  results.push({batch:results.length+1,files:batch,tests:r.summary.tests,pass:r.summary.pass,ok:r.ok,durationMs:r.durationMs});
  console.log(`FI04_BATCH_${results.length} ${r.ok?'PASS':'FAIL'} ${r.summary.pass}/${r.summary.tests} in ${r.durationMs}ms`);
- if(!r.ok){console.error('FI04_TEST_BATCH_FAILED',JSON.stringify({files:batch,timeout:r.timedOut,exitCode:r.exitCode,summary:r.summary,lastSubtest:r.lastSubtest}));process.exit(1);}
+ if(!r.ok){console.error('FI04_TEST_BATCH_FAILED',JSON.stringify({files:batch,timeout:r.timedOut,exitCode:r.exitCode,summary:r.summary,failedSubtests:r.failedSubtests,failureCodes:r.failureCodes,lastSubtest:r.lastSubtest}));process.exit(1);}
  total+=r.summary.tests;
 }
 console.log(JSON.stringify({status:'PASS',files:files.length,batches:results.length,tests:total,failed:0}));
