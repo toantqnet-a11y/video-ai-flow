@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {keepCurrentRenderJob,hydrateRenderHistory} from './render-job-sync.mjs';
+import {keepCurrentRenderJob,hydrateRenderHistory,reconcileRenderHistory} from './render-job-sync.mjs';
 const job=(id,status)=>({id,status});
 test('pending old HTTP/SSE job cannot override newly queued explicit render',()=>{
  const second=job('second','queued'),lateOld=job('first','succeeded');
@@ -23,6 +23,14 @@ test('late render-history hydration cannot replace a job queued after mount',()=
  assert.deepEqual(hydrateRenderHistory(null,[job('older','succeeded')]),job('older','succeeded'));
  assert.equal(hydrateRenderHistory(null,[]),null);
 });
+test('durable history reconciliation updates the selected active job without changing its identity',()=>{
+ const now=job('new','running'),completed=job('new','succeeded'),older=job('old','succeeded');
+ assert.deepEqual(reconcileRenderHistory(now,[completed,older]),completed);
+ assert.strictEqual(reconcileRenderHistory(older,[completed,older]),older);
+ assert.strictEqual(reconcileRenderHistory(now,[older]),now);
+ assert.deepEqual(reconcileRenderHistory(null,[completed]),completed);
+ assert.strictEqual(reconcileRenderHistory(completed,[now]),completed);
+});
 test('Timeline auto-polls safe job IDs, refreshes visible tab and cleans up',async()=>{
  const content=await readFile(new URL('./TimelineRenderWorkspace.jsx',import.meta.url),'utf8');
  const drawer=await readFile(new URL('./RenderDrawerR312.jsx',import.meta.url),'utf8');
@@ -30,5 +38,6 @@ test('Timeline auto-polls safe job IDs, refreshes visible tab and cleans up',asy
  assert.match(content,/document\.addEventListener\('visibilitychange',onVisible\)/);
  assert.match(content,/abort\.abort\(\);clearInterval\(timer\)/);
  assert.match(content,/setRender\(current=>hydrateRenderHistory\(current,items\)\)/);
+ assert.match(content,/setRender\(current=>reconcileRenderHistory\(current,items\)\)/);
  assert.match(drawer,/setRender\(current=>keepCurrentRenderJob\(current,out,watchedId\)\)/);
 });
