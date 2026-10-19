@@ -44,7 +44,11 @@ function cdpConnect(url){
  ws.addEventListener('message',event=>{
   let payload;try{payload=JSON.parse(String(event.data));}catch{return;}
   if(payload.id&&pending.has(payload.id)){const task=pending.get(payload.id);pending.delete(payload.id);
-   clearTimeout(task.timer);payload.error?task.no(Error('E2E_CDP_CALL')):task.ok(payload.result);return;}
+   clearTimeout(task.timer);if(payload.error){
+   // CDP method/code only: never log evaluated JavaScript or browser data.
+   console.error('LOCALHOST_CDP_DIAGNOSTIC '+JSON.stringify({method:task.method,code:payload.error.code??null}));
+   task.no(Error('E2E_CDP_CALL_'+task.method));
+  }else task.ok(payload.result);return;}
   if(payload.method)for(const fn of listeners.get(payload.method)||[])fn(payload.params??{});
  });
  ws.addEventListener('close',()=>{for(const task of pending.values()){clearTimeout(task.timer);task.no(Error('E2E_CDP_CLOSED'));}pending.clear()});
@@ -52,7 +56,7 @@ function cdpConnect(url){
   await ready;const id=++nextId;
   return await new Promise((ok,no)=>{
    const timer=setTimeout(()=>{pending.delete(id);no(Error('E2E_CDP_TIMEOUT'))},12000);
-   pending.set(id,{ok,no,timer});ws.send(JSON.stringify({id,method,params}));
+   pending.set(id,{ok,no,timer,method});ws.send(JSON.stringify({id,method,params}));
   });
  };
  return {call,on(event,fn){listeners.set(event,[...(listeners.get(event)||[]),fn])},
@@ -353,9 +357,18 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
   // optional Network domain is unreliable on some hosted Chromium targets.
   // Never extract the session bearer or invent a successful downloaded file.
   await ev(`Object.defineProperty(window,'showSaveFilePicker',{value:undefined,configurable:true})`);
-  assert(await click('Lưu MP4','.production-render-section button'),'download real local MP4');
-  await until(()=>downloads.some(x=>x.path===`/api/videos/${v.id}/renders/${downloadJobId}/mp4`&&
-    x.status===200&&x.mime.startsWith('video/mp4')),'BROWSER_AUTHENTICATED_MP4_DOWNLOAD',30000);
+  // Chromium can abort Runtime.evaluate at the instant an anchor starts a
+  // browser download. Never treat a CDP acknowledgement as media proof:
+  // success requires Fastify to observe the exact authenticated MP4 200.
+  let clickAcknowledged=false;
+  try{clickAcknowledged=await click('Lưu MP4','.production-render-section button')}
+  catch(e){if(!e?.message?.startsWith('E2E_CDP_CALL_'))throw e;}
+  const matchingDownload=()=>downloads.some(x=>
+    x.path===`/api/videos/${v.id}/renders/${downloadJobId}/mp4`&&
+    x.status===200&&x.mime.startsWith('video/mp4'));
+  const httpVerified=await until(matchingDownload,'BROWSER_AUTHENTICATED_MP4_DOWNLOAD',30000);
+  assert(httpVerified,'download must complete through real authorized Fastify route');
+  if(!clickAcknowledged)console.log('LOCALHOST_E2E_DOWNLOAD_CDP_ACK_LOST_HTTP_200_CONFIRMED');
   assert.equal(store.countByStatus().total,2,'exactly two explicitly clicked local renders, zero AI/paid calls');
   realRender={status:'PASS',engine:'hyperframes',bytes:bytes.length,sha256:digest,
     outputQa:true,sceneCount:savedScenes.length,coldCache:{reused:0,encoded:savedScenes.length},warmCache:{reused:savedScenes.length,encoded:0},source:'LOCAL_TEST_PNG_WAV_ONLY',browserAuthenticatedMp4Http:200};
