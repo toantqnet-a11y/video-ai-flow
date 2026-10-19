@@ -20,8 +20,9 @@ export function TimelineRenderWorkspace(){
  const [styleRevision,setStyleRevision]=useState(null),[styleDirty,setStyleDirty]=useState(true);
  const [engine,setEngine]=useState('hyperframes');
  const [inspectorDirty,setInspectorDirty]=useState(false),[timelineDirty,setTimelineDirty]=useState(false),[timelineRefresh,setTimelineRefresh]=useState(0);
- const [revision,setRevision]=useState(null),[render,setRender]=useState(null),[renderHistory,setRenderHistory]=useState([]),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState('');
+ const [revision,setRevision]=useState(null),[durableRevision,setDurableRevision]=useState(null),[render,setRender]=useState(null),[renderHistory,setRenderHistory]=useState([]),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[error,setError]=useState('');
  const scene=snapshot?.scenes?.find(s=>s.id===sceneId)??snapshot?.scenes?.[0];
+ const approvedRevision=revision??durableRevision;
  // Newly queued/completed jobs refresh the select list without submitting a
  // second job. Also preserves older successful exports after source changes.
  useEffect(()=>{if(!video?.id||!render?.id)return;let active=true;
@@ -46,13 +47,13 @@ export function TimelineRenderWorkspace(){
  // stale sources or pins, including edits made in other browser tabs.
  const refresh=async({invalidateApproval=false}={})=>{
   const [t,s]=await Promise.all([api(`/videos/${video.id}/timeline`),api(`/videos/${video.id}/composition/timing/preview`,{method:'POST',body:{tailPaddingMs:250}})]);
-  setTimeline(t);setSnapshot(s);if(invalidateApproval)setRevision(null);
+  setTimeline(t);setSnapshot(s);if(invalidateApproval){setRevision(null);setDurableRevision(null);}
   setTimelineRefresh(k=>k+1);if(!s.scenes.some(x=>x.id===sceneId))setSceneId(s.scenes[0]?.id??null);
   // A completed output remains downloadable but must show a stale revision
   // badge immediately after another scene/timeline edit is saved.
   if(render?.id)try{setRender(await api(`/videos/${video.id}/renders/${render.id}`))}catch{};
  };
- useEffect(()=>{let live=true;setSnapshot(null);setSceneId(null);setRender(null);setRenderHistory([]);
+ useEffect(()=>{let live=true;setSnapshot(null);setSceneId(null);setRender(null);setRenderHistory([]);setDurableRevision(null);
   if(video){
    // Browser refresh and re-pair lose UI memory, not SQLite/SP-04 results.
    // Restore read-only history; NEVER enqueue or retry an existing render.
@@ -71,18 +72,18 @@ export function TimelineRenderWorkspace(){
  },[video?.id]);
  // Approval is persisted server-side. Recover only an EXACT healthy v2 digest
  // after reload/re-pair; stale edits never become authorized render sources.
- useEffect(()=>{if(!video?.id||!snapshot?.digest||!snapshot.readiness?.ready||revision)return;
+ useEffect(()=>{if(!video?.id||!snapshot?.digest||!snapshot.readiness?.ready||approvedRevision)return;
   let active=true;
   api(`/videos/${video.id}/composition/revisions`).then(out=>{
    const same=(out.items??[]).find(item=>item.digest===snapshot.digest);
    if(!same)return;
    return api(`/videos/${video.id}/composition/revisions/${same.revision}`).then(detail=>{
     if(active&&detail?.composition?.schemaVersion===2&&detail.composition.digest===snapshot.digest)
-     setRevision(existing=>existing??same.revision);
+     setDurableRevision(existing=>existing??same.revision);
    });
   }).catch(()=>{});
   return()=>{active=false};
- },[video?.id,snapshot?.digest,snapshot?.readiness?.ready,revision]);
+ },[video?.id,snapshot?.digest,snapshot?.readiness?.ready,approvedRevision]);
  useEffect(()=>{if(!scene)return;const cue=scene.captions.cues[0],fps=snapshot.profile.fps;
   setDuration(scene.durationMs);setCapStart(Math.round(cue.startFrame*1000/fps));setCapEnd(Math.round(cue.endFrame*1000/fps));
  },[scene?.id,snapshot?.digest]);
@@ -109,7 +110,8 @@ export function TimelineRenderWorkspace(){
   if(!snap.readiness.ready)throw Error('ASSET_OR_TIMING_BLOCKED');
   const out=await api(`/videos/${video.id}/composition/timing/revisions`,{method:'POST',body:{expectedDigest:snap.digest,
     expectedVideoRowVersion:snap.source.videoRowVersion,tailPaddingMs:250}});
-  setRevision(out.revision);setNotice(`Đã phê duyệt Composition v2 #${out.revision}.`);
+  setRevision(out.revision);setDurableRevision(out.revision);
+  setNotice(`Đã phê duyệt Composition v2 #${out.revision}.`);
  });
  const download=()=>act(async()=>{
   if(render.status!=='succeeded')return;
@@ -124,17 +126,17 @@ export function TimelineRenderWorkspace(){
   finally{setTimeout(()=>URL.revokeObjectURL(url),1000);}
  });
  const projectExport=()=>act(async()=>{
-  if(!revision)throw Error('PUBLISH_TIMING_FIRST');
+  if(!approvedRevision)throw Error('PUBLISH_TIMING_FIRST');
   if(inspectorDirty||timelineDirty)throw Error('SAVE_TIMELINE_FIRST');
   if(typeof window.showSaveFilePicker==='function'){
-    const handle=await window.showSaveFilePicker({suggestedName:`ContentStudio-${video.id}-r${revision}.zip`,
+    const handle=await window.showSaveFilePicker({suggestedName:`ContentStudio-${video.id}-r${approvedRevision}.zip`,
       types:[{description:'ZIP project archive',accept:{'application/zip':['.zip']}}]});
-    const saved=await saveProjectZip(video.id,revision,handle);
+    const saved=await saveProjectZip(video.id,approvedRevision,handle);
     setNotice(`Đã lưu project ZIP (${saved.bytes} bytes), gồm media, SRT và timeline.json.`);return;
   }
-  const blob=await downloadProjectZip(video.id,revision);
+  const blob=await downloadProjectZip(video.id,approvedRevision);
   const url=URL.createObjectURL(blob);
-  try{const a=document.createElement('a');a.href=url;a.download=`ContentStudio-${video.id}-r${revision}.zip`;a.click();}
+  try{const a=document.createElement('a');a.href=url;a.download=`ContentStudio-${video.id}-r${approvedRevision}.zip`;a.click();}
   finally{setTimeout(()=>URL.revokeObjectURL(url),1000);}
   setNotice('Đã tải ZIP dự án; trình duyệt này giới hạn file 100MB.');
  });
@@ -160,7 +162,7 @@ export function TimelineRenderWorkspace(){
  const max=Math.max(1,snapshot?.totalFrames??1);const fps=snapshot?.profile.fps??30;
  return <section className="frame"><header className="frame-title"><div><h2>▤ Timeline & MP4</h2>
   <p>EXT-05/06 · Preview ảnh/giọng thật (nếu đã tạo) · HyperFrames là engine mặc định (local), FFmpeg là fallback thủ công; không dùng AI trả phí.</p></div>
-  <button className="btn secondary" disabled={busy||!revision||inspectorDirty||timelineDirty} onClick={projectExport}>↓ Export Project ZIP</button>
+  <button className="btn secondary" disabled={busy||!approvedRevision||inspectorDirty||timelineDirty} onClick={projectExport}>↓ Export Project ZIP</button>
   <button className="btn secondary" disabled={busy||timelineDirty} onClick={()=>{if(inspectorDirty&&!window.confirm('Bỏ chỉnh sửa chưa lưu và cập nhật?'))return;act(refresh)}}>↻ Cập nhật</button></header>
   {error&&<div role="alert" className="error">{error}</div>}{notice&&<div className="info">{notice}</div>}
   {!snapshot?<p>Đang lấy timeline…</p>:<>
@@ -190,7 +192,7 @@ export function TimelineRenderWorkspace(){
      onDirtyChange={setInspectorDirty} onSaved={()=>refresh({invalidateApproval:true})}/>
     </div></div>
     <div className="actions"><button className="btn" disabled={!snapshot.readiness.ready||busy||inspectorDirty||timelineDirty} onClick={approve}>✓ Phê duyệt timing</button></div>
-    <SubtitleDraftPanelR405 key={`${video.id}:${revision}:${scene?.id}`} videoId={video.id} compositionRevision={revision} sceneId={scene?.id}/>
+    <SubtitleDraftPanelR405 key={`${video.id}:${approvedRevision}:${scene?.id}`} videoId={video.id} compositionRevision={approvedRevision} sceneId={scene?.id}/>
     <VisualConsistencyPanelR407 videoId={video.id}/>
     <div ref={renderSectionRef} id="render-export" className="production-render-section" aria-label="Xuất MP4 local">
     <div className="actions">
@@ -213,7 +215,7 @@ export function TimelineRenderWorkspace(){
        setRender(old=>(result.items??[]).find(x=>x.id===old?.id)??result.items?.[0]??null);
       })}>↻ Cập nhật bản xuất</button>
     </div>
-    <RenderDrawerR312 videoId={video.id} revision={revision} styleRevision={styleRevision} styleDirty={styleDirty}
+    <RenderDrawerR312 videoId={video.id} revision={approvedRevision} styleRevision={styleRevision} styleDirty={styleDirty}
       editorDirty={inspectorDirty||timelineDirty} engine={engine} setEngine={setEngine} busy={busy}
       render={render} setRender={setRender} onMessage={setNotice} onError={setError}/>
     <div className="actions">
