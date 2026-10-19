@@ -9,6 +9,9 @@ on:
       - 'tools/localhost-browser-e2e.mjs'
       - 'apps/api/src/render-export-r2ext0406.mjs'
       - 'apps/api/src/routes.mjs'
+      - 'apps/web/src/TimelineRenderWorkspace.jsx'
+      - 'apps/web/src/RenderDrawerR312.jsx'
+      - 'apps/web/src/render-job-sync.mjs'
       - 'packages/core/src/render-hyperframes.mjs'
       - 'apps/api/src/render-export-r2ext0406.mjs'
       - 'package.json'
@@ -58,7 +61,7 @@ jobs:
           CONTENTSTUDIO_REMOTE_LLM_CONSENT: '0'
           CONTENTSTUDIO_CONFIRMED_NO_BILLING_MODEL_IDS: ''
           NODE_ENV: production
-        run: node tools/localhost-browser-e2e.mjs --render-fixture
+        run: node tools/localhost-browser-e2e.mjs --render-fixture --require-auto-render-status
       - name: Run 5-scene real media through production SP-04 queue
         timeout-minutes: 9
         env:

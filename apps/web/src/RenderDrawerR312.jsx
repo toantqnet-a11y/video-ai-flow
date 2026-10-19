@@ -3,6 +3,7 @@
  * Scene completion is not an overall encode ETA (final mux/QA still run). */
 import React,{useEffect,useRef,useState} from 'react';
 import {api,streamJobs,uploadMusicFile} from './api.js';
+import {keepCurrentRenderJob} from './render-job-sync.mjs';
 const labels={queued:'Đang chờ',preparing:'Chuẩn bị media',encoding:'Đang render scene',
  finalizing:'Đang ghép và xuất',verifying:'Đang kiểm tra đầu ra',completed:'Hoàn thành',failed:'Thất bại'};
 export function RenderDrawerR312({videoId,revision,styleRevision,styleDirty,editorDirty,engine,setEngine,render,setRender,onMessage,onError,busy=false}){
@@ -46,7 +47,7 @@ export function RenderDrawerR312({videoId,revision,styleRevision,styleDirty,edit
  useEffect(()=>{if(!render?.id||['succeeded','failed','cancelled'].includes(render.status))return;
   const abort=new AbortController();let valid=true;
   const refresh=async()=>{if(refreshInFlight.current||!valid)return;refreshInFlight.current=true;
-   try{const out=await api(`/videos/${videoId}/renders/${render.id}`);if(valid)setRender(out)}
+   try{const watchedId=render.id;const out=await api(`/videos/${videoId}/renders/${watchedId}`,{signal:abort.signal});if(valid)setRender(current=>keepCurrentRenderJob(current,out,watchedId))}
    catch(e){if(valid)onError(e.code??e.message)}finally{refreshInFlight.current=false}};
   const timer=setInterval(refresh,7000);
   streamJobs(event=>{if(event.jobId===render.id)void refresh()},{signal:abort.signal,retries:1}).catch(()=>{});
