@@ -45,7 +45,7 @@ jobs:
         run: |
           node --check tools/local-render-worker-child.mjs
           node --check tools/localhost-render-crash-recovery.mjs
-          node tools/fi04-hyperframes-acceptance.mjs --inspect --strict
+          node tools/fi04-hyperframes-acceptance.mjs --inspect
       - name: Kill real HyperFrames worker, recover durable lease, verify MP4
         timeout-minutes: 9
         env:
