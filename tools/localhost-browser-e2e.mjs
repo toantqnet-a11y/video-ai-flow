@@ -120,10 +120,11 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  const steps=[];const mark=label=>{steps.push(label);lastStage=label;console.log('LOCALHOST_E2E_STAGE '+label)};
  // Decline a real native window.confirm from the guided bar. This exercises
  // the browser navigation guard instead of trusting a pure helper-only test.
- let rejectedDialogs=0;
+ let rejectedDialogs=0,acceptNextDialog=false;
  cdp.on('Page.javascriptDialogOpening',()=>{
-  rejectedDialogs++;
-  void cdp.call('Page.handleJavaScriptDialog',{accept:false}).catch(()=>{});
+  const accept=acceptNextDialog;acceptNextDialog=false;
+  if(!accept)rejectedDialogs++;
+  void cdp.call('Page.handleJavaScriptDialog',{accept}).catch(()=>{});
  });
  await wait('.pairing form','PAIRING_UI');mark('react_pairing_ui');
  assert.equal(await click('Kết nối','.pairing button'),false,'empty code must disable pairing');
@@ -388,6 +389,43 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
     outputQa:true,sceneCount:savedScenes.length,coldCache:{reused:0,encoded:savedScenes.length},warmCache:{reused:savedScenes.length,encoded:0},source:'LOCAL_TEST_PNG_WAV_ONLY',browserAuthenticatedMp4Http:200};
   mark('browser_hyperframes_real_mp4_download');
  }
+
+ // QA-B04/B06: real authenticated Chrome interaction + authoritative SQLite.
+ // Run after the render fixture so timeline edits cannot invalidate its approved composition.
+ lastStage='QA_B04_B06_TIMELINE';
+ assert(await until(()=>click('Timeline','.production-flow-step'),'QA_TIMELINE_NAV'),'open editor');
+ await wait('.timeline-r302','QA_TIMELINE_EDITOR');
+ const timelineOrder=()=>repo.listScenes(videoId).map(x=>x.id);
+ const beforeOrder=timelineOrder();
+ assert.equal(beforeOrder.length,7,'QA fixture must have seven persisted scenes');
+ const initialRevision=repo.getVideo(videoId).rowVersion;
+ const selectedBefore=await ev(`document.querySelector('.timeline-r302-move select')?.value`);
+ assert(selectedBefore,'scene selector exists');
+ assert(await until(()=>click('Dời phải','.timeline-r302-move button'),'QA_MOVE_RIGHT'),'reorder via real browser');
+ await until(()=>ev(`document.querySelector('.timeline-r302-info')?.textContent.includes('chưa lưu')`),'QA_REORDER_DIRTY');
+ assert.deepEqual(timelineOrder(),beforeOrder,'unsaved draft must not modify SQLite');
+ acceptNextDialog=true;
+ assert(await click('Lưu thứ tự','.timeline-r302-actions button'),'save reordered scenes');
+ await until(()=>timelineOrder()[0]===beforeOrder[1]&&timelineOrder()[1]===beforeOrder[0],'QA_ORDER_SAVED');
+ const movedOrder=timelineOrder();
+ mark('qa_b04_browser_reorder_sqlite');
+ assert(await until(()=>click('Undo','.timeline-r302-actions button'),'QA_UNDO_CLICK'),'undo browser');
+ await until(()=>timelineOrder().join('|')===beforeOrder.join('|'),'QA_UNDO_SQLITE');
+ mark('qa_b04_browser_undo_sqlite');
+ assert(await until(()=>click('Redo','.timeline-r302-actions button'),'QA_REDO_CLICK'),'redo browser');
+ await until(()=>timelineOrder().join('|')===movedOrder.join('|'),'QA_REDO_SQLITE');
+ mark('qa_b04_browser_redo_sqlite');
+ // Seeking without a voice must report the missing-media state; never fabricate audio.
+ const initialPosition=await ev(`document.querySelector('.timeline-r302-playbar')?.parentElement?.textContent`);
+ assert(await click('5s ⏭','.timeline-r302-playbar button'),'seek forward');
+ await until(()=>ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.includes('00:05')`),'QA_SEEK_5S');
+ assert.equal(await ev(`document.querySelector('.timeline-r302 audio')?.paused`),true,'seek without voice must not play');
+ mark('qa_b06_browser_seek_preview_clock');
+ assert(await click('⏮ 5s','.timeline-r302-playbar button'),'seek back');
+ await until(()=>ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.includes('00:00')`),'QA_SEEK_ZERO');
+ assert(await ev(`Boolean(document.querySelector('.timeline-r302-view'))`),'preview stage present');
+ mark('qa_b06_browser_seek_return_preview');
+
  // Browser test must not be promoted to AI/GPU or long-form proof.
  return {status:'PASS',browser:findChrome(),steps,sceneCount:repo.listScenes(videoId).length,
   finalRender:realRender??'BLOCKED_NO_MEDIA',aiInference:'NOT_EXECUTED',release:'NOT_READY'};
