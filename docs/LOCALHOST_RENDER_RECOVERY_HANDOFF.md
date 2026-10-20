@@ -1,3 +1,5 @@
+> **Actual verified Ubuntu evidence (20/10/2026):** [Workflow 39397083538](https://github.com/toantqnet-a11y/video-ai-flow/actions/runs/39397083538) **PASS**. Real production `render:hyperframes` worker OS SIGKILL; recover expired lease; old token fenced; no duplicate job; attempt 1 expired, attempt 2 succeeded; 5-scene **429 frames / 14.3 seconds / 861,481 bytes** H.264/AAC MP4; SHA256 `ae269cb7bdd91c0b62cf20df92422e1c4d81253863419847a7a020c68a06a5ff`; 51,631 ms total acceptance; **0 provider calls**. Automated real-process recovery proof only, `releaseStatus=NOT_READY`.
+
 # LOCALHOST-07 — Real HyperFrames worker crash/restart acceptance
 
 **Scope:** Video AI Flow remains a browser Web App + Fastify + SQLite/SP-04 renderer on localhost. Test uses a disposable folder with 5 committed local PNG/WAV fixtures, not a user's project. No paid, remote AI, TTS or GPU calls. **Release remains NOT_READY**.
