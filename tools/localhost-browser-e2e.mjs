@@ -416,7 +416,9 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  mark('qa_b04_browser_redo_sqlite');
  // Seek must update the timeline clock without starting playback automatically.
  assert(await click('5s ⏭','.timeline-r302-playbar button'),'seek forward');
- await until(()=>ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.includes('00:05')`),'QA_SEEK_5S');
+ const expectedSeekMs=Math.min(5000,repo.listScenes(videoId).reduce((n,scene)=>n+scene.durationMs,0));
+ const expectedSeekClock=String(Math.floor(expectedSeekMs/60000)).padStart(2,'0')+':'+String(Math.floor(expectedSeekMs/1000)%60).padStart(2,'0');
+ await until(()=>ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.includes('${expectedSeekClock}')`),'QA_SEEK_5S');
  assert.equal(await ev(`document.querySelector('.timeline-r302 audio')?.paused`),true,'seeking without play must not start narration');
  mark('qa_b06_browser_seek_preview_clock');
  assert(await click('⏮ 5s','.timeline-r302-playbar button'),'seek back');
