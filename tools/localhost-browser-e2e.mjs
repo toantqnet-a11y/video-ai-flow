@@ -426,6 +426,36 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  assert(await ev(`Boolean(document.querySelector('.timeline-r302-view'))`),'preview stage present');
  mark('qa_b06_browser_seek_return_preview');
 
+ // QA-B05: import a real WAV fixture into the authenticated video and check
+ // waveform decoding/HTTP + DOM rendering. No synthesized waveform is accepted.
+ const waveScene=repo.listScenes(videoId)[0];
+ const waveBytes=await readFile(join(root,'spikes/EXT-03/assets/voice-01.wav'));
+ const voiceHash=createHash('sha256').update(waveBytes).digest('hex');
+ const voiceTag='qa-b05-'+waveScene.id;
+ const voice=await manifest.importFile({sceneId:waveScene.id,kind:'voice',source:'mock-tts',
+  inputPath:join(root,'spikes/EXT-03/assets/voice-01.wav'),
+  metadata:{queueJobId:voiceTag,inputHash:voiceHash,
+   textSha256:createHash('sha256').update(waveScene.text).digest('hex'),providerId:'piper'}});
+ repo.db.prepare(`INSERT INTO scene_voice_intents
+  (scene_id,job_id,input_hash,text_sha256,config_revision,provider_id,voice_id,rate,requested_at)
+  VALUES(?,?,?,?,?,?,?,?,?)`).run(waveScene.id,voiceTag,voiceHash,
+   createHash('sha256').update(waveScene.text).digest('hex'),
+   repo.getVideo(videoId).configRevision,'piper','fixture',0,Date.now());
+ // Explicit refresh is necessary: the editor must not poll or invent audio.
+ assert(await until(()=>click('Timeline','.production-flow-step'),'QA_B05_REFRESH_TIMELINE'),'reopen Timeline');
+ await wait('.timeline-r302','QA_B05_EDITOR');
+ const wave=await until(()=>ev(`(()=>{
+   const svg=document.querySelector('.timeline-r302-clip.lane-voice svg.timeline-r306-wave');
+   const path=svg?.querySelector('path');
+   return path?.getAttribute('d')?.startsWith('M')&&path.getAttribute('d').length>20;
+ })()`),'QA_B05_REAL_WAVEFORM',25000);
+ assert(wave,'waveform path must be drawn from decoded voice');
+ mark('qa_b05_real_wav_waveform_browser');
+ assert.equal(store.countByStatus().total,withRenderFixture?2:0,
+  'waveform must not dispatch render or AI jobs');
+ mark('qa_b05_waveform_no_paid_jobs');
+
+
  // Browser test must not be promoted to AI/GPU or long-form proof.
  return {status:'PASS',browser:findChrome(),steps,sceneCount:repo.listScenes(videoId).length,
   finalRender:realRender??'BLOCKED_NO_MEDIA',aiInference:'NOT_EXECUTED',release:'NOT_READY'};
