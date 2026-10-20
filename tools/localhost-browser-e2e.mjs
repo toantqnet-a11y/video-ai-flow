@@ -395,10 +395,9 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  lastStage='QA_B04_B06_TIMELINE';
  assert(await until(()=>click('Timeline','.production-flow-step'),'QA_TIMELINE_NAV'),'open editor');
  await wait('.timeline-r302','QA_TIMELINE_EDITOR');
- const timelineOrder=()=>repo.listScenes(videoId).map(x=>x.id);
+ const timelineOrder=()=>repo.getTimeline(videoId).document.sceneOrder??repo.listScenes(videoId).map(x=>x.id);
  const beforeOrder=timelineOrder();
  assert.equal(beforeOrder.length,7,'QA fixture must have seven persisted scenes');
- const initialRevision=repo.getVideo(videoId).rowVersion;
  const selectedBefore=await ev(`document.querySelector('.timeline-r302-move select')?.value`);
  assert(selectedBefore,'scene selector exists');
  assert(await until(()=>click('Dời phải','.timeline-r302-move button'),'QA_MOVE_RIGHT'),'reorder via real browser');
@@ -415,11 +414,10 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  assert(await until(()=>click('Redo','.timeline-r302-actions button'),'QA_REDO_CLICK'),'redo browser');
  await until(()=>timelineOrder().join('|')===movedOrder.join('|'),'QA_REDO_SQLITE');
  mark('qa_b04_browser_redo_sqlite');
- // Seeking without a voice must report the missing-media state; never fabricate audio.
- const initialPosition=await ev(`document.querySelector('.timeline-r302-playbar')?.parentElement?.textContent`);
+ // Seek must update the timeline clock without starting playback automatically.
  assert(await click('5s ⏭','.timeline-r302-playbar button'),'seek forward');
  await until(()=>ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.includes('00:05')`),'QA_SEEK_5S');
- assert.equal(await ev(`document.querySelector('.timeline-r302 audio')?.paused`),true,'seek without voice must not play');
+ assert.equal(await ev(`document.querySelector('.timeline-r302 audio')?.paused`),true,'seeking without play must not start narration');
  mark('qa_b06_browser_seek_preview_clock');
  assert(await click('⏮ 5s','.timeline-r302-playbar button'),'seek back');
  await until(()=>ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.includes('00:00')`),'QA_SEEK_ZERO');
