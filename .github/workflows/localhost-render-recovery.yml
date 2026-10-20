@@ -1,0 +1,63 @@
+# Real local OS process-kill test, never touches user projects or remote AI.
+name: Localhost Render Crash Recovery
+on:
+  pull_request:
+    paths:
+      - 'tools/localhost-render-crash-recovery.mjs'
+      - 'tools/local-render-worker-child.mjs'
+      - '.github/workflows/localhost-render-recovery.yml'
+      - 'spikes/SP-04/src/**'
+      - 'packages/core/src/render-hyperframes.mjs'
+      - 'apps/api/src/render-export-r2ext0406.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: crash-recovery-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  recovery:
+    name: Real HyperFrames SIGKILL lease recovery and MP4 QA
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Review pinned workspace dependency graph
+        run: |
+          node tools/ci-github-lock.mjs
+          npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install local FFmpeg only if runner lacks it
+        run: |
+          if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq ffmpeg
+          fi
+          ffprobe -version | head -n 1
+      - name: Check syntax and pinned renderer
+        run: |
+          node --check tools/local-render-worker-child.mjs
+          node --check tools/localhost-render-crash-recovery.mjs
+          node tools/fi04-hyperframes-acceptance.mjs --inspect
+      - name: Kill real HyperFrames worker, recover durable lease, verify MP4
+        timeout-minutes: 9
+        env:
+          CONTENTSTUDIO_REMOTE_LLM_CONSENT: '0'
+          CONTENTSTUDIO_CONFIRMED_NO_BILLING_MODEL_IDS: ''
+          NODE_ENV: production
+        run: node tools/localhost-render-crash-recovery.mjs --run --strict --report=docs/evidence/LOCALHOST07_recovery.json
+      - name: Preserve machine-only recovery evidence for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: localhost-render-recovery-proof
+          path: docs/evidence/LOCALHOST07_recovery.json
+          retention-days: 3
+          if-no-files-found: warn
