@@ -455,6 +455,10 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
     createHash('sha256').update(waveScene.text).digest('hex'),
     repo.getVideo(videoId).configRevision,'piper','fixture',0,Date.now());
  }
+ // Check the authoritative backend selection before asserting any browser DOM.
+ // An imported asset alone is not proof of a selected playable voice.
+ const voiceState=repo.listScenes(videoId).map(x=>({id:x.id,voiceAssetId:x.voiceAssetId}));
+ assert(voiceState.some(x=>x.voiceAssetId),'QA_B05_NO_SELECTED_VOICE_AFTER_IMPORT '+JSON.stringify(voiceState));
  // Explicit refresh is necessary: the editor must not poll or invent audio.
  assert(await click('Xuất MP4','.production-flow-step'),'leave Timeline');
  await wait('.render-drawer-r312','QA_B05_RENDER_DRAWER');
