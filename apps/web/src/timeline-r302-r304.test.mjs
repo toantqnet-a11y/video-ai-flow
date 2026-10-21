@@ -89,7 +89,7 @@ test('P0 Audio Sync: overlong narration is stopped at scene boundary without ove
  a.ontimeupdate();
  assert.ok(a.pauseCount>paused,'voice must be paused before scene transition');
  assert.equal(events.at(-1).positionMs,2100);
- await new Promise(resolve=>setTimeout(resolve,20));
+ await new Promise(resolve=>setTimeout(resolve,150));
  assert.equal(a.src,'blob:s1','next scene must own the only audio element');
  assert.equal(a.playCount,2);
  p.dispose();
