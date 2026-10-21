@@ -417,7 +417,7 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  // QA-B06: seek relative to the *actual* playback clock. Undo/Redo may
  // preserve a nonzero cursor; assuming 00:00 makes the browser test flaky.
  const clockText=()=>ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.split(' / ')[0]`);
- const parseClock=value=>{const m=/^(\\d+):(\\d+)\\.(\\d)$/.exec(value??'');
+ const parseClock=value=>{const m=/^(\d+):(\d+)\.(\d)$/.exec(value??'');
   assert(m,'timeline clock must use mm:ss.t');return (+m[1]*60+(+m[2]))*1000+(+m[3])*100;};
  const initialClock=parseClock(await clockText());
  const totalClock=parseClock((await ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.split(' / ')[1]`)));
