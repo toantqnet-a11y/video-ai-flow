@@ -419,12 +419,16 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  const clockText=()=>ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.split(' / ')[0]`);
  const parseClock=value=>{const m=/^(\d+):(\d+)\.(\d)$/.exec(value??'');
   assert(m,'timeline clock must use mm:ss.t');return (+m[1]*60+(+m[2]))*1000+(+m[3])*100;};
+ lastStage='QA_B06_READ_INITIAL_CLOCK';
  const initialClock=parseClock(await clockText());
  const totalClock=parseClock((await ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.split(' / ')[1]`)));
+ lastStage='QA_B06_ASSERT_TOTAL';
  assert(totalClock>0,'fixture must have a nonzero timeline');
+ lastStage='QA_B06_FORWARD_CLICK';
  assert(await click('5s ⏭','.timeline-r302-playbar button'),'seek forward');
  const expectedForward=Math.min(totalClock,initialClock+5000);
  await until(async()=>Math.abs(parseClock(await clockText())-expectedForward)<150,'QA_SEEK_5S');
+ lastStage='QA_B06_AUDIO_PAUSED';
  assert.equal(await ev(`document.querySelector('.timeline-r302 audio')?.paused`),true,
   'seeking without play must not start narration');
  mark('qa_b06_browser_seek_preview_clock');
