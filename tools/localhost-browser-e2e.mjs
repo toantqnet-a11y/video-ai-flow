@@ -448,12 +448,12 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
     repo.getVideo(videoId).configRevision,'piper','fixture',0,Date.now());
  }
  assert(repo.listScenes(videoId).some(x=>x.voiceAssetId),'QA_B05_NO_SELECTED_VOICE');
- // Reopen through a fresh browser document so the app fetches the persisted
- // voice selection; stale React state must never masquerade as a waveform bug.
- lastStage='QA_B05_RELOAD';
- await cdp.call('Page.reload',{ignoreCache:true});
- await wait('.production-flow-step','QA_B05_AFTER_RELOAD');
- assert(await until(()=>click('Timeline','.production-flow-step'),'QA_B05_NAV'),'timeline nav');
+ // Re-enter the editor using supported app navigation; hard reload drops
+ // the in-memory pairing session and incorrectly tests authentication instead.
+ lastStage='QA_B05_REOPEN';
+ assert(await click('Xuất MP4','.production-flow-step'),'leave Timeline');
+ await wait('.render-drawer-r312','QA_B05_RENDER_DRAWER');
+ assert(await until(()=>click('Timeline','.production-flow-step'),'QA_B05_NAV'),'reopen Timeline');
  await wait('.timeline-r302','QA_B05_EDITOR');
  lastStage='QA_B05_VOICE_DOM';
  await until(()=>ev(`Boolean(document.querySelector('.timeline-r302-clip.lane-voice')?.textContent?.includes('Audio'))`),'QA_B05_VOICE_DOM');
