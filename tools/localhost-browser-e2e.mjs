@@ -440,18 +440,21 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  // QA-B05: import a real WAV fixture into the authenticated video and check
  // waveform decoding/HTTP + DOM rendering. No synthesized waveform is accepted.
  const waveScene=repo.listScenes(videoId)[0];
- const waveBytes=await readFile(join(root,'spikes/EXT-03/assets/voice-01.wav'));
- const voiceHash=createHash('sha256').update('qa-b05-'+waveScene.id).digest('hex');
- const voiceTag='qa-b05-'+waveScene.id;
- await manifest.importFile({sceneId:waveScene.id,kind:'voice',source:'mock-tts',
-  inputPath:join(root,'spikes/EXT-03/assets/voice-01.wav'),
-  metadata:{queueJobId:voiceTag,inputHash:voiceHash,
-   textSha256:createHash('sha256').update(waveScene.text).digest('hex'),providerId:'piper'}});
- repo.db.prepare(`INSERT INTO scene_voice_intents
-  (scene_id,job_id,input_hash,text_sha256,config_revision,provider_id,voice_id,rate,requested_at)
-  VALUES(?,?,?,?,?,?,?,?,?)`).run(waveScene.id,voiceTag,voiceHash,
-   createHash('sha256').update(waveScene.text).digest('hex'),
-   repo.getVideo(videoId).configRevision,'piper','fixture',0,Date.now());
+ // MP4 proof has already imported real WAVs for every scene. Reuse those
+ // assets instead of creating a conflicting second voice intent.
+ if(!withRenderFixture){
+  const voiceHash=createHash('sha256').update('qa-b05-'+waveScene.id).digest('hex');
+  const voiceTag='qa-b05-'+waveScene.id;
+  await manifest.importFile({sceneId:waveScene.id,kind:'voice',source:'mock-tts',
+   inputPath:join(root,'spikes/EXT-03/assets/voice-01.wav'),
+   metadata:{queueJobId:voiceTag,inputHash:voiceHash,
+    textSha256:createHash('sha256').update(waveScene.text).digest('hex'),providerId:'piper'}});
+  repo.db.prepare(`INSERT INTO scene_voice_intents
+   (scene_id,job_id,input_hash,text_sha256,config_revision,provider_id,voice_id,rate,requested_at)
+   VALUES(?,?,?,?,?,?,?,?,?)`).run(waveScene.id,voiceTag,voiceHash,
+    createHash('sha256').update(waveScene.text).digest('hex'),
+    repo.getVideo(videoId).configRevision,'piper','fixture',0,Date.now());
+ }
  // Explicit refresh is necessary: the editor must not poll or invent audio.
  assert(await click('Xuất MP4','.production-flow-step'),'leave Timeline');
  await wait('.render-drawer-r312','QA_B05_RENDER_DRAWER');
