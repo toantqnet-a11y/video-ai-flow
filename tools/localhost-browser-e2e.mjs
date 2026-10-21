@@ -414,15 +414,22 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  assert(await until(()=>click('Redo','.timeline-r302-actions button'),'QA_REDO_CLICK'),'redo browser');
  await until(()=>timelineOrder().join('|')===movedOrder.join('|'),'QA_REDO_SQLITE');
  mark('qa_b04_browser_redo_sqlite');
- // Seek must update the timeline clock without starting playback automatically.
+ // QA-B06: seek relative to the *actual* playback clock. Undo/Redo may
+ // preserve a nonzero cursor; assuming 00:00 makes the browser test flaky.
+ const clockText=()=>ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.split(' / ')[0]`);
+ const parseClock=value=>{const m=/^(\\d+):(\\d+)\\.(\\d)$/.exec(value??'');
+  assert(m,'timeline clock must use mm:ss.t');return (+m[1]*60+(+m[2]))*1000+(+m[3])*100;};
+ const initialClock=parseClock(await clockText());
+ const totalClock=parseClock((await ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.split(' / ')[1]`)));
+ assert(totalClock>0,'fixture must have a nonzero timeline');
  assert(await click('5s ⏭','.timeline-r302-playbar button'),'seek forward');
- const expectedSeekMs=Math.min(5000,repo.listScenes(videoId).reduce((n,scene)=>n+scene.durationMs,0));
- const expectedSeekClock=String(Math.floor(expectedSeekMs/60000)).padStart(2,'0')+':'+String(Math.floor(expectedSeekMs/1000)%60).padStart(2,'0');
- await until(()=>ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.includes('${expectedSeekClock}')`),'QA_SEEK_5S');
- assert.equal(await ev(`document.querySelector('.timeline-r302 audio')?.paused`),true,'seeking without play must not start narration');
+ const expectedForward=Math.min(totalClock,initialClock+5000);
+ await until(async()=>Math.abs(parseClock(await clockText())-expectedForward)<150,'QA_SEEK_5S');
+ assert.equal(await ev(`document.querySelector('.timeline-r302 audio')?.paused`),true,
+  'seeking without play must not start narration');
  mark('qa_b06_browser_seek_preview_clock');
  assert(await click('⏮ 5s','.timeline-r302-playbar button'),'seek back');
- await until(()=>ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.includes('00:00')`),'QA_SEEK_ZERO');
+ await until(async()=>Math.abs(parseClock(await clockText())-Math.max(0,expectedForward-5000))<150,'QA_SEEK_BACK');
  assert(await ev(`Boolean(document.querySelector('.timeline-r302-view'))`),'preview stage present');
  mark('qa_b06_browser_seek_return_preview');
 
