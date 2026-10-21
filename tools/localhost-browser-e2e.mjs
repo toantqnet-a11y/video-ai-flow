@@ -416,7 +416,7 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  mark('qa_b04_browser_redo_sqlite');
  // QA-B06: read the actual cursor, since reordering may retain seek position.
  const clock=()=>ev(`document.querySelector('.timeline-r302-side strong')?.textContent`);
- const parseClock=value=>{const m=/^(\\d+):(\\d+)\\.(\\d)$/.exec(value??'');
+ const parseClock=value=>{const m=/^(\d+):(\d+)\.(\d)$/.exec(value??'');
   assert(m,'QA_B06_CLOCK_FORMAT');return (+m[1]*60+(+m[2]))*1000+(+m[3])*100;};
  const beforeClock=String(await clock()).split(' / ');
  const initial=parseClock(beforeClock[0]),total=parseClock(beforeClock[1]);
