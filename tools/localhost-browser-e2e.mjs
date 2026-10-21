@@ -460,6 +460,9 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  await wait('.render-drawer-r312','QA_B05_RENDER_DRAWER');
  assert(await until(()=>click('Timeline','.production-flow-step'),'QA_B05_REFRESH_TIMELINE'),'reopen Timeline');
  await wait('.timeline-r302','QA_B05_EDITOR');
+ lastStage='QA_B05_VOICE_PRESENT';
+ await until(()=>ev(`Boolean(document.querySelector('.timeline-r302-clip.lane-voice')?.textContent?.includes('Audio'))`),'QA_B05_VOICE_PRESENT');
+ lastStage='QA_B05_WAVEFORM_SVG';
  const wave=await until(()=>ev(`(()=>{
    const svg=document.querySelector('.timeline-r302-clip.lane-voice svg.timeline-r306-wave');
    const path=svg?.querySelector('path');
@@ -467,6 +470,7 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  })()`),'QA_B05_REAL_WAVEFORM',25000);
  assert(wave,'waveform path must be drawn from decoded voice');
  mark('qa_b05_real_wav_waveform_browser');
+ lastStage='QA_B05_NO_PAID_JOBS';
  assert.equal(store.countByStatus().total,withRenderFixture?2:0,
   'waveform must not dispatch render or AI jobs');
  mark('qa_b05_waveform_no_paid_jobs');
