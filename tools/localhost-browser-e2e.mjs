@@ -426,6 +426,41 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  assert(await ev(`Boolean(document.querySelector('.timeline-r302-view'))`),'preview stage present');
  mark('qa_b06_browser_seek_return_preview');
 
+ // QA-B05: use the persisted voice pointer, not merely the existence of
+ // an imported WAV revision. A full reload invalidates stale editor state.
+ lastStage='QA_B05_FIXTURE';
+ const first=repo.listScenes(videoId)[0];
+ if(!withRenderFixture){
+  const inputHash=createHash('sha256').update('qa-b05-'+first.id).digest('hex');
+  const textHash=createHash('sha256').update(first.text).digest('hex');
+  const jobId='qa-b05-'+first.id;
+  await manifest.importFile({sceneId:first.id,kind:'voice',source:'mock-tts',
+   inputPath:join(root,'spikes/EXT-03/assets/voice-01.wav'),
+   metadata:{queueJobId:jobId,inputHash,textSha256:textHash,providerId:'piper'}});
+  repo.db.prepare(`INSERT INTO scene_voice_intents
+   (scene_id,job_id,input_hash,text_sha256,config_revision,provider_id,voice_id,rate,requested_at)
+   VALUES(?,?,?,?,?,?,?,?,?)`).run(first.id,jobId,inputHash,textHash,
+    repo.getVideo(videoId).configRevision,'piper','fixture',0,Date.now());
+ }
+ assert(repo.listScenes(videoId).some(x=>x.voiceAssetId),'QA_B05_NO_SELECTED_VOICE');
+ // Reopen through a fresh browser document so the app fetches the persisted
+ // voice selection; stale React state must never masquerade as a waveform bug.
+ lastStage='QA_B05_RELOAD';
+ await cdp.call('Page.reload',{ignoreCache:true});
+ await wait('.production-flow-step','QA_B05_AFTER_RELOAD');
+ assert(await until(()=>click('Timeline','.production-flow-step'),'QA_B05_NAV'),'timeline nav');
+ await wait('.timeline-r302','QA_B05_EDITOR');
+ lastStage='QA_B05_VOICE_DOM';
+ await until(()=>ev(`Boolean(document.querySelector('.timeline-r302-clip.lane-voice')?.textContent?.includes('Audio'))`),'QA_B05_VOICE_DOM');
+ lastStage='QA_B05_WAVEFORM';
+ await until(()=>ev(`(()=>{
+  const p=document.querySelector('.timeline-r302-clip.lane-voice svg.timeline-r306-wave path');
+  return !!p?.getAttribute('d')?.startsWith('M')&&p.getAttribute('d').length>20;
+ })()`),'QA_B05_WAVEFORM',25000);
+ mark('qa_b05_real_waveform_chrome');
+ assert.equal(store.countByStatus().total,withRenderFixture?2:0,'waveform must not queue paid work');
+ mark('qa_b05_no_paid_jobs');
+ 
  // Browser test must not be promoted to AI/GPU or long-form proof.
  return {status:'PASS',browser:findChrome(),steps,sceneCount:repo.listScenes(videoId).length,
   finalRender:realRender??'BLOCKED_NO_MEDIA',aiInference:'NOT_EXECUTED',release:'NOT_READY'};
