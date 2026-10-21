@@ -415,6 +415,8 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  await until(()=>timelineOrder().join('|')===movedOrder.join('|'),'QA_REDO_SQLITE');
  mark('qa_b04_browser_redo_sqlite');
  // Seek must update the timeline clock without starting playback automatically.
+ assert(await click('⏮ 5s','.timeline-r302-playbar button'),'seek to zero first');
+ await until(()=>ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.includes('00:00')`),'QA_SEEK_INITIAL_ZERO');
  assert(await click('5s ⏭','.timeline-r302-playbar button'),'seek forward');
  const expectedSeekMs=Math.min(5000,repo.listScenes(videoId).reduce((n,scene)=>n+scene.durationMs,0));
  const expectedSeekClock=String(Math.floor(expectedSeekMs/60000)).padStart(2,'0')+':'+String(Math.floor(expectedSeekMs/1000)%60).padStart(2,'0');
@@ -430,9 +432,9 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  // waveform decoding/HTTP + DOM rendering. No synthesized waveform is accepted.
  const waveScene=repo.listScenes(videoId)[0];
  const waveBytes=await readFile(join(root,'spikes/EXT-03/assets/voice-01.wav'));
- const voiceHash=createHash('sha256').update(waveBytes).digest('hex');
+ const voiceHash=createHash('sha256').update('qa-b05-'+waveScene.id).digest('hex');
  const voiceTag='qa-b05-'+waveScene.id;
- const voice=await manifest.importFile({sceneId:waveScene.id,kind:'voice',source:'mock-tts',
+ await manifest.importFile({sceneId:waveScene.id,kind:'voice',source:'mock-tts',
   inputPath:join(root,'spikes/EXT-03/assets/voice-01.wav'),
   metadata:{queueJobId:voiceTag,inputHash:voiceHash,
    textSha256:createHash('sha256').update(waveScene.text).digest('hex'),providerId:'piper'}});
@@ -442,6 +444,8 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
    createHash('sha256').update(waveScene.text).digest('hex'),
    repo.getVideo(videoId).configRevision,'piper','fixture',0,Date.now());
  // Explicit refresh is necessary: the editor must not poll or invent audio.
+ assert(await click('Xuất MP4','.production-flow-step'),'leave Timeline');
+ await wait('.render-drawer-r312','QA_B05_RENDER_DRAWER');
  assert(await until(()=>click('Timeline','.production-flow-step'),'QA_B05_REFRESH_TIMELINE'),'reopen Timeline');
  await wait('.timeline-r302','QA_B05_EDITOR');
  const wave=await until(()=>ev(`(()=>{
