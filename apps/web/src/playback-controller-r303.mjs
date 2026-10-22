@@ -9,7 +9,11 @@ export class TimelinePlaybackR303{
   this.onUpdate=onUpdate;this.onError=onError;this.scenes=[];this.current=null;
   this.sequence=0;this.url=null;this.playing=false;this.positionMs=0;this.tailTimer=null;this.disposed=false;this.cancelMetadata=null;this.fetchAbort=null;
   this.audio.ontimeupdate=()=>{if(this.current&&!this.disposed){
-   this.positionMs=Math.min(this.current.endMs,this.current.startMs+Math.round(this.audio.currentTime*1000));this.notify();}};
+   this.positionMs=Math.min(this.current.endMs,this.current.startMs+Math.round(this.audio.currentTime*1000));
+   // Stop an overlong WAV at the scene boundary; never leak narration into
+   // the next scene or wait for a late native 'ended' event.
+   if(this.playing&&this.positionMs>=this.current.endMs){this.audio.pause();this.finishScene(this.sequence);}
+   else this.notify();}};
   this.audio.onended=()=>{if(this.playing)this.finishScene(this.sequence);else this.notify();};
  }
  notify(){if(!this.disposed)this.onUpdate({positionMs:this.positionMs,sceneId:this.current?.id??null,playing:this.playing});}
@@ -80,6 +84,8 @@ export class TimelinePlaybackR303{
  finishScene(seq){
   if(seq!==this.sequence||!this.current||this.disposed)return;
   const current=this.current;
+  // The scene clock owns the boundary, even when WAV metadata is longer.
+  this.audio.pause();
   const remainder=Math.max(0,current.endMs-(current.startMs+Math.round((this.audio.duration||0)*1000)));
   this.positionMs=current.endMs;this.notify();
   this.tailTimer=setTimeout(()=>{

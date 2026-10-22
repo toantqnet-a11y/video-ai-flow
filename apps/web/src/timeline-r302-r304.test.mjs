@@ -77,3 +77,31 @@ test('R3-03 missing voice does not fake playback',async()=>{
  assert.equal(await p.seek(0,{play:true}),false);assert.equal(a.playCount,0);
  assert.deepEqual(errors,['VOICE_PREVIEW_MISSING']);p.dispose();
 });
+
+test('P0 Audio Sync: overlong narration is stopped at scene boundary without overlap',async()=>{
+ const a=new FakeAudio(),events=[];
+ const p=new TimelinePlaybackR303({audio:a,loadVoice:async id=>({name:id}),
+  createUrl:b=>`blob:${b.name}`,revokeUrl:()=>{},onUpdate:x=>events.push(x)});
+ p.setScenes(make(2));
+ assert.equal(await p.seek(0,{play:true}),true);
+ const paused=a.pauseCount;
+ a.currentTime=2.15;
+ a.ontimeupdate();
+ assert.ok(a.pauseCount>paused,'voice must be paused before scene transition');
+ assert.equal(events.at(-1).positionMs,2100);
+ await new Promise(resolve=>setTimeout(resolve,150));
+ assert.equal(a.src,'blob:s1','next scene must own the only audio element');
+ assert.equal(a.playCount,2);
+ p.dispose();
+});
+test('P0 Audio Sync: pause cancels a scheduled next-scene transition',async()=>{
+ const a=new FakeAudio();
+ const p=new TimelinePlaybackR303({audio:a,loadVoice:async id=>({name:id}),
+  createUrl:b=>`blob:${b.name}`,revokeUrl:()=>{}});
+ p.setScenes(make(2));
+ assert.equal(await p.seek(0,{play:true}),true);
+ a.duration=1.9;a.onended();p.pause();
+ await new Promise(resolve=>setTimeout(resolve,250));
+ assert.equal(a.playCount,1,'paused timeline must not start the next voice');
+ p.dispose();
+});

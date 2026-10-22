@@ -414,18 +414,62 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  assert(await until(()=>click('Redo','.timeline-r302-actions button'),'QA_REDO_CLICK'),'redo browser');
  await until(()=>timelineOrder().join('|')===movedOrder.join('|'),'QA_REDO_SQLITE');
  mark('qa_b04_browser_redo_sqlite');
- // Seek must update the timeline clock without starting playback automatically.
+ // QA-B06: read the actual cursor, since reordering may retain seek position.
+ const clock=()=>ev(`document.querySelector('.timeline-r302-side strong')?.textContent`);
+ const parseClock=value=>{const m=/^(\d+):(\d+)\.(\d)$/.exec(value??'');
+  assert(m,'QA_B06_CLOCK_FORMAT');return (+m[1]*60+(+m[2]))*1000+(+m[3])*100;};
+ const beforeClock=String(await clock()).split(' / ');
+ const initial=parseClock(beforeClock[0]),total=parseClock(beforeClock[1]);
+ assert(total>0,'QA_B06_TOTAL');
  assert(await click('5s ⏭','.timeline-r302-playbar button'),'seek forward');
- const expectedSeekMs=Math.min(5000,repo.listScenes(videoId).reduce((n,scene)=>n+scene.durationMs,0));
- const expectedSeekClock=String(Math.floor(expectedSeekMs/60000)).padStart(2,'0')+':'+String(Math.floor(expectedSeekMs/1000)%60).padStart(2,'0');
- await until(()=>ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.includes('${expectedSeekClock}')`),'QA_SEEK_5S');
- assert.equal(await ev(`document.querySelector('.timeline-r302 audio')?.paused`),true,'seeking without play must not start narration');
+ const forward=Math.min(total,initial+5000);
+ await until(async()=>Math.abs(parseClock(String(await clock()).split(' / ')[0])-forward)<150,'QA_SEEK_5S');
+ assert.equal(await ev(`document.querySelector('.timeline-r302 audio')?.paused`),true,'QA_B06_SEEK_STARTED_PLAYBACK');
  mark('qa_b06_browser_seek_preview_clock');
- assert(await click('⏮ 5s','.timeline-r302-playbar button'),'seek back');
- await until(()=>ev(`document.querySelector('.timeline-r302-side strong')?.textContent?.includes('00:00')`),'QA_SEEK_ZERO');
- assert(await ev(`Boolean(document.querySelector('.timeline-r302-view'))`),'preview stage present');
+ assert(await click('⏮ 5s','.timeline-r302-playbar button'),'QA_B06_SEEK_BACK_CLICK');
+ await until(async()=>Math.abs(parseClock(String(await clock()).split(' / ')[0])-Math.max(0,forward-5000))<150,'QA_SEEK_BACK');
+ assert(await ev(`Boolean(document.querySelector('.timeline-r302-view'))`),'QA_B06_PREVIEW_MISSING');
  mark('qa_b06_browser_seek_return_preview');
 
+ // QA-B05: use the persisted voice pointer, not merely the existence of
+ // an imported WAV revision. A full reload invalidates stale editor state.
+ lastStage='QA_B05_FIXTURE';
+ // The editor virtualizes clips. Import voice for the scene actually selected
+ // in the browser, rather than a potentially offscreen SQLite-first scene.
+ const selectedSceneId=await ev(`document.querySelector('.timeline-r302-move select')?.value`);
+ const first=repo.listScenes(videoId).find(x=>x.id===selectedSceneId);
+ assert(first,'QA_B05_SELECTED_SCENE_MISSING');
+ if(!withRenderFixture){
+  const inputHash=createHash('sha256').update('qa-b05-'+first.id).digest('hex');
+  const textHash=createHash('sha256').update(first.text).digest('hex');
+  const jobId='qa-b05-'+first.id;
+  await manifest.importFile({sceneId:first.id,kind:'voice',source:'mock-tts',
+   inputPath:join(root,'spikes/EXT-03/assets/voice-01.wav'),
+   metadata:{queueJobId:jobId,inputHash,textSha256:textHash,providerId:'piper'}});
+  repo.db.prepare(`INSERT INTO scene_voice_intents
+   (scene_id,job_id,input_hash,text_sha256,config_revision,provider_id,voice_id,rate,requested_at)
+   VALUES(?,?,?,?,?,?,?,?,?)`).run(first.id,jobId,inputHash,textHash,
+    repo.getVideo(videoId).configRevision,'piper','fixture',0,Date.now());
+ }
+ assert(repo.listScenes(videoId).some(x=>x.voiceAssetId),'QA_B05_NO_SELECTED_VOICE');
+ // Re-enter the editor using supported app navigation; hard reload drops
+ // the in-memory pairing session and incorrectly tests authentication instead.
+ lastStage='QA_B05_REOPEN';
+ assert(await click('Xuất MP4','.production-flow-step'),'leave Timeline');
+ await wait('.render-drawer-r312','QA_B05_RENDER_DRAWER');
+ assert(await until(()=>click('Timeline','.production-flow-step'),'QA_B05_NAV'),'reopen Timeline');
+ await wait('.timeline-r302','QA_B05_EDITOR');
+ lastStage='QA_B05_VOICE_DOM';
+ await until(()=>ev(`Boolean(document.querySelector('.timeline-r302-clip.lane-voice')?.textContent?.includes('Audio'))`),'QA_B05_VOICE_DOM');
+ lastStage='QA_B05_WAVEFORM';
+ await until(()=>ev(`(()=>{
+  const p=document.querySelector('.timeline-r302-clip.lane-voice svg.timeline-r306-wave path');
+  return !!p?.getAttribute('d')?.startsWith('M')&&p.getAttribute('d').length>20;
+ })()`),'QA_B05_WAVEFORM',25000);
+ mark('qa_b05_real_waveform_chrome');
+ assert.equal(store.countByStatus().total,withRenderFixture?2:0,'waveform must not queue paid work');
+ mark('qa_b05_no_paid_jobs');
+ 
  // Browser test must not be promoted to AI/GPU or long-form proof.
  return {status:'PASS',browser:findChrome(),steps,sceneCount:repo.listScenes(videoId).length,
   finalRender:realRender??'BLOCKED_NO_MEDIA',aiInference:'NOT_EXECUTED',release:'NOT_READY'};
