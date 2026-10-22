@@ -434,7 +434,11 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  // QA-B05: use the persisted voice pointer, not merely the existence of
  // an imported WAV revision. A full reload invalidates stale editor state.
  lastStage='QA_B05_FIXTURE';
- const first=repo.listScenes(videoId)[0];
+ // The editor virtualizes clips. Import voice for the scene actually selected
+ // in the browser, rather than a potentially offscreen SQLite-first scene.
+ const selectedSceneId=await ev(`document.querySelector('.timeline-r302-move select')?.value`);
+ const first=repo.listScenes(videoId).find(x=>x.id===selectedSceneId);
+ assert(first,'QA_B05_SELECTED_SCENE_MISSING');
  if(!withRenderFixture){
   const inputHash=createHash('sha256').update('qa-b05-'+first.id).digest('hex');
   const textHash=createHash('sha256').update(first.text).digest('hex');
