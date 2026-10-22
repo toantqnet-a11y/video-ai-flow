@@ -424,11 +424,11 @@ async function runBrowser(cdp,code,repo,store,security,manifest,withRenderFixtur
  assert(await click('5s ⏭','.timeline-r302-playbar button'),'seek forward');
  const forward=Math.min(total,initial+5000);
  await until(async()=>Math.abs(parseClock(String(await clock()).split(' / ')[0])-forward)<150,'QA_SEEK_5S');
- assert.equal(await ev(`document.querySelector('.timeline-r302 audio')?.paused`),true,'seek must not start playback');
+ assert.equal(await ev(`document.querySelector('.timeline-r302 audio')?.paused`),true,'QA_B06_SEEK_STARTED_PLAYBACK');
  mark('qa_b06_browser_seek_preview_clock');
- assert(await click('⏮ 5s','.timeline-r302-playbar button'),'seek back');
+ assert(await click('⏮ 5s','.timeline-r302-playbar button'),'QA_B06_SEEK_BACK_CLICK');
  await until(async()=>Math.abs(parseClock(String(await clock()).split(' / ')[0])-Math.max(0,forward-5000))<150,'QA_SEEK_BACK');
- assert(await ev(`Boolean(document.querySelector('.timeline-r302-view'))`),'preview stage present');
+ assert(await ev(`Boolean(document.querySelector('.timeline-r302-view'))`),'QA_B06_PREVIEW_MISSING');
  mark('qa_b06_browser_seek_return_preview');
 
  // QA-B05: use the persisted voice pointer, not merely the existence of
