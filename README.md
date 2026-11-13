@@ -458,3 +458,7 @@ See `docs/FI03_IMPLEMENTATION_AND_LIMITS.md`. Windows staged setup: `tools/FI03-
 
 ### FI-04-04 — genuine HyperFrames acceptance (operator-only)
 The local primary renderer remains **HyperFrames 0.8.159**. After Windows lock review, `npm ci` and the FI04 setup, run `npm run acceptance:fi0404:inspect`, then explicitly `tools/FI04-Hyperframes-Acceptance.ps1 -Run`. Real queue + 5 scenes + 10 Vietnamese subtitle cues + selected local music + MP4 H264/AAC QA are required; automatic FFmpeg substitutes do not pass. See `docs/FI0404_CONTRACT.md` and `docs/FI0404_HANDOFF.md`. This cannot certify 35-minute video or Windows UI by itself.
+
+## AI agent continuation and repository status
+
+Before making code changes, read [docs/AI_AGENT_HANDOFF.md](docs/AI_AGENT_HANDOFF.md). It records the localhost browser-app product decisions, architecture map, setup/test commands, current P0 blockers and durable handoff protocol. The branch-by-branch Git audit is in [docs/BRANCH_CONSOLIDATION_2026-11-13.md](docs/BRANCH_CONSOLIDATION_2026-11-13.md). Current UAT R1 status is **NOT READY**; see [Issue #25](https://github.com/toantqnet-a11y/video-ai-flow/issues/25) for the next Browser E2E/QA-B05/Audio Sync work.
