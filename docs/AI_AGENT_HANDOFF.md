@@ -52,8 +52,8 @@ Check `package.json` before assuming any command or script exists on a later com
 - PR #23 is closed and was not merged; it overlaps the newer PR #24. Do not reopen or merge it blindly. Inspect its diff for unique changes only if a task requires it.
 - PR #22 and PRs #1–#21 are closed; the recorded PR listing shows them merged except #17 and #23.
 - Issue #25 remains open: **Codex handoff — finish P0 Browser E2E QA-B06/QA-B05 and UAT R1**.
-- Many feature branches remain in the repository. Their existence does **not** mean their changes are in `main`. Do not merge every branch mechanically. Compare each branch against `main`, identify unique intended changes, run tests, and integrate via focused PRs.
-- GitHub repository metadata showed `main` as default branch and latest push on 2026-10-22. This handoff commit/PR is documentation-only.
+- Branch inventory and PR status were audited on 2026-11-13; see [docs/BRANCH_CONSOLIDATION_2026-11-13.md](BRANCH_CONSOLIDATION_2026-11-13.md). All feature PRs #1–#16, #18–#22 and #24 are merged. PR #17 and PR #23 are closed and explicitly superseded by #18 and #24 respectively. Their remaining branches must not be merged blindly.
+- GitHub compare reports historical branches as diverged because the project used squash merges; ahead counts are not evidence that changes are missing from main. No unmerged feature-code branch requiring speculative integration was identified. This pass is documentation-only; the next code work is Issue #25.
 
 ## 4. CI and QA — do not overstate readiness
 
@@ -135,3 +135,8 @@ Append to `docs/WORKLOG.md` after meaningful work, and update this handoff's cur
 5. Update `docs/WORKLOG.md`, task status and this handoff; open a focused implementation PR.
 
 **Do not claim that the entire backlog is complete, all branches are merged, UAT is ready, or all CI is green without fresh evidence.**
+
+
+## 10. Branch audit checkpoint — 2026-11-13
+
+The complete 25-ref inventory, PR mapping, squash-merge caveat and supersession decisions are recorded in docs/BRANCH_CONSOLIDATION_2026-11-13.md. All intended feature code from merged PRs is already on main; PR #17/#23 are superseded, not pending merge candidates. No app code was changed in this consolidation pass. Continue with Issue #25 P0 Browser E2E repair; keep UAT NOT_READY.
