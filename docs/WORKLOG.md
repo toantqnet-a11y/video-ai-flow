@@ -1060,3 +1060,15 @@ Windows chuẩn: chạy `tools/FI04-Windows-Setup.ps1 -ResolveLock`, kiểm duy�
 - Acceptance boundaries in `docs/LOCALHOST_RENDER_RECOVERY_HANDOFF.md`. Distinguish process/lease recovery from per-scene partial encode resume and 35–40-minute production capacity. Product release remains NOT_READY.
 
 - **Verified:** Ubuntu Actions run `39397083538` PASS; real OS SIGKILL and lease recovery, 2 attempts, 5 scenes / 429 frames / 14.3s / 861,481 bytes, H.264/AAC, SHA256 `ae269cb7bdd91c0b62cf20df92422e1c4d81253863419847a7a020c68a06a5ff`; total 51,631 ms, no paid/provider calls. First CI setup run `39396941010` failed because `--inspect --strict` intentionally rejects prerequisite-only evidence; CI corrected to use read-only inspect before strict real recovery. Release NOT_READY.
+
+## 2026-11-13 — Git branch audit and AI-agent handoff consolidation
+
+**Base:** main @ a714f0354693a46112356050a63d43768d064e56 | **Branch:** docs/ai-agent-handoff-2026-11-13 | **Release/UAT:** NOT_READY.
+
+- Audited all 25 refs returned by GitHub (including main and the current documentation branch), mapped feature branches to PRs #1–#24, and checked PR merge/supersession records.
+- PRs #1–#16, #18–#22 and #24 are merged. PR #17 is closed/superseded by clean OS-neutral PR #18. PR #23 is closed/superseded by merged P0 PR #24. PR #26 is the open documentation handoff PR.
+- GitHub compare results show old squash-merged feature branches as diverged/ahead because original commit ancestry is not retained by squash merge. This is not proof of missing code. No unmerged feature-code branch requiring speculative merge/cherry-pick was identified; no app source was changed.
+- Added docs/AI_AGENT_HANDOFF.md and docs/BRANCH_CONSOLIDATION_2026-11-13.md. Kept historical Windows-specific artifacts for traceability, but current acceptance remains localhost browser-first and OS-neutral.
+- Validation performed: GitHub branch inventory, PR state/mapping, compare metadata, Issue #25 and workflow run metadata. No repository clone, npm install, local test run, browser E2E or fresh MP4 export was performed in this documentation-only pass.
+- **Known blocker:** Issue #25 remains open. Last known PR #24 workflows: ContentStudio CI PASS, HyperFrames MP4 Proof PASS, R2VID diagnostics PASS, Localhost Browser E2E FAIL. UAT R1 remains NOT_READY.
+- **Next:** (1) reproduce/fix QA-B06 Browser E2E failure; (2) complete QA-B05 real WAV waveform + Audio Sync browser assertions; (3) run all four workflows on one SHA and record evidence.
